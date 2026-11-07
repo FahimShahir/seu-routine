@@ -1,0 +1,13 @@
+# Dependencies & Build artifacts
+.gemini-agent/
+__pycache__/
+*.pyc
+
+# Local UMS HTML Dumps & sensitive logs
+UMS - Southeast University*.html
+*.log
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store
