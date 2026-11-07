@@ -1653,7 +1653,48 @@
         color: #475569;
       }
     }
-  </style>
+  
+    .bm-tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .bm-tab-btn:hover {
+      color: var(--text-main);
+    }
+    .bm-tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 800;
+    }
+    .mobile-step-box {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      margin-bottom: 0.65rem;
+    }
+    .mobile-step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-right: 0.45rem;
+    }
+</style>
 </head>
 <body>
 
@@ -1678,7 +1719,7 @@
           </select>
         </div>
         <button class="btn btn-outline" id="btnNewSemester" onclick="openNewSemesterModal()" style="display:none;">➕ New Semester</button>
-        <button class="btn btn-safe" id="btnBookmarkletModal" onclick="openModal('modalBookmarklet')">📌 1-Click Bookmarklet</button>
+        <button class="btn btn-safe" id="btnBookmarkletModal" onclick="openBookmarkletModal()">📌 1-Click Bookmarklet</button>
         <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">✨ Import UMS</button>
         <button class="btn btn-outline" id="btnAddSlot" onclick="openAddSlotModal()" style="display:none;">📅 Add Slot</button>
         <button class="btn btn-outline" id="btnProfileModal" onclick="openModal('modalProfile')" style="display:none;">👤 Profile</button>
@@ -1709,17 +1750,23 @@
         <div class="onboard-card">
           <div>
             <div class="onboard-card-icon">⚡</div>
-            <h3>1-Click UMS Sync</h3>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;">
+              <h3 style="margin:0;">1-Click UMS Sync</h3>
+              <span style="font-size:0.7rem; background:rgba(59,130,246,0.15); color:var(--primary); font-weight:700; padding:2px 8px; border-radius:12px;">💻 PC / Laptop</span>
+            </div>
             <p>Drag our safe bookmarklet to your bookmarks bar, open UMS, and click it. Instantly syncs your registered courses, rooms, and faculty photos!</p>
           </div>
-          <button class="btn btn-safe" onclick="openModal('modalBookmarklet')">📌 Get 1-Click Bookmarklet</button>
+          <button class="btn btn-safe" onclick="openBookmarkletModal()">📌 1-Click Bookmarklet</button>
         </div>
 
-        <div class="onboard-card">
+        <div class="onboard-card" style="border: 2px solid var(--accent-green);">
           <div>
             <div class="onboard-card-icon">📋</div>
-            <h3>Paste UMS Text</h3>
-            <p>Simply copy the course list from your logged-in UMS dashboard and paste it here. Detects codes, times, rooms, and faculty automatically.</p>
+            <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem; flex-wrap:wrap;">
+              <h3 style="margin:0;">Paste UMS Text</h3>
+              <span style="font-size:0.7rem; background:rgba(16,185,129,0.18); color:var(--accent-green); font-weight:800; padding:2px 8px; border-radius:12px;">⭐ মোবাইলের জন্য সবচেয়ে সহজ</span>
+            </div>
+            <p>মোবাইলে UMS থেকে লেখা কপি করে এখানে ১-ট্যাপে পেস্ট করুন। মাত্র ১০ সেকেন্ডে নাম, আইডি, ব্যাচ ও শিক্ষকদের ছবিসহ সম্পূর্ণ রুটিন তৈরি হবে!</p>
           </div>
           <button class="btn btn-magic" onclick="openModal('modalUmsImport')">✨ Paste Registered Courses</button>
         </div>
@@ -1986,59 +2033,167 @@
   <!-- ========================================================
        MODAL 0: 1-Click Bookmarklet Modal
        ======================================================== -->
-  <div class="modal-backdrop" id="modalBookmarklet">
-    <div class="modal-card">
+    <div class="modal-backdrop" id="modalBookmarklet">
+    <div class="modal-card" style="max-width: 580px;">
       <div class="modal-header">
-        <h3>📌 1-Click Safe UMS Sync Bookmarklet</h3>
+        <div>
+          <h3 style="margin-bottom:0.2rem;">📌 1-Click Safe UMS Sync Bookmarklet</h3>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Select your device below for exact instructions:</span>
+        </div>
         <button class="modal-close" onclick="closeModal('modalBookmarklet')">×</button>
       </div>
+
       <div class="modal-body">
-        <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
-          <p style="font-weight:700; margin-bottom:0.5rem; color:var(--accent-green);">
-            🛡️ 100% Zero Risk of UMS Account Lockout
-          </p>
-          <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
-            This tool <strong>never asks for your password</strong> and <strong>sends zero requests to the SEU server</strong>. It simply reads already-rendered courses and faculty photos directly from your own open browser tab!
-          </p>
+        <!-- OS Tabs -->
+        <div class="bookmarklet-tabs" style="display:flex; border-bottom:1px solid var(--border-color); gap:0.25rem; margin-bottom:1rem; overflow-x:auto;">
+          <button type="button" class="bm-tab-btn active" id="tabBtnPc" onclick="switchBookmarkletTab('pc')">
+            💻 PC / Laptop
+          </button>
+          <button type="button" class="bm-tab-btn" id="tabBtnAndroid" onclick="switchBookmarkletTab('android')">
+            🤖 Android (Chrome)
+          </button>
+          <button type="button" class="bm-tab-btn" id="tabBtnIos" onclick="switchBookmarkletTab('ios')">
+            🍎 iPhone (Safari)
+          </button>
+          <button type="button" class="bm-tab-btn" id="tabBtnMobileEasy" onclick="switchBookmarkletTab('mobileEasy')" style="color:var(--accent-green); font-weight:800;">
+            ⭐ সহজ উপায় (No Bookmark)
+          </button>
         </div>
 
-                <div>
-          <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:0.5rem;">
-            Step 1: Drag this button to your Bookmarks Bar (or click Copy Code):
-          </label>
-          <div style="text-align:center; padding:1.25rem 1rem; background:var(--bg-muted); border-radius:var(--radius-sm); border:1px dashed var(--border-color);">
+        <!-- TAB 1: PC / Laptop -->
+        <div id="tabContentPc" class="bm-tab-content">
+          <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem; margin-bottom:1rem;">
+            <p style="font-weight:700; margin-bottom:0.3rem; color:var(--accent-green); font-size:0.85rem;">
+              🛡️ 100% Zero Risk of UMS Account Lockout
+            </p>
+            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin:0;">
+              This tool <strong>never asks for your password</strong> and <strong>sends zero requests to the SEU server</strong>. It simply reads already-rendered courses and faculty photos directly from your own open browser tab!
+            </p>
+          </div>
+
+          <div style="text-align:center; padding:1.25rem 1rem; background:var(--bg-muted); border-radius:var(--radius-sm); border:1px dashed var(--border-color); margin-bottom:1rem;">
             <div style="display:flex; justify-content:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.75rem;">
-              <a href="javascript:(function () { if (!window.location.hostname.includes('seu.edu.bd')) { alert('⚠️ Please open https://ums.seu.edu.bd/dashboard first, log in, and then click this bookmark!'); return; } function getElementBase64(imgEl) { try { if (!imgEl) return ''; if (imgEl.src && imgEl.src.startsWith('data:image/jpeg;base64') && imgEl.src.length > 200) { return imgEl.src; } const canvas = document.createElement('canvas'); const maxDim = 160; let w = imgEl.naturalWidth || imgEl.width || 120; let h = imgEl.naturalHeight || imgEl.height || 120; if (w > maxDim || h > maxDim) { if (w >= h) { h = Math.round((h * maxDim) / w); w = maxDim; } else { w = Math.round((w * maxDim) / h); h = maxDim; } } canvas.width = Math.max(w, 40); canvas.height = Math.max(h, 40); const ctx = canvas.getContext('2d'); ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height); return canvas.toDataURL('image/jpeg', 0.82); } catch (e) { return (imgEl && imgEl.src && imgEl.src.startsWith('data:image')) ? imgEl.src : ''; } } function findFacultyAvatar(initials, name, courseCode) { try { const allCards = Array.from(document.querySelectorAll('div, tr, mat-card, .card, [class*="card"]')); const container = allCards.find(el => { const txt = el.innerText || ''; return (txt.includes(courseCode) || (initials && txt.includes('[' + initials + ']'))) && el.querySelector('img'); }); if (container) { const img = container.querySelector('img'); if (img) { const b64 = getElementBase64(img); if (b64) return b64; if (img.src && (img.src.startsWith('data:image') || img.src.startsWith('http'))) return img.src; } } } catch (e) {} return ''; } function extractStudentAvatar() { const selectors = [ 'img.w-24.h-24.rounded-full', 'img[class*="rounded-full"][class*="w-24"]', 'img[class*="rounded-full"][class*="border-primary"]', 'img.w-20.h-20.rounded-full', 'img.w-7.h-7.rounded-full', 'img[src*="student"]', 'img[src*="profile"]', 'img[alt*="student"]', 'img[alt*="Card cover image"]' ]; for (const sel of selectors) { const el = document.querySelector(sel); if (el) { const b64 = getElementBase64(el); if (b64 && b64.length > 100) return b64; } } const allImgs = Array.from(document.querySelectorAll('img')); for (const img of allImgs) { const isLogo = (img.className || '').includes('hidden') || (img.alt || '').toLowerCase().includes('logo'); if (isLogo) continue; if (img.classList.contains('rounded-full') || (img.className || '').includes('w-24') || (img.className || '').includes('w-20') || (img.className || '').includes('w-7')) { const b64 = getElementBase64(img); if (b64 && b64.length > 100) return b64; } } return ''; } const bodyText = document.body.innerText || ''; const allDivs = Array.from(document.querySelectorAll('div, td, th, span')); let studentName = ''; const nameEl = document.querySelector('.text-xl.font-semibold, h1.font-semibold, h2.font-semibold'); if (nameEl && nameEl.innerText && !nameEl.innerText.toLowerCase().includes('adviser') && !nameEl.innerText.toLowerCase().includes('faculty') && !nameEl.innerText.toLowerCase().includes('dashboard')) { studentName = nameEl.innerText.trim(); } if (!studentName) { const batchIdx = bodyText.indexOf('Batch:'); if (batchIdx !== -1) { const pre = bodyText.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n'); const cand = pre[pre.length - 1].trim(); if (cand && cand.length > 2 && !cand.toLowerCase().includes('dashboard')) { studentName = cand; } } } if (!studentName) { const nameMatch = bodyText.match(/Welcome back\s*!?,?\s*([^\n!]+)/i) || bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i); if (nameMatch) studentName = nameMatch[1].trim(); } let batch = '42'; const batchMatch = bodyText.match(/Batch\s*[:\s]*(\d+)/i); if (batchMatch) batch = batchMatch[1].trim(); let studentId = ''; const idLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'ID'); if (idLabel && idLabel.nextElementSibling) { const val = (idLabel.nextElementSibling.innerText || '').match(/\d{10,}/); if (val) studentId = val[0]; } if (!studentId) { const idMatch = bodyText.match(/(?:^|\n)\s*ID\s*[\n:\s]+(\d{10,})/i) || bodyText.match(/(\d{16})/); if (idMatch) studentId = idMatch[1].trim(); } let studentCode = ''; const codeLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'CODE'); if (codeLabel && codeLabel.nextElementSibling) { const val = (codeLabel.nextElementSibling.innerText || '').match(/\d{10,}/); if (val) studentCode = val[0]; } if (!studentCode) { const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i); if (codeMatch) studentCode = codeMatch[1].trim(); } let program = 'BSc in EEE'; const progLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'PROGRAM'); if (progLabel && progLabel.nextElementSibling) { const val = progLabel.nextElementSibling.innerText.trim(); if (val) program = val; } if (!program || program === 'BSc in EEE') { const progMatch = bodyText.match(/(?:^|\n)\s*Program\s*[\n:\s]+([^\n]+)/i); if (progMatch) program = progMatch[1].trim(); } if (!program) { const degMatch = bodyText.match(/(BSc\s+in\s+[A-Za-z\s]+|BBA|BA\s+in\s+[A-Za-z\s]+|LLB|MBA|MSc\s+in\s+[A-Za-z\s]+)/i); if (degMatch) program = degMatch[1].trim(); } let advisorName = ''; const advLabel = allDivs.find(el => el.children.length === 0 && (el.innerText.trim().toUpperCase() === 'ADVISER' || el.innerText.trim().toUpperCase() === 'ADVISOR')); if (advLabel) { const advCard = advLabel.closest('.filter-info, [class*="card"], div.rounded-2xl') || (advLabel.parentElement ? advLabel.parentElement.parentElement : null); if (advCard) { const advNameEl = advCard.querySelector('.text-xl, .text-2xl, h2, h3, .font-semibold'); if (advNameEl && !advNameEl.innerText.toLowerCase().includes('adviser') && !advNameEl.innerText.toLowerCase().includes('faculty')) { advisorName = advNameEl.innerText.trim(); } } } if (!advisorName) { const advMatch = bodyText.match(/Adviser[\s\S]*?Faculty[\s\S]*?([Dr\.]*[A-Za-z\s\.]+)\n/i) || bodyText.match(/(?:Advisor|Adviser)\s*[:\s]*([^\n]+)/i); if (advMatch) advisorName = advMatch[1].trim(); } const studentAvatar = extractStudentAvatar(); const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0); const courses = []; const courseRegex = /^[ \t]*([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)[ \t]*$/i; let curCourse = null; for (let i = 0; i < lines.length; i++) { const line = lines[i]; const match = line.match(courseRegex); if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC')) { if (curCourse) { courses.push(curCourse); } const rawCode = match[1].replace(/\s+/g, '').toUpperCase(); const parts = rawCode.split('.'); const code = parts[0]; const sec = parts[1] || '1'; curCourse = { codeWithSec: rawCode, code: code, section: sec, title: '', credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0, type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory', faculty: { initials: '', name: '', email: '', avatar: '' }, schedules: [] }; continue; } if (!curCourse) continue; const facMatch = line.match(/\[([A-Z]+)\]\s*([^@\n]+)/i); if (facMatch) { curCourse.faculty.initials = facMatch[1].toUpperCase(); curCourse.faculty.name = facMatch[2].trim(); continue; } const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i); if (emailMatch) { curCourse.faculty.email = emailMatch[1].trim(); continue; } const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i); if (schedMatch) { curCourse.schedules.push({ day: schedMatch[1].toUpperCase(), startTime: schedMatch[2], endTime: schedMatch[3], room: (schedMatch[4] || 'TBA').toUpperCase(), campus: 'Permanent Campus (PC)' }); continue; } if (!curCourse.title && !line.includes('@') && !line.includes('#') && !line.startsWith('[')) { curCourse.title = line; } } if (curCourse) { courses.push(curCourse); } courses.forEach(c => { c.faculty.avatar = findFacultyAvatar(c.faculty.initials, c.faculty.name, c.codeWithSec); }); if (courses.length === 0) { alert('⚠️ Could not find registered courses on this screen.\n\nPlease click on "Registered Courses" or "Student Dashboard" on UMS first, then click this bookmark again!'); return; } const syncPayload = { student: { name: studentName || 'Student Name', studentId: studentId || '', code: studentCode || '', program: program || 'BSc in EEE', batch: batch || '42', advisor: { name: advisorName || '' }, avatar: studentAvatar }, activeSemester: 'Fall 2026', courses: courses }; const payloadEncoded = encodeURIComponent(JSON.stringify(syncPayload)); const publicUrl = window.location.origin.includes('localhost') ? 'http://localhost:8080/index.html' : (window.location.protocol === 'file:' ? 'file:///D:/rutine/index.html' : 'https://fahimshahir.github.io/seu-routine/'); const syncFullUrl = publicUrl + '#sync=' + payloadEncoded; const banner = document.createElement('div'); banner.style.cssText = ` position: fixed; top: 20px; right: 20px; z-index: 9999999; background: #0f172a; color: #ffffff; padding: 16px 22px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid #10b981; font-family: system-ui, -apple-system, sans-serif; max-width: 440px; `; banner.innerHTML = ` <div style="font-weight:800; font-size:16px; color:#10b981; margin-bottom:6px;"> ✅ SEU Routine & Profile Extracted! </div> <div style="font-size:13px; color:#cbd5e1; margin-bottom:12px; line-height:1.5;"> Found <strong>${courses.length} courses</strong> &amp; profile data for <strong>${studentName || 'Student'}</strong> (Batch: ${batch || '—'}, ID: ${studentId || '—'}). </div> <div style="display:flex; flex-wrap:wrap; gap:8px;"> <button id="btnOpenRoutineApp" style="background:#2563eb; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; font-size:13px;"> 🚀 Open Routine App </button> <button id="btnCopySyncLink" style="background:#0284c7; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;"> 📋 Copy Link </button> <button id="btnDownloadJson" style="background:#334155; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;"> 💾 Save JSON </button> <button onclick="this.parentElement.parentElement.remove()" style="background:transparent; color:#94a3b8; border:none; padding:8px; cursor:pointer; font-size:13px;"> ✕ </button> </div> `; document.body.appendChild(banner); document.getElementById('btnOpenRoutineApp').onclick = function () { window.open(syncFullUrl, '_blank'); banner.remove(); }; document.getElementById('btnCopySyncLink').onclick = function () { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(syncFullUrl).then(() => { alert('📋 Sync link copied! Open the Routine App or paste into your browser.'); }).catch(() => { prompt('Copy your Sync Link below:', syncFullUrl); }); } else { prompt('Copy your Sync Link below:', syncFullUrl); } }; document.getElementById('btnDownloadJson').onclick = function () { const blob = new Blob([JSON.stringify(syncPayload, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `SEU_Routine_${(studentName || 'Student').replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); banner.remove(); }; })();" class="btn btn-safe" id="btnBookmarkletAnchor" style="font-size:0.95rem; padding:0.65rem 1.25rem;" onclick="copyBookmarkletCode(event)">
+              <a href="javascript:/** * SEU Class Routine - 1-Click Safe Bookmarklet Sync * ---------------------------------------------------- * Runs safely inside student logged-in session on: * https://ums.seu.edu.bd/dashboard * * Safety Guarantee: * - 0 network requests to UMS server. * - 0 credential requests. * - 100% Client-side DOM reading of rendered courses, student profile & photos. * - 0% risk of account lockout. */ (function () { if (!window.location.hostname.includes('seu.edu.bd')) { alert('⚠️ Please open https://ums.seu.edu.bd/dashboard first, log in, and then click this bookmark!'); return; } function getElementBase64(imgEl) { try { if (!imgEl) return ''; if (imgEl.src && imgEl.src.startsWith('data:image/jpeg;base64') && imgEl.src.length > 200) { return imgEl.src; } const canvas = document.createElement('canvas'); const maxDim = 160; let w = imgEl.naturalWidth || imgEl.width || 120; let h = imgEl.naturalHeight || imgEl.height || 120; if (w > maxDim || h > maxDim) { if (w >= h) { h = Math.round((h * maxDim) / w); w = maxDim; } else { w = Math.round((w * maxDim) / h); h = maxDim; } } canvas.width = Math.max(w, 40); canvas.height = Math.max(h, 40); const ctx = canvas.getContext('2d'); ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height); return canvas.toDataURL('image/jpeg', 0.82); } catch (e) { return (imgEl && imgEl.src && imgEl.src.startsWith('data:image')) ? imgEl.src : ''; } } function findFacultyAvatar(initials, name, courseCode) { try { const allCards = Array.from(document.querySelectorAll('div, tr, mat-card, .card, [class*=&quot;card&quot;]')); const container = allCards.find(el => { const txt = el.innerText || ''; return (txt.includes(courseCode) || (initials && txt.includes('[' + initials + ']'))) && el.querySelector('img'); }); if (container) { const img = container.querySelector('img'); if (img) { const b64 = getElementBase64(img); if (b64) return b64; if (img.src && (img.src.startsWith('data:image') || img.src.startsWith('http'))) return img.src; } } } catch (e) {} return ''; } function extractStudentAvatar() { const selectors = [ 'img.w-24.h-24.rounded-full', 'img[class*=&quot;rounded-full&quot;][class*=&quot;w-24&quot;]', 'img[class*=&quot;rounded-full&quot;][class*=&quot;border-primary&quot;]', 'img.w-20.h-20.rounded-full', 'img.w-7.h-7.rounded-full', 'img[src*=&quot;student&quot;]', 'img[src*=&quot;profile&quot;]', 'img[alt*=&quot;student&quot;]', 'img[alt*=&quot;Card cover image&quot;]' ]; for (const sel of selectors) { const el = document.querySelector(sel); if (el) { const b64 = getElementBase64(el); if (b64 && b64.length > 100) return b64; } } const allImgs = Array.from(document.querySelectorAll('img')); for (const img of allImgs) { const isLogo = (img.className || '').includes('hidden') || (img.alt || '').toLowerCase().includes('logo'); if (isLogo) continue; if (img.classList.contains('rounded-full') || (img.className || '').includes('w-24') || (img.className || '').includes('w-20') || (img.className || '').includes('w-7')) { const b64 = getElementBase64(img); if (b64 && b64.length > 100) return b64; } } return ''; } const bodyText = document.body.innerText || ''; const allDivs = Array.from(document.querySelectorAll('div, td, th, span')); let studentName = ''; const nameEl = document.querySelector('.text-xl.font-semibold, h1.font-semibold, h2.font-semibold'); if (nameEl && nameEl.innerText && !nameEl.innerText.toLowerCase().includes('adviser') && !nameEl.innerText.toLowerCase().includes('faculty') && !nameEl.innerText.toLowerCase().includes('dashboard')) { studentName = nameEl.innerText.trim(); } if (!studentName) { const batchIdx = bodyText.indexOf('Batch:'); if (batchIdx !== -1) { const pre = bodyText.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n'); const cand = pre[pre.length - 1].trim(); if (cand && cand.length > 2 && !cand.toLowerCase().includes('dashboard')) { studentName = cand; } } } if (!studentName) { const nameMatch = bodyText.match(/Welcome back\s*!?,?\s*([^\n!]+)/i) || bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i); if (nameMatch) studentName = nameMatch[1].trim(); } let batch = '42'; const batchMatch = bodyText.match(/Batch\s*[:\s]*(\d+)/i); if (batchMatch) batch = batchMatch[1].trim(); let studentId = ''; const idLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'ID'); if (idLabel && idLabel.nextElementSibling) { const val = (idLabel.nextElementSibling.innerText || '').match(/\d{10,}/); if (val) studentId = val[0]; } if (!studentId) { const idMatch = bodyText.match(/(?:^|\n)\s*ID\s*[\n:\s]+(\d{10,})/i) || bodyText.match(/(\d{16})/); if (idMatch) studentId = idMatch[1].trim(); } let studentCode = ''; const codeLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'CODE'); if (codeLabel && codeLabel.nextElementSibling) { const val = (codeLabel.nextElementSibling.innerText || '').match(/\d{10,}/); if (val) studentCode = val[0]; } if (!studentCode) { const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i); if (codeMatch) studentCode = codeMatch[1].trim(); } let program = 'BSc in EEE'; const progLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'PROGRAM'); if (progLabel && progLabel.nextElementSibling) { const val = progLabel.nextElementSibling.innerText.trim(); if (val) program = val; } if (!program || program === 'BSc in EEE') { const progMatch = bodyText.match(/(?:^|\n)\s*Program\s*[\n:\s]+([^\n]+)/i); if (progMatch) program = progMatch[1].trim(); } if (!program) { const degMatch = bodyText.match(/(BSc\s+in\s+[A-Za-z\s]+|BBA|BA\s+in\s+[A-Za-z\s]+|LLB|MBA|MSc\s+in\s+[A-Za-z\s]+)/i); if (degMatch) program = degMatch[1].trim(); } let advisorName = ''; const advLabel = allDivs.find(el => el.children.length === 0 && (el.innerText.trim().toUpperCase() === 'ADVISER' || el.innerText.trim().toUpperCase() === 'ADVISOR')); if (advLabel) { const advCard = advLabel.closest('.filter-info, [class*=&quot;card&quot;], div.rounded-2xl') || (advLabel.parentElement ? advLabel.parentElement.parentElement : null); if (advCard) { const advNameEl = advCard.querySelector('.text-xl, .text-2xl, h2, h3, .font-semibold'); if (advNameEl && !advNameEl.innerText.toLowerCase().includes('adviser') && !advNameEl.innerText.toLowerCase().includes('faculty')) { advisorName = advNameEl.innerText.trim(); } } } if (!advisorName) { const advMatch = bodyText.match(/Adviser[\s\S]*?Faculty[\s\S]*?([Dr\.]*[A-Za-z\s\.]+)\n/i) || bodyText.match(/(?:Advisor|Adviser)\s*[:\s]*([^\n]+)/i); if (advMatch) advisorName = advMatch[1].trim(); } const studentAvatar = extractStudentAvatar(); const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0); const courses = []; const courseRegex = /^[ \t]*([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)[ \t]*$/i; let curCourse = null; for (let i = 0; i < lines.length; i++) { const line = lines[i]; const match = line.match(courseRegex); if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC')) { if (curCourse) { courses.push(curCourse); } const rawCode = match[1].replace(/\s+/g, '').toUpperCase(); const parts = rawCode.split('.'); const code = parts[0]; const sec = parts[1] || '1'; curCourse = { codeWithSec: rawCode, code: code, section: sec, title: '', credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0, type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory', faculty: { initials: '', name: '', email: '', avatar: '' }, schedules: [] }; continue; } if (!curCourse) continue; const facMatch = line.match(/\[([A-Z]+)\]\s*([^@\n]+)/i); if (facMatch) { curCourse.faculty.initials = facMatch[1].toUpperCase(); curCourse.faculty.name = facMatch[2].trim(); continue; } const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i); if (emailMatch) { curCourse.faculty.email = emailMatch[1].trim(); continue; } const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i); if (schedMatch) { curCourse.schedules.push({ day: schedMatch[1].toUpperCase(), startTime: schedMatch[2], endTime: schedMatch[3], room: (schedMatch[4] || 'TBA').toUpperCase(), campus: 'Permanent Campus (PC)' }); continue; } if (!curCourse.title && !line.includes('@') && !line.includes('#') && !line.startsWith('[')) { curCourse.title = line; } } if (curCourse) { courses.push(curCourse); } courses.forEach(c => { c.faculty.avatar = findFacultyAvatar(c.faculty.initials, c.faculty.name, c.codeWithSec); }); if (courses.length === 0) { alert('⚠️ Could not find registered courses on this screen.\n\nPlease click on &quot;Registered Courses&quot; or &quot;Student Dashboard&quot; on UMS first, then click this bookmark again!'); return; } const syncPayload = { student: { name: studentName || 'Student Name', studentId: studentId || '', code: studentCode || '', program: program || 'BSc in EEE', batch: batch || '42', advisor: { name: advisorName || '' }, avatar: studentAvatar }, activeSemester: 'Fall 2026', courses: courses }; const payloadEncoded = encodeURIComponent(JSON.stringify(syncPayload)); const publicUrl = window.location.origin.includes('localhost') ? 'http://localhost:8080/index.html' : (window.location.protocol === 'file:' ? 'file:///D:/rutine/index.html' : 'https://fahimshahir.github.io/seu-routine/'); const syncFullUrl = publicUrl + '#sync=' + payloadEncoded; const banner = document.createElement('div'); banner.style.cssText = ` position: fixed; top: 20px; right: 20px; z-index: 9999999; background: #0f172a; color: #ffffff; padding: 16px 22px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border: 2px solid #10b981; font-family: system-ui, -apple-system, sans-serif; max-width: 440px; `; banner.innerHTML = ` <div style=&quot;font-weight:800; font-size:16px; color:#10b981; margin-bottom:6px;&quot;> ✅ SEU Routine & Profile Extracted! </div> <div style=&quot;font-size:13px; color:#cbd5e1; margin-bottom:12px; line-height:1.5;&quot;> Found <strong>${courses.length} courses</strong> &amp; profile data for <strong>${studentName || 'Student'}</strong> (Batch: ${batch || '—'}, ID: ${studentId || '—'}). </div> <div style=&quot;display:flex; flex-wrap:wrap; gap:8px;&quot;> <button id=&quot;btnOpenRoutineApp&quot; style=&quot;background:#2563eb; color:white; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; font-size:13px;&quot;> 🚀 Open Routine App </button> <button id=&quot;btnCopySyncLink&quot; style=&quot;background:#0284c7; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;&quot;> 📋 Copy Link </button> <button id=&quot;btnDownloadJson&quot; style=&quot;background:#334155; color:white; border:none; padding:8px 12px; border-radius:6px; font-weight:600; cursor:pointer; font-size:13px;&quot;> 💾 Save JSON </button> <button onclick=&quot;this.parentElement.parentElement.remove()&quot; style=&quot;background:transparent; color:#94a3b8; border:none; padding:8px; cursor:pointer; font-size:13px;&quot;> ✕ </button> </div> `; document.body.appendChild(banner); document.getElementById('btnOpenRoutineApp').onclick = function () { window.open(syncFullUrl, '_blank'); banner.remove(); }; document.getElementById('btnCopySyncLink').onclick = function () { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(syncFullUrl).then(() => { alert('📋 Sync link copied! Open the Routine App or paste into your browser.'); }).catch(() => { prompt('Copy your Sync Link below:', syncFullUrl); }); } else { prompt('Copy your Sync Link below:', syncFullUrl); } }; document.getElementById('btnDownloadJson').onclick = function () { const blob = new Blob([JSON.stringify(syncPayload, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `SEU_Routine_${(studentName || 'Student').replace(/\s+/g, '_')}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); banner.remove(); }; })();" class="btn btn-safe" id="btnBookmarkletAnchor" style="font-size:0.95rem; padding:0.65rem 1.25rem;" onclick="copyBookmarkletCode(event)">
                 📌 Sync SEU Routine
               </a>
               <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="font-size:0.9rem; padding:0.65rem 1rem;">
-                📋 Copy Bookmarklet Code
+                📋 Copy Code
               </button>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
-              (<strong>Desktop:</strong> Drag button up to your bookmarks bar <code>Ctrl+Shift+B</code>.<br><strong>Mobile:</strong> Tap <strong>Copy Bookmarklet Code</strong>, bookmark any page in your mobile browser, edit the bookmark URL, and paste!)
+            <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.4; margin:0;">
+              (Drag this button up to your browser bookmarks bar: <code>Ctrl+Shift+B</code>)
             </p>
           </div>
-        </div>
 
-        <div>
-          <label style="font-weight:700; font-size:0.85rem; display:block; margin-bottom:0.4rem;">
-            Step 2: Log in to UMS and click the bookmark:
-          </label>
-          <ol style="font-size:0.85rem; color:var(--text-muted); padding-left:1.25rem; line-height:1.6;">
-            <li>Go to <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">https://ums.seu.edu.bd/dashboard</a>.</li>
+          <ol style="font-size:0.84rem; color:var(--text-muted); padding-left:1.25rem; line-height:1.6; margin:0;">
+            <li>Go to <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">https://ums.seu.edu.bd/dashboard</a> and log in.</li>
             <li>Click the <strong>"📌 Sync SEU Routine"</strong> bookmark on your bookmark bar.</li>
             <li>A banner will appear! Click <strong>"🚀 Open Routine App"</strong> — your courses, rooms, and real Sir/Ma'am photos will load in 1 second!</li>
           </ol>
         </div>
+
+        <!-- TAB 2: Android Phone (Google Chrome) -->
+        <div id="tabContentAndroid" class="bm-tab-content" style="display:none;">
+          <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.82rem; line-height:1.5;">
+            🤖 <strong>Android ক্রোম ব্রাউজারে ব্যবহারের নিয়ম:</strong> মোবাইলে বুকমার্ক বার থাকে না, তাই নিচের সহজ ৪টি ধাপ অনুসরণ করুন:
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">১</span><strong>কোডটি কপি করুন:</strong>
+            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; margin-top:0.45rem; font-size:0.9rem; padding:0.6rem;">
+              📋 Copy Bookmarklet Code
+            </button>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">২</span><strong>এই পেজটি বুকমার্ক করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              Chrome ব্রাউজারের উপরে ডানদিকের ৩টি ডট (<code>⋮</code>) মেনুতে ট্যাপ করে স্টার (<code>★</code>) আইকনে চাপ দিন।
+            </p>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">৩</span><strong>বুকমার্কটি এডিট করে কোড পেস্ট করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              নিচে <strong>"Edit"</strong> অপশন আসলে চাপুন (অথবা Chrome Menu -&gt; Bookmarks-এ যান)।<br>
+              • Name দিন: <code>SEU Sync</code><br>
+              • <strong>URL-এর সব লেখা মুছে দিন</strong> এবং ১ নম্বর ধাপে কপি করা কোডটি <strong>Paste</strong> করে সেভ করুন।
+            </p>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">৪</span><strong>UMS-এ গিয়ে রান করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ লগইন করুন। ব্রাউজারের <strong>Address Bar</strong>-এ লিখুন <code>SEU Sync</code>। নিচে স্টার (<code>★</code>) দেওয়া বুকমার্ক অপশনে ট্যাপ করলেই রুটিন সিঙ্ক হয়ে যাবে!
+            </p>
+          </div>
+        </div>
+
+        <!-- TAB 3: iPhone / iPad (Safari) -->
+        <div id="tabContentIos" class="bm-tab-content" style="display:none;">
+          <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.82rem; line-height:1.5;">
+            🍎 <strong>iPhone / iPad Safari-তে ব্যবহারের নিয়ম:</strong>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">১</span><strong>কোডটি কপি করুন:</strong>
+            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; margin-top:0.45rem; font-size:0.9rem; padding:0.6rem;">
+              📋 Copy Bookmarklet Code
+            </button>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">২</span><strong>বুকমার্ক তৈরি করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              সাফারির নিচের Share বাটন (তীর চিহ্নিত বক্স) চাপুন এবং <strong>"Add Bookmark"</strong> সিলেক্ট করুন। নাম দিন <code>SEU Sync</code> এবং Save চাপুন।
+            </p>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">৩</span><strong>URL ফিল্ডে কোড পেস্ট করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              সাফারির Bookmarks (বইয়ের আইকন) খুলুন -&gt; নিচে <strong>Edit</strong> চাপুন -&gt; <code>SEU Sync</code> বুকমার্কে ট্যাপ করুন -&gt; <strong>URL মুছে দিয়ে কপি করা কোডটি Paste করুন</strong> -&gt; Done চাপুন।
+            </p>
+          </div>
+
+          <div class="mobile-step-box">
+            <span class="mobile-step-num">৪</span><strong>UMS-এ গিয়ে রান করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
+              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ যান। Bookmarks আইকনে ট্যাপ করে <code>SEU Sync</code>-এ ক্লিক করলেই আপনার রুটিন অ্যাপে খুলে যাবে!
+            </p>
+          </div>
+        </div>
+
+        <!-- TAB 4: মোবাইলে আরও সহজ উপায় (Paste UMS Text) -->
+        <div id="tabContentMobileEasy" class="bm-tab-content" style="display:none;">
+          <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+            <h4 style="color:var(--accent-green); font-weight:800; margin-bottom:0.4rem; font-size:0.95rem;">
+              ⭐ মোবাইলের জন্য কোনো বুকমার্কলেট ছাড়াই ১০ সেকেন্ডের সহজ উপায়!
+            </h4>
+            <p style="font-size:0.82rem; color:var(--text-main); line-height:1.5; margin:0;">
+              মোবাইলে বুকমার্ক সেভ ও এডিট করতে ঝামেলা মনে হলে কোনো চিন্তা নেই। আপনি সরাসরি UMS থেকে লেখা কপি করে এখানে পেস্ট করতে পারেন:
+            </p>
+          </div>
+
+          <div style="font-size:0.84rem; line-height:1.7; color:var(--text-muted); margin-bottom:1.25rem;">
+            <p style="margin-bottom:0.4rem;"><strong>ধাপ ১:</strong> ফোনে <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">UMS Dashboard</a>-এ লগইন করে "Registered Courses"-এ যান।</p>
+            <p style="margin-bottom:0.4rem;"><strong>ধাপ ২:</strong> কোর্সের লেখার ওপর লং প্রেস করে <strong>Select All</strong> এবং <strong>Copy</strong> করুন।</p>
+            <p style="margin-bottom:0.4rem;"><strong>ধাপ ৩:</strong> নিচের বাটনে ক্লিক করে <strong>"📋 Paste from Clipboard"</strong> চাপুন — আপনার নাম, আইডি, ব্যাচ ও শিক্ষকদের ছবিসহ পুরো রুটিন তৈরি হয়ে যাবে!</p>
+          </div>
+
+          <button class="btn btn-magic" style="width:100%; font-size:0.95rem; padding:0.75rem;" onclick="closeModal('modalBookmarklet'); openModal('modalUmsImport');">
+            ✨ Open 1-Tap Paste Screen (সরাসরি পেস্ট করুন)
+          </button>
+        </div>
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-outline" onclick="closeModal('modalBookmarklet')">Got It</button>
       </div>
     </div>
   </div>
 
-  <!-- ========================================================
+<!-- ========================================================
        MODAL 0.4: PWA Install Guide (iOS & Mobile)
        ======================================================== -->
   <div class="modal-backdrop" id="modalPwaGuide">
@@ -2146,9 +2301,15 @@
         <button class="modal-close" onclick="closeModal('modalUmsImport')">×</button>
       </div>
       <div class="modal-body">
-        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
-          Copy all course text from <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color: var(--primary); font-weight: 700;">UMS Dashboard</a> (Registered Courses section) and paste below:
+        <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:0.85rem 1rem; margin-bottom:1rem;">
+          <div style="font-weight:800; color:var(--accent-green); font-size:0.85rem; margin-bottom:0.25rem;">
+            📱 মোবাইলের জন্য সহজ ৩ ধাপ:
+          </div>
+          <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+            ১. ফোনে <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">UMS</a>-এ যান ➔ ২. Registered Courses-এর লেখা Copy করুন ➔ ৩. নিচের <strong>"📋 Paste from Clipboard"</strong> বাটনে ট্যাপ করুন!
+          </div>
         </div>
+
         <div class="form-group">
           <label for="importTargetSemester">Target Semester</label>
           <select id="importTargetSemester" class="form-control">
@@ -2157,9 +2318,15 @@
             <option value="Summer 2027">Summer 2027</option>
           </select>
         </div>
+
         <div class="form-group">
-          <label for="importRawText">Paste Raw UMS Text</label>
-          <textarea id="importRawText" class="form-control" rows="8" placeholder="Example:&#10;EEE442.2 Optoelectronics Laboratory&#10;[RR] Rakayet Rafi rakayet.rafi@seu.edu.bd&#10;MON # 14:00 ~ 16:00 @ PC211&#10;..."></textarea>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem;">
+            <label for="importRawText" style="font-weight:700; margin:0;">Paste Raw UMS Text</label>
+            <button type="button" class="btn btn-outline" style="font-size:0.75rem; padding:0.35rem 0.75rem; color:var(--primary); font-weight:800;" onclick="pasteFromClipboard()">
+              📋 Paste from Clipboard (১-ট্যাপে পেস্ট)
+            </button>
+          </div>
+          <textarea id="importRawText" class="form-control" rows="7" placeholder="Example:&#10;EEE442.2 Optoelectronics Laboratory&#10;[RR] Rakayet Rafi rakayet.rafi@seu.edu.bd&#10;MON # 14:00 ~ 16:00 @ PC211&#10;..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -3107,6 +3274,50 @@
 
     // Modals
     let tempProfileAvatar = '';
+
+
+    function openBookmarkletModal() {
+      const ua = navigator.userAgent.toLowerCase();
+      if (/android/i.test(ua)) {
+        switchBookmarkletTab('android');
+      } else if (/iphone|ipad|ipod/i.test(ua)) {
+        switchBookmarkletTab('ios');
+      } else {
+        switchBookmarkletTab('pc');
+      }
+      openModal('modalBookmarklet');
+    }
+
+    function switchBookmarkletTab(tab) {
+      const tabs = ['pc', 'android', 'ios', 'mobileEasy'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        const contentEl = document.getElementById('tabContent' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (contentEl) contentEl.style.display = (t === tab) ? 'block' : 'none';
+      });
+    }
+
+    function pasteFromClipboard() {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        navigator.clipboard.readText().then(clipText => {
+          if (!clipText || !clipText.trim()) {
+            showToast('⚠️ Clipboard is empty! Please copy text from UMS first.');
+            return;
+          }
+          document.getElementById('importRawText').value = clipText;
+          showToast('📋 Pasted from clipboard! Parsing courses & student info...');
+          parseAndImportText();
+        }).catch(err => {
+          console.warn('Clipboard read permission notice:', err);
+          document.getElementById('importRawText').focus();
+          showToast('Please long-press in the box below and tap Paste.');
+        });
+      } else {
+        document.getElementById('importRawText').focus();
+        showToast('Please long-press in the box below and tap Paste.');
+      }
+    }
 
     function openModal(id) {
       if (id === 'modalProfile') {
