@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>SEU Class Routine & Schedule — Production</title>
   
   <!-- SEO & Author Metadata -->
@@ -1243,6 +1243,108 @@
         font-size: 0.82rem;
       }
 
+    /* Timetable Zoom & Full-View Control Bar */
+    .timetable-zoom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.45rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .zoom-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-zoom-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .btn-zoom-step:hover,
+    .btn-zoom-step:active {
+      transform: scale(0.94);
+      background: var(--bg-hover);
+      border-color: var(--primary);
+    }
+    .zoom-indicator-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.22rem 0.55rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .zoom-indicator-pill:hover {
+      background: var(--bg-hover);
+    }
+    .zoom-state-tag {
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      color: #ffffff;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .zoom-preset-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn-zoom-preset {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 0.28rem 0.6rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-zoom-preset:hover {
+      color: var(--text-main);
+      background: var(--bg-hover);
+    }
+    .btn-zoom-preset.active {
+      background: rgba(79, 70, 229, 0.14);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 800;
+    }
+    .grid-table {
+      transition: zoom 0.12s ease-out;
+      transform-origin: top left;
+    }
+
       /* Mobile Timetable Wrapper & Sticky Day Column */
       .timetable-wrapper {
         padding: 0.4rem;
@@ -1719,8 +1821,32 @@
 
       <!-- VIEW 1: Weekly Timetable Grid -->
       <main id="viewGrid" class="timetable-wrapper">
-        <div class="mobile-swipe-cue">
-          <span>👈 Swipe table horizontally to view full timetable 👉</span>
+        <!-- Interactive Zoom & Full-View Controller -->
+        <div class="timetable-zoom-bar" id="timetableZoomBar">
+          <div class="zoom-btn-group">
+            <button type="button" class="btn-zoom-step" id="btnZoomOut" onclick="stepRoutineZoom(-0.1)" title="Zoom Out (Overview)" aria-label="Zoom Out">
+              <span>➖</span>
+            </button>
+            <div class="zoom-indicator-pill" id="zoomIndicatorPill" onclick="toggleFitOr100()" title="Click to toggle Full View vs 100%">
+              <span id="zoomPercentLabel">100%</span>
+              <span class="zoom-state-tag" id="zoomStateTag">Fit</span>
+            </div>
+            <button type="button" class="btn-zoom-step" id="btnZoomIn" onclick="stepRoutineZoom(0.1)" title="Zoom In (Close-up)" aria-label="Zoom In">
+              <span>➕</span>
+            </button>
+          </div>
+
+          <div class="zoom-preset-actions">
+            <button type="button" class="btn-zoom-preset active" id="btnPresetFit" onclick="setRoutineZoomMode('fit')" title="Fit entire weekly routine onto mobile screen">
+              📱 Full View
+            </button>
+            <button type="button" class="btn-zoom-preset" id="btnPreset100" onclick="setRoutineZoomMode('100')" title="Zoom into 100% normal size">
+              🔍 100%
+            </button>
+            <button type="button" class="btn-zoom-preset" id="btnPresetReset" onclick="resetRoutineZoom()" title="Reset Zoom">
+              ↺ Reset
+            </button>
+          </div>
         </div>
         <table class="grid-table">
           <thead>
@@ -2687,6 +2813,8 @@
 
         tbody.appendChild(tr);
       });
+
+      applyCurrentZoom();
     }
 
     // Course Table
@@ -2922,6 +3050,10 @@
       document.getElementById('tabBtnGrid').classList.toggle('active', view === 'grid');
       document.getElementById('tabBtnTable').classList.toggle('active', view === 'table');
       document.getElementById('tabBtnAgenda').classList.toggle('active', view === 'agenda');
+
+      if (view === 'grid') {
+        setTimeout(applyCurrentZoom, 20);
+      }
     }
 
     // Search filter
@@ -3518,9 +3650,204 @@
       });
     }
 
+
+    /* ========================================================
+       MOBILE ROUTINE ZOOM & FULL VIEW ENGINE
+       ======================================================== */
+    let currentRoutineZoom = 1.0;
+    let routineZoomMode = 'fit'; // 'fit' | '100' | 'custom'
+
+    function calculateFitZoom() {
+      const wrapper = document.querySelector('.timetable-wrapper');
+      if (!wrapper) return 1.0;
+      const availWidth = wrapper.clientWidth - 10;
+      const tableStandardWidth = 820; // base min-width of the grid
+      if (availWidth >= tableStandardWidth) return 1.0;
+      const fitScale = availWidth / tableStandardWidth;
+      return Math.max(0.38, Math.min(1.0, fitScale));
+    }
+
+    function applyCurrentZoom() {
+      const table = document.querySelector('.grid-table');
+      const percentLabel = document.getElementById('zoomPercentLabel');
+      const stateTag = document.getElementById('zoomStateTag');
+      const btnFit = document.getElementById('btnPresetFit');
+      const btn100 = document.getElementById('btnPreset100');
+      if (!table) return;
+
+      if (routineZoomMode === 'fit') {
+        currentRoutineZoom = calculateFitZoom();
+      }
+
+      // Apply CSS Zoom
+      table.style.zoom = currentRoutineZoom.toFixed(3);
+
+      // Update Labels
+      const pct = Math.round(currentRoutineZoom * 100);
+      if (percentLabel) percentLabel.textContent = `${pct}%`;
+
+      if (stateTag) {
+        if (routineZoomMode === 'fit') {
+          stateTag.textContent = 'Fit';
+          stateTag.style.display = 'inline-block';
+        } else if (pct === 100) {
+          stateTag.textContent = '100%';
+          stateTag.style.display = 'none';
+        } else {
+          stateTag.textContent = pct > 100 ? 'Zoom+' : 'Zoom-';
+          stateTag.style.display = 'inline-block';
+        }
+      }
+
+      if (btnFit) {
+        btnFit.classList.toggle('active', routineZoomMode === 'fit');
+      }
+      if (btn100) {
+        btn100.classList.toggle('active', routineZoomMode !== 'fit' && pct === 100);
+      }
+    }
+
+    function setRoutineZoomMode(mode) {
+      if (mode === 'fit') {
+        routineZoomMode = 'fit';
+        currentRoutineZoom = calculateFitZoom();
+      } else if (mode === '100') {
+        routineZoomMode = '100';
+        currentRoutineZoom = 1.0;
+      }
+      applyCurrentZoom();
+      try {
+        localStorage.setItem('SEU_ROUTINE_ZOOM_MODE', routineZoomMode);
+        localStorage.setItem('SEU_ROUTINE_ZOOM_VAL', currentRoutineZoom.toString());
+      } catch(e) {}
+    }
+
+    function stepRoutineZoom(delta) {
+      routineZoomMode = 'custom';
+      currentRoutineZoom = Math.max(0.38, Math.min(1.60, currentRoutineZoom + delta));
+      applyCurrentZoom();
+      try {
+        localStorage.setItem('SEU_ROUTINE_ZOOM_MODE', 'custom');
+        localStorage.setItem('SEU_ROUTINE_ZOOM_VAL', currentRoutineZoom.toString());
+      } catch(e) {}
+    }
+
+    function toggleFitOr100() {
+      if (routineZoomMode === 'fit') {
+        setRoutineZoomMode('100');
+      } else {
+        setRoutineZoomMode('fit');
+      }
+    }
+
+    function resetRoutineZoom() {
+      if (window.innerWidth <= 768) {
+        setRoutineZoomMode('fit');
+      } else {
+        setRoutineZoomMode('100');
+      }
+    }
+
+    function initRoutineZoom() {
+      // Check saved preference or default to 'fit' on mobile
+      try {
+        const savedMode = localStorage.getItem('SEU_ROUTINE_ZOOM_MODE');
+        const savedVal = localStorage.getItem('SEU_ROUTINE_ZOOM_VAL');
+        if (savedMode === 'custom' && savedVal) {
+          routineZoomMode = 'custom';
+          currentRoutineZoom = parseFloat(savedVal) || 1.0;
+        } else if (savedMode === '100') {
+          routineZoomMode = '100';
+          currentRoutineZoom = 1.0;
+        } else {
+          routineZoomMode = window.innerWidth <= 768 ? 'fit' : '100';
+        }
+      } catch(e) {
+        routineZoomMode = window.innerWidth <= 768 ? 'fit' : '100';
+      }
+
+      applyCurrentZoom();
+
+      window.addEventListener('resize', () => {
+        if (routineZoomMode === 'fit') {
+          applyCurrentZoom();
+        }
+      });
+
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (routineZoomMode === 'fit') {
+            applyCurrentZoom();
+          }
+        }, 150);
+      });
+    }
+
+    function initPinchToZoom() {
+      const wrapper = document.querySelector('.timetable-wrapper');
+      if (!wrapper) return;
+
+      let initialDistance = 0;
+      let initialZoom = 1.0;
+      let isPinching = false;
+      let lastTapTime = 0;
+
+      // Two-finger pinch gestures
+      wrapper.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          isPinching = true;
+          initialDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          initialZoom = currentRoutineZoom;
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener('touchmove', (e) => {
+        if (isPinching && e.touches.length === 2) {
+          e.preventDefault();
+          const currentDistance = Math.hypot(
+            e.touches[0].clientX - e.touches[1].clientX,
+            e.touches[0].clientY - e.touches[1].clientY
+          );
+          if (initialDistance > 0) {
+            const factor = currentDistance / initialDistance;
+            routineZoomMode = 'custom';
+            currentRoutineZoom = Math.max(0.38, Math.min(1.60, initialZoom * factor));
+            applyCurrentZoom();
+          }
+        }
+      }, { passive: false });
+
+      wrapper.addEventListener('touchend', (e) => {
+        if (isPinching && e.touches.length < 2) {
+          isPinching = false;
+          initialDistance = 0;
+          try {
+            localStorage.setItem('SEU_ROUTINE_ZOOM_MODE', 'custom');
+            localStorage.setItem('SEU_ROUTINE_ZOOM_VAL', currentRoutineZoom.toString());
+          } catch(e) {}
+        }
+      });
+
+      // Double tap to toggle Full View vs 100%
+      wrapper.addEventListener('touchend', (e) => {
+        if (isPinching || e.touches.length > 0) return;
+        const currentTime = Date.now();
+        const tapLength = currentTime - lastTapTime;
+        if (tapLength < 320 && tapLength > 40) {
+          toggleFitOr100();
+        }
+        lastTapTime = currentTime;
+      });
+    }
+
     // Boot
     initStore();
     renderAll();
+    initRoutineZoom();
+    initPinchToZoom();
     setInterval(updateStatusTracker, 1000);
   </script>
 </body>
