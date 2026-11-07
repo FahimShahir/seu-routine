@@ -1,7 +1,7 @@
 # 🚀 Public Deployment Guide — SEU Class Routine System
-**How to deploy this website online for all Southeast University students (Free forever)**
-
-This guide explains how to host this system publicly so that any student at Southeast University can visit the URL (e.g. `https://your-name.github.io/seu-routine/` or `https://seu-routine.vercel.app/`), sync their routine in 1 second, and use it safely.
+> **Engineered & Published by [F.U.M Foyjul Bari Shahir](https://github.com/FahimShahir)** (Batch 42, Dept. of EEE)  
+> 🌐 **Official Live URL:** [https://fahimshahir.github.io/seu-routine/](https://fahimshahir.github.io/seu-routine/)  
+> **Source Code:** [https://github.com/FahimShahir/seu-routine](https://github.com/FahimShahir/seu-routine)
 
 ---
 

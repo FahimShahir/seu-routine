@@ -1,64 +1,45 @@
 # 🎓 Southeast University — Universal Routine & Schedule Management System
-**Multi-Semester & Multi-Student Class Routine System**  
-*Applicable for all departments: EEE, CSE, BBA, Civil, Textile, Pharmacy, etc.*  
-*Portal:* [https://ums.seu.edu.bd](https://ums.seu.edu.bd) | *Campus: Permanent Campus (PC)*
+> **Engineered & Maintained by [F.U.M Foyjul Bari Shahir](https://github.com/FahimShahir)**  
+> *Student ID: `0232330005131002` | Code: `2023200500002` | Batch 42 | Department of Electrical & Electronic Engineering (EEE)*  
+> *Southeast University (Permanent Campus - PC, Tejgaon, Dhaka)*  
+> 🌐 **Live Web Application:** [https://fahimshahir.github.io/seu-routine/](https://fahimshahir.github.io/seu-routine/)
 
 ---
 
 ## 🌟 How Anyone Can Update Their Routine (Sobai Sobr Routine Update Korar Niom)
 
-This system is built so that **any student from any semester and department** can easily create, manage, and update their weekly schedule:
+This system is built so that **any student from any semester and any department (EEE, CSE, BBA, Civil, Textile, Pharmacy, English, etc.)** can easily create, manage, and update their personal weekly schedule:
 
-### 1. ⚡ Magic 1-Click UMS Importer (Fastest Method)
-1. Open the [Web Routine Dashboard](file:///d:/rutine/index.html) in your browser.
-2. Click **"✨ Import UMS"** on the top navigation bar.
-3. Choose either:
-   - **Option A (Paste Text):** Go to your SEU UMS portal -> Registered Courses. Copy the rows and paste the text directly into the box. The smart parser automatically extracts:
-     - Course codes & sections (e.g. `EEE447.1`, `CSE101.2`)
-     - Course titles
-     - Faculty initials & full names (e.g. `[MRT] Ruchira Tabassum`)
-     - Official emails (`@seu.edu.bd`)
-     - Days, time ranges, and room numbers (e.g. `SUN # 10:00 ~ 11:20 @ PC422`)
-   - **Option B (Upload HTML):** Save your UMS webpage as `.html` and drop it into the upload box. It will automatically load all courses and even your student profile info!
-4. Click **"Parse & Import Routine"** and your complete weekly grid is ready in 2 seconds!
+### 1. ⚡ 1-Click Safe UMS Sync (Fastest & Safest Method)
+1. Open the [Live Routine App](https://fahimshahir.github.io/seu-routine/).
+2. Drag the **"📌 Sync SEU Routine"** button up to your browser Bookmarks Bar (`Ctrl + Shift + B`).
+3. Log into your university portal: [https://ums.seu.edu.bd/dashboard](https://ums.seu.edu.bd/dashboard).
+4. Click the bookmark on your bookmarks bar.
+5. In the pop-up notification, click **"🚀 Open Routine App"** — your courses, rooms, timings, and teacher photos will load instantly!
 
----
+### 2. 📋 Option B: Copy-Paste Registered Courses (Universal Fallback)
+1. Go to your SEU UMS portal -> **Registered Courses**.
+2. Select and copy all table rows.
+3. In the Routine App, click **"✨ Import UMS"** on the top toolbar, paste the text into the box, and click **"Parse & Import"**.
+   - Automatically detects course codes & sections (e.g. `EEE447.1`, `CSE101.2`).
+   - Parses course titles, faculty initials, official emails, room allocations, and schedules.
 
-### 2. 📅 Managing All Semesters (Sob Semester Switch & Add Kora)
-- **Select Semester:** Click the semester dropdown at the top (e.g., `Fall 2026`, `Summer 2026`, `Spring 2027`).
-- **+ Add New Semester:** Click **"+ New Semester"** to create a routine for an upcoming or past semester. You can:
-  - Start with a clean blank slate.
-  - Clone courses from an existing semester.
-  - Import directly from UMS for that semester.
+### 3. 📅 Multi-Semester Management
+- **Switch Semester:** Click the semester dropdown at the top (e.g., `Fall 2026`, `Summer 2026`, `Spring 2027`).
+- **+ Add New Semester:** Click **"+ New Semester"** to create a schedule for any upcoming or past term.
 
----
-
-### 3. 👤 Profile & Student Switching
-- Click your name or avatar in the header to edit:
-  - Student Name, Student ID, Code, Program/Department, Batch, and Faculty Advisor.
-  - Upload custom profile picture (automatically converted and stored locally).
-- Create multiple student profiles on the same device so roommates or classmates can keep their routines on the same computer.
+### 4. 👤 Multi-Student Isolation
+- Each student's schedule is stored strictly inside their own device's browser (`localStorage` + session cookie).
+- No central server collects your data, guaranteeing 100% privacy and zero data conflicts between roommates or classmates.
 
 ---
 
-### 4. ✏️ Manual Course & Slot Editing (CRUD)
-- Click **"+ Add Slot"** to manually insert a new course or extra makeup class.
-- Click **"Edit"** on any existing schedule row to change room numbers, timings, or faculty.
-- Click **"Delete"** to remove dropped courses.
+## 🌟 Developer's Reference Routine (EEE Batch 42, Fall 2026)
 
----
+*This verified reference schedule illustrates how the system structures and tracks full multi-course loads.*
 
-### 5. 👥 Sharing with Classmates (JSON Backup & Share)
-- Click **"💾 Share / Backup"** -> **"Export Routine (JSON)"** to get your `.json` routine file.
-- Send it to your friends or classmates in the same section via Messenger/WhatsApp.
-- Your classmate simply clicks **"Import Routine (JSON)"** and their entire schedule is instantly loaded without typing!
-
----
-
-## 📅 Active Semester: Fall 2026 (EEE Batch 42)
-
-- **Student:** F.U.M Foyjul Bari Shahir
-- **ID:** `0232330005131002` | **Batch:** 42 | **Program:** BSc in EEE
+- **Student / Developer:** F.U.M Foyjul Bari Shahir
+- **ID:** `0232330005131002` | **Code:** `2023200500002` | **Batch:** 42 | **Program:** BSc in EEE
 - **Registered Credits:** 15.0 Credits (6 Courses)
 - **Advisor:** Dr. Nur Hosain Md. Ariful Azim (*Coordinator & Professor, Dept. of EEE*)
 
@@ -74,11 +55,11 @@ This system is built so that **any student from any semester and department** ca
 | **FRI** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** |
 | **SAT** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** | 🌴 **Weekend** |
 
-*Note: **EEE492.2 Thesis/Project I** does not have a fixed classroom time slot; consultations and defense meetings are arranged directly with Dr. Mahjabin Mobarak [MMK] (`mahajbin.m@seu.edu.bd`).*
+*Note: **EEE492.2 Thesis/Project I** consultations and defense meetings are arranged directly with Dr. Mahjabin Mobarak [MMK] (`mahajbin.m@seu.edu.bd`).*
 
 ---
 
-## 👨‍🏫 Faculty Directory (Fall 2026)
+## 👨‍🏫 Faculty Directory (Developer's Fall 2026 Semester)
 
 | Initial | Full Name | Official Email | Designated Department | Courses Taught |
 | :---: | :--- | :--- | :--- | :--- |
