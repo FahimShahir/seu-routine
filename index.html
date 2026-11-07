@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>SEU Class Routine & Schedule — Production</title>
+  <link rel="canonical" href="https://fahimshahir.github.io/seu-routine/">
   
   <!-- SEO & Author Metadata -->
   <meta name="author" content="F.U.M Foyjul Bari Shahir">
@@ -348,6 +349,7 @@
       line-height: 1;
     }
 
+    .onboard-card h2,
     .onboard-card h3 {
       font-size: 1.05rem;
       font-weight: 700;
@@ -421,7 +423,8 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
-    .profile-info h1 {
+    .profile-info h1,
+    .profile-info h2 {
       font-size: 1.25rem;
       font-weight: 800;
       letter-spacing: -0.3px;
@@ -694,6 +697,7 @@
       margin: 3px 0;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
@@ -988,6 +992,7 @@
       justify-content: space-between;
     }
 
+    .modal-header h2,
     .modal-header h3 {
       font-size: 1.1rem;
       font-weight: 800;
@@ -1161,7 +1166,8 @@
         width: 50px;
         height: 50px;
       }
-      .profile-info h1 {
+      .profile-info h1,
+      .profile-info h2 {
         font-size: 1.05rem;
         gap: 0.35rem;
         line-height: 1.3;
@@ -1523,7 +1529,8 @@
       display: block;
       background: var(--bg-surface);
     }
-    .dev-name-title h2 {
+    .dev-name-title h2,
+    .dev-name-title h3 {
       font-size: 1.35rem;
       font-weight: 800;
       color: var(--text-main);
@@ -1738,7 +1745,7 @@
         <span class="onboarding-badge">🎓 Southeast University</span>
         <h1>Class Routine & Schedule Manager</h1>
         <p style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-top: 0.5rem;">
-          Crafted with ❤️ by <a href="javascript:void(0)" onclick="openModal('modalAboutDeveloper')" style="color: var(--primary); text-decoration: underline;">F.U.M Foyjul Bari Shahir</a> (Batch 42, Dept. of EEE)
+          Crafted with ❤️ by <a href="#modalAboutDeveloper" onclick="openModal('modalAboutDeveloper'); return false;" style="color: var(--primary); text-decoration: underline;">F.U.M Foyjul Bari Shahir</a> (Batch 42, Dept. of EEE)
         </p>
         <p>
           Welcome! Get your personal class schedule, faculty directory, and upcoming class alerts on any mobile or desktop device.
@@ -1751,7 +1758,7 @@
           <div>
             <div class="onboard-card-icon">⚡</div>
             <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;">
-              <h3 style="margin:0;">1-Click UMS Sync</h3>
+              <h2 style="margin:0;">1-Click UMS Sync</h2>
               <span style="font-size:0.7rem; background:rgba(59,130,246,0.15); color:var(--primary); font-weight:700; padding:2px 8px; border-radius:12px;">💻 PC / Laptop</span>
             </div>
             <p>Drag our safe bookmarklet to your bookmarks bar, open UMS, and click it. Instantly syncs your registered courses, rooms, and faculty photos!</p>
@@ -1763,7 +1770,7 @@
           <div>
             <div class="onboard-card-icon">📋</div>
             <div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem; flex-wrap:wrap;">
-              <h3 style="margin:0;">Paste UMS Text</h3>
+              <h2 style="margin:0;">Paste UMS Text</h2>
               <span style="font-size:0.7rem; background:rgba(16,185,129,0.18); color:var(--accent-green); font-weight:800; padding:2px 8px; border-radius:12px;">⭐ মোবাইলের জন্য সবচেয়ে সহজ</span>
             </div>
             <p>মোবাইলে UMS থেকে লেখা কপি করে এখানে ১-ট্যাপে পেস্ট করুন। মাত্র ১০ সেকেন্ডে নাম, আইডি, ব্যাচ ও শিক্ষকদের ছবিসহ সম্পূর্ণ রুটিন তৈরি হবে!</p>
@@ -1774,7 +1781,7 @@
         <div class="onboard-card">
           <div>
             <div class="onboard-card-icon">📁</div>
-            <h3>Upload Batch File</h3>
+            <h2>Upload Batch File</h2>
             <p>Did your Class Representative (CR) or batchmate share a <code>.json</code> routine file? Upload it to load the section timetable in 1 second.</p>
           </div>
           <button class="btn btn-outline" onclick="triggerFileInput()">📂 Choose .json File</button>
@@ -1784,7 +1791,7 @@
         <div class="onboard-card">
           <div>
             <div class="onboard-card-icon">➕</div>
-            <h3>Create from Scratch</h3>
+            <h2>Create from Scratch</h2>
             <p>Prefer building your schedule manually? Start with a blank slate and add your course codes, faculty, days, and room numbers.</p>
           </div>
           <button class="btn btn-outline" onclick="startBlankRoutine()">➕ Blank Timetable</button>
@@ -1808,10 +1815,10 @@
             <!-- Real student image rendered dynamically -->
           </div>
           <div class="profile-info">
-            <h1>
+            <h2>
               <span id="studentName">Student Name</span>
               <span class="badge-univ" id="studentDeptTag">SEU</span>
-            </h1>
+            </h2>
             <div class="profile-sub">
               <span>Batch: <strong id="studentBatch">—</strong></span>
               <span>•</span>
@@ -1962,7 +1969,7 @@
         <span>•</span>
         <a href="https://github.com/FahimShahir/seu-routine" target="_blank" rel="noopener">⭐ Star on GitHub</a>
         <span>•</span>
-        <a href="javascript:void(0)" onclick="openModal('modalAboutDeveloper')">ℹ️ About Creator</a>
+        <a href="#modalAboutDeveloper" onclick="openModal('modalAboutDeveloper'); return false;">ℹ️ About Creator</a>
       </div>
     </footer>
 
@@ -1976,7 +1983,7 @@
       <div class="modal-header" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(6, 182, 212, 0.12));">
         <div style="display:flex; align-items:center; gap:0.5rem;">
           <span style="font-size:1.3rem;">👨‍💻</span>
-          <h3 style="margin:0;">Creator & Lead Developer</h3>
+          <h2 style="margin:0;">Creator & Lead Developer</h2>
         </div>
         <button class="modal-close" onclick="closeModal('modalAboutDeveloper')">×</button>
       </div>
@@ -1987,7 +1994,7 @@
             <img src="data:image/jpeg;base64,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" alt="F.U.M Foyjul Bari Shahir">
           </div>
           <div class="dev-name-title">
-            <h2>F.U.M Foyjul Bari Shahir</h2>
+            <h3 style="margin:0;">F.U.M Foyjul Bari Shahir</h3>
             <div class="dev-role">🚀 Creator & Lead System Architect</div>
             <div class="dev-pills">
               <span class="dev-pill-tag">⚡ Batch 42</span>
@@ -3367,7 +3374,7 @@
       const wrap = document.getElementById('profAvatarPreviewWrap');
       if (!wrap) return;
       if (tempProfileAvatar && tempProfileAvatar.startsWith('data:image')) {
-        wrap.innerHTML = `<img src="${tempProfileAvatar}" style="width:100%; height:100%; object-fit:cover;">`;
+        wrap.innerHTML = `<img src="${tempProfileAvatar}" alt="Student profile photo preview" style="width:100%; height:100%; object-fit:cover;">`;
       } else {
         const nameVal = (document.getElementById('profName') ? document.getElementById('profName').value : '') || 'Student';
         const initials = nameVal.trim().split(/\s+/).map(n => n[0]).slice(0, 2).join('').toUpperCase() || 'ST';
