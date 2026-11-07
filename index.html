@@ -122,18 +122,31 @@
       border-radius: var(--radius-md);
       padding: 0.75rem 1.25rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.7rem;
       box-shadow: var(--card-shadow);
     }
 
-    .toolbar-left, .toolbar-right {
+    .toolbar-brand-row {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      justify-content: space-between;
+      gap: 0.75rem;
+      width: 100%;
+    }
+
+    .toolbar-quick-toggles {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar-actions-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
       flex-wrap: wrap;
+      width: 100%;
     }
 
     .semester-select-wrap {
@@ -1066,17 +1079,319 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
+    /* ========================================================
+       COMPREHENSIVE MOBILE RESPONSIVE ENGINE (≤ 768px)
+       ======================================================== */
     @media (max-width: 768px) {
+      html, body {
+        overflow-x: hidden;
+        width: 100%;
+      }
+
+      .app-container {
+        padding: 0.6rem 0.5rem 2rem 0.5rem;
+        gap: 0.75rem;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      /* Mobile Top Toolbar */
+      .top-toolbar {
+        padding: 0.6rem 0.75rem;
+        gap: 0.5rem;
+        border-radius: var(--radius-sm);
+      }
+
+      .toolbar-brand-row {
+        gap: 0.4rem;
+      }
+
+      .btn-developer-badge {
+        font-size: 0.74rem !important;
+        padding: 0.35rem 0.65rem !important;
+      }
+
+      .toolbar-quick-toggles .btn {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.76rem;
+      }
+
+      .toolbar-actions-strip {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+        gap: 0.4rem;
+        scrollbar-width: none;
+      }
+      .toolbar-actions-strip::-webkit-scrollbar {
+        display: none;
+      }
+
+      .toolbar-actions-strip .btn {
+        flex-shrink: 0;
+        font-size: 0.76rem;
+        padding: 0.38rem 0.65rem;
+        white-space: nowrap;
+      }
+
+      .semester-select-wrap {
+        flex-shrink: 0;
+      }
+      .semester-label {
+        font-size: 0.68rem;
+      }
+      .semester-dropdown {
+        font-size: 0.76rem;
+        padding: 0.35rem 0.6rem;
+      }
+
+      /* Mobile Student Header Card */
       .header-card {
+        padding: 0.85rem 0.9rem;
+        gap: 0.65rem;
+        border-radius: var(--radius-sm);
+      }
+      .profile-section {
+        gap: 0.75rem;
+        width: 100%;
+        align-items: center;
+      }
+      .profile-avatar-wrap {
+        width: 50px;
+        height: 50px;
+      }
+      .profile-info h1 {
+        font-size: 1.05rem;
+        gap: 0.35rem;
+        line-height: 1.3;
+      }
+      .profile-sub {
+        font-size: 0.74rem;
+        gap: 0.25rem;
+        margin-top: 2px;
+      }
+      .profile-meta-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+        margin-top: 0.4rem;
+      }
+      .meta-tag {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+      }
+
+      /* Mobile Status Bar */
+      .status-tracker-bar {
         flex-direction: column;
         align-items: flex-start;
+        gap: 0.45rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: var(--radius-sm);
       }
-      .top-toolbar {
+      .clock-display {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+      .clock-time {
+        font-size: 1.15rem;
+      }
+      .clock-details {
+        font-size: 0.76rem;
+      }
+      .status-pill-wrap {
+        width: 100%;
+        font-size: 0.78rem;
+      }
+
+      /* Mobile Controls & View Tabs */
+      .controls-bar {
         flex-direction: column;
         align-items: stretch;
+        gap: 0.5rem;
       }
-      .toolbar-left, .toolbar-right {
-        justify-content: flex-start;
+      .view-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        width: 100%;
+        padding: 3px;
+        gap: 2px;
+        border-radius: var(--radius-sm);
+      }
+      .tab-btn {
+        padding: 0.45rem 0.2rem;
+        font-size: 0.76rem;
+        justify-content: center;
+        border-radius: 4px;
+        white-space: nowrap;
+      }
+      .tab-label-full {
+        display: none !important;
+      }
+      .tab-label-short {
+        display: inline !important;
+      }
+      .filter-tools {
+        max-width: 100%;
+        width: 100%;
+      }
+      .search-input {
+        padding: 0.45rem 0.75rem;
+        font-size: 0.82rem;
+      }
+
+      /* Mobile Timetable Wrapper & Sticky Day Column */
+      .timetable-wrapper {
+        padding: 0.4rem;
+        border-radius: var(--radius-sm);
+        margin: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .mobile-swipe-cue {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: var(--bg-muted);
+        border: 1px dashed var(--border-color);
+        padding: 0.35rem 0.5rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 0.4rem;
+        text-align: center;
+      }
+      .grid-table {
+        min-width: 820px;
+        border-spacing: 4px;
+      }
+      .grid-table th {
+        font-size: 0.72rem;
+        padding: 0.55rem 0.35rem;
+      }
+      .grid-table th:first-child,
+      .day-cell {
+        position: sticky;
+        left: 0;
+        z-index: 10;
+        background: var(--bg-surface);
+        box-shadow: 2px 0 6px rgba(0, 0, 0, 0.15);
+        width: 74px !important;
+        min-width: 74px !important;
+        max-width: 74px !important;
+        padding: 0.5rem 0.25rem;
+      }
+      [data-theme="dark"] .grid-table th:first-child,
+      [data-theme="dark"] .day-cell {
+        background: #1e293b;
+        box-shadow: 3px 0 8px rgba(0, 0, 0, 0.4);
+      }
+      .day-cell {
+        font-size: 0.78rem;
+      }
+      .day-cell small {
+        font-size: 0.58rem;
+      }
+      .course-card-slot {
+        min-height: 80px;
+        padding: 0.5rem 0.6rem;
+      }
+      .course-code-tag {
+        font-size: 0.78rem;
+      }
+      .room-pill {
+        font-size: 0.66rem;
+        padding: 1px 4px;
+      }
+      .course-title-slot {
+        font-size: 0.72rem;
+        line-height: 1.25;
+      }
+      .card-faculty-name {
+        max-width: 75px;
+        font-size: 0.68rem;
+      }
+
+      /* Mobile Daily Agenda */
+      .agenda-view {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      .agenda-day-card {
+        padding: 0.85rem;
+      }
+
+      /* Mobile Onboarding */
+      .onboarding-container {
+        padding: 1.35rem 0.85rem;
+        gap: 1.1rem;
+        border-radius: var(--radius-sm);
+      }
+      .onboarding-hero h1 {
+        font-size: 1.35rem;
+        letter-spacing: -0.3px;
+      }
+      .onboarding-hero p {
+        font-size: 0.85rem;
+      }
+      .onboarding-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      .onboard-card {
+        padding: 1rem;
+        gap: 0.75rem;
+      }
+      .onboard-card h3 {
+        font-size: 0.95rem;
+      }
+
+      /* Mobile Modals (Bottom Sheet) */
+      .modal-backdrop {
+        padding: 0;
+        align-items: flex-end;
+      }
+      .modal-card {
+        width: 100%;
+        max-width: 100vw;
+        max-height: 88vh;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: var(--radius-lg);
+        border-top-right-radius: var(--radius-lg);
+      }
+      .modal-header {
+        padding: 0.85rem 1rem;
+      }
+      .modal-body {
+        padding: 0.9rem 1rem;
+      }
+      .modal-footer {
+        padding: 0.75rem 1rem;
+      }
+
+      /* Mobile Footer */
+      .app-footer {
+        margin-top: 1.5rem;
+        padding: 1.25rem 0.5rem;
+        font-size: 0.78rem;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .tab-label-full {
+        display: inline;
+      }
+      .tab-label-short {
+        display: none;
+      }
+      .mobile-swipe-cue {
+        display: none;
       }
     }
     /* Developer Profile Modal Styles */
@@ -1244,8 +1559,16 @@
     
     <!-- Top Control Toolbar (Always visible) -->
     <header class="top-toolbar">
-      <div class="toolbar-left">
+      <div class="toolbar-brand-row">
         <button class="btn btn-developer-badge" id="btnDeveloperBadge" onclick="openModal('modalAboutDeveloper')" title="Click to view Creator & Lead Developer Profile">👨‍💻 Dev: Foyjul Bari Shahir</button>
+        <div class="toolbar-quick-toggles">
+          <button class="btn btn-pwa" id="btnInstallApp" style="display:none;" onclick="triggerPwaInstall()">📱 Install</button>
+          <button class="btn btn-outline" id="btnTimeToggle" onclick="toggleTimeFormat()">12h</button>
+          <button class="btn btn-outline" id="btnThemeToggle" onclick="toggleTheme()">☀️</button>
+        </div>
+      </div>
+
+      <div class="toolbar-actions-strip">
         <div class="semester-select-wrap" id="toolbarSemesterWrap" style="display:none;">
           <label class="semester-label" for="semesterDropdown">SEMESTER:</label>
           <select id="semesterDropdown" class="semester-dropdown" onchange="switchSemester(this.value)">
@@ -1256,17 +1579,9 @@
         <button class="btn btn-safe" id="btnBookmarkletModal" onclick="openModal('modalBookmarklet')">📌 1-Click Bookmarklet</button>
         <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">✨ Import UMS</button>
         <button class="btn btn-outline" id="btnAddSlot" onclick="openAddSlotModal()" style="display:none;">📅 Add Slot</button>
-      </div>
-
-      <div class="toolbar-right">
-        <!-- PWA Add to Home Screen Button -->
-        <button class="btn btn-pwa" id="btnInstallApp" style="display:none;" onclick="triggerPwaInstall()">📱 Add to Home Screen</button>
-
-        <button class="btn btn-outline" id="btnGuideModal" onclick="openModal('modalPublicGuide')">📖 Safety & Guide</button>
         <button class="btn btn-outline" id="btnProfileModal" onclick="openModal('modalProfile')" style="display:none;">👤 Profile</button>
         <button class="btn btn-outline" id="btnBackupModal" onclick="openModal('modalBackup')" style="display:none;">💾 Share / Backup</button>
-        <button class="btn btn-outline" id="btnTimeToggle" onclick="toggleTimeFormat()">12h</button>
-        <button class="btn btn-outline" id="btnThemeToggle" onclick="toggleTheme()">☀️</button>
+        <button class="btn btn-outline" id="btnGuideModal" onclick="openModal('modalPublicGuide')">📖 Safety & Guide</button>
         <button class="btn btn-outline" id="btnPrintBtn" onclick="window.print()" style="display:none;">🖨️ Print</button>
         <button class="btn btn-primary" id="btnExportCal" style="display:none;">📅 Export .ics</button>
       </div>
@@ -1387,9 +1702,15 @@
       <!-- View Switcher & Search Bar -->
       <section class="controls-bar">
         <div class="view-tabs">
-          <button class="tab-btn active" id="tabBtnGrid" onclick="switchView('grid')">📅 Weekly Timetable</button>
-          <button class="tab-btn" id="tabBtnTable" onclick="switchView('table')">📋 Course & Faculty Table</button>
-          <button class="tab-btn" id="tabBtnAgenda" onclick="switchView('agenda')">📆 Daily Agenda</button>
+          <button class="tab-btn active" id="tabBtnGrid" onclick="switchView('grid')">
+            <span>📅</span> <span class="tab-label-full">Weekly Timetable</span><span class="tab-label-short">Grid</span>
+          </button>
+          <button class="tab-btn" id="tabBtnTable" onclick="switchView('table')">
+            <span>📋</span> <span class="tab-label-full">Course & Faculty Table</span><span class="tab-label-short">Courses</span>
+          </button>
+          <button class="tab-btn" id="tabBtnAgenda" onclick="switchView('agenda')">
+            <span>📆</span> <span class="tab-label-full">Daily Agenda</span><span class="tab-label-short">Agenda</span>
+          </button>
         </div>
         <div class="filter-tools">
           <input type="text" id="courseSearch" class="search-input" placeholder="🔍 Search course, faculty, room..." oninput="handleSearch(this.value)">
@@ -1398,6 +1719,9 @@
 
       <!-- VIEW 1: Weekly Timetable Grid -->
       <main id="viewGrid" class="timetable-wrapper">
+        <div class="mobile-swipe-cue">
+          <span>👈 Swipe table horizontally to view full timetable 👉</span>
+        </div>
         <table class="grid-table">
           <thead>
             <tr>
