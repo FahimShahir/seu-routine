@@ -343,7 +343,7 @@
         'এই পেজে আপনার রুটিনের কোনো কোর্স খুঁজে পাওয়া যায়নি।<br><br>👉 দয়া করে UMS মেন্যু থেকে <strong>"Registered Courses"</strong> অথবা <strong>"Student Dashboard"</strong> পেজে যান যেখানে আপনার সেমিস্টার ও কোর্সগুলো দেখা যাচ্ছে। তারপর আবার বুকমার্কটিতে ক্লিক করুন।',
         true,
         '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
-        '  <button onclick="window.location.reload()" style="background:#2563eb; color:#ffffff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px;">🔄 Reload Page</button>' +
+        '  <a href="https://ums.seu.edu.bd/dashboard" style="background:#2563eb; color:#ffffff; padding:8px 14px; border-radius:8px; font-weight:700; text-decoration:none; display:inline-block; font-size:13px;">🔄 Open UMS Dashboard</a>' +
         '  <button onclick="document.getElementById(\'seu-routine-sync-banner\')?.remove()" style="background:#334155; color:#ffffff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:13px;">✕ Dismiss</button>' +
         '</div>'
       );
