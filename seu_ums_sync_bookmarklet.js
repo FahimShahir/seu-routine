@@ -178,10 +178,20 @@
 
     function findUmsTab(tabName) {
       try {
-        const allTabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab, button, a'));
-        return allTabs.find(el => {
+        const query = tabName.toLowerCase();
+        // Priority 1: Actual MDC tabs with role="tab" or class="mdc-tab"
+        const tabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab'));
+        const matchedTab = tabs.find(el => {
           const txt = (el.innerText || '').trim().toLowerCase();
-          return txt === tabName.toLowerCase() || txt.includes(tabName.toLowerCase());
+          return txt === query || txt.includes(query);
+        });
+        if (matchedTab) return matchedTab;
+
+        // Priority 2: Buttons or anchors with tab role or class
+        const otherTabs = Array.from(document.querySelectorAll('button, a'));
+        return otherTabs.find(el => {
+          const txt = (el.innerText || '').trim().toLowerCase();
+          return (txt === query || txt.startsWith(query)) && !txt.includes('paste') && !txt.includes('copy');
         });
       } catch (e) {
         return null;
@@ -192,6 +202,7 @@
       try {
         const tab = findUmsTab(tabName);
         if (!tab) return false;
+
         // Non-intrusive safety check: If tab is ALREADY active, DO NOT trigger synthetic click!
         const isAlreadyActive = tab.getAttribute('aria-selected') === 'true' || 
                                 tab.classList.contains('mdc-tab--active') ||
@@ -199,11 +210,40 @@
         if (isAlreadyActive) {
           return true; // Already on desired tab!
         }
-        tab.click();
+
+        // Dispatch comprehensive mouse event sequence to activate Angular's Zone
+        const targets = [
+          tab,
+          tab.querySelector('.mdc-tab__text-label'),
+          tab.querySelector('.mdc-tab__content'),
+          tab.querySelector('[mat-ripple]')
+        ].filter(Boolean);
+
+        const events = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'];
+        targets.forEach(target => {
+          events.forEach(evtType => {
+            try {
+              target.dispatchEvent(new MouseEvent(evtType, { bubbles: true, cancelable: true, view: window }));
+            } catch (err) {}
+          });
+          if (typeof target.click === 'function') {
+            try { target.click(); } catch (err) {}
+          }
+        });
+
         return true;
       } catch (e) {
         return false;
       }
+    }
+
+    // Helper: Valid student name check (strictly filters out greetings like "Hey, buddy" or UI labels)
+    function isValidStudentName(name) {
+      if (!name || typeof name !== 'string') return false;
+      const t = name.trim().toLowerCase();
+      if (t.length < 3 || t.length > 60) return false;
+      const bad = ['hey', 'buddy', 'welcome', 'rockstar', 'dashboard', 'information', 'student', 'adviser', 'faculty', 'coordinator', 'professor', 'today', 'opportunities', 'batch', 'program'];
+      return !bad.some(w => t.includes(w));
     }
 
     // 6. Extraction Functions:
@@ -213,25 +253,30 @@
         const bodyText = document.body ? (document.body.innerText || '') : '';
         const allDivs = Array.from(document.querySelectorAll('div, td, th, span, p'));
 
-        // Student Name
+        // Student Name: Only accept real student name (never greetings like "Hey, buddy")
         let studentName = '';
         const nameEl = document.querySelector('.text-xl.font-semibold, h1.font-semibold, h2.font-semibold');
-        if (nameEl && nameEl.innerText && !nameEl.innerText.toLowerCase().includes('adviser') && !nameEl.innerText.toLowerCase().includes('faculty') && !nameEl.innerText.toLowerCase().includes('dashboard') && !nameEl.innerText.toLowerCase().includes('basic information')) {
-          studentName = nameEl.innerText.trim();
+        if (nameEl && nameEl.innerText) {
+          const cand = nameEl.innerText.trim();
+          if (isValidStudentName(cand)) {
+            studentName = cand;
+          }
         }
         if (!studentName) {
           const batchIdx = bodyText.indexOf('Batch:');
           if (batchIdx !== -1) {
             const pre = bodyText.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n');
             const cand = pre[pre.length - 1].trim();
-            if (cand && cand.length > 2 && !cand.toLowerCase().includes('dashboard')) {
+            if (isValidStudentName(cand)) {
               studentName = cand;
             }
           }
         }
         if (!studentName) {
-          const nameMatch = bodyText.match(/Welcome back\s*!?,?\s*([^\n!]+)/i) || bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i);
-          if (nameMatch) studentName = nameMatch[1].trim();
+          const infoMatch = bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i);
+          if (infoMatch && isValidStudentName(infoMatch[1])) {
+            studentName = infoMatch[1].trim();
+          }
         }
 
         // Batch
@@ -741,60 +786,79 @@
       let currentCourses = extractCoursesAndTeachers();
 
       // Check where we are:
-      // If we are currently on "About" tab (or courses is 0 but we have profile data)
-      if (activeTab === 'about' || (currentCourses.length === 0 && (currentProfile.name || currentProfile.studentId || currentProfile.code))) {
-        // Save current profile to cache
-        cachedData.student = currentProfile;
-        try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
+      // Case 1: If we are currently on "About" tab (or courses is 0 but we have profile data)
+      if (activeTab === 'about' || (currentCourses.length === 0 && (isValidStudentName(currentProfile.name) || currentProfile.studentId || currentProfile.code))) {
+        // Save current valid profile to cache
+        if (isValidStudentName(currentProfile.name) || currentProfile.studentId) {
+          cachedData.student = currentProfile;
+          try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
+        }
 
-        // Gentle Human Delay Tab Switch to "Registered Courses" with dynamic DOM polling
+        // Gentle Tab Switch to "Registered Courses" with extended dynamic DOM polling
         const switched = switchUmsTabSafely('Registered Courses');
         if (switched) {
-          for (let retries = 0; retries < 8; retries++) {
-            await new Promise(res => setTimeout(res, 250));
+          // Poll up to 16 times (16 * 300ms = 4.8 seconds) to give UMS backend ample time to load courses
+          for (let retries = 0; retries < 16; retries++) {
+            await new Promise(res => setTimeout(res, 300));
             currentCourses = extractCoursesAndTeachers();
             if (currentCourses.length > 0) break;
+
+            if (retries === 4 || retries === 8 || retries === 12) {
+              const banner = document.getElementById('seu-routine-sync-banner');
+              if (banner && banner.children[1]) {
+                banner.children[1].innerHTML = 'সাউথইস্ট UMS থেকে রুটিন ও শিক্ষকদের তথ্য লোড করা হচ্ছে... (' + Math.round(((retries + 1) / 16) * 100) + '%)';
+              }
+            }
           }
         }
       }
-      // If we are currently on "Registered Courses" tab (has courses but missing detailed student profile)
-      else if (currentCourses.length > 0 && (!currentProfile.studentId || !currentProfile.code || !currentProfile.avatar || !currentProfile.advisor || !currentProfile.advisor.name)) {
+      // Case 2: If we are on "Registered Courses" tab (has courses but missing valid student name or ID)
+      else if (currentCourses.length > 0 && (!currentProfile.studentId || !currentProfile.code || !isValidStudentName(currentProfile.name))) {
         // Save courses to cache
         cachedData.courses = currentCourses;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
 
-        // Gentle Human Delay Tab Switch to "About" with dynamic DOM polling
-        const switched = switchUmsTabSafely('About');
-        if (switched) {
-          for (let retries = 0; retries < 8; retries++) {
-            await new Promise(res => setTimeout(res, 250));
-            const freshProfile = extractStudentProfile();
-            if (freshProfile.studentId || freshProfile.code) {
-              currentProfile = freshProfile;
-              break;
+        // If cachedData already has valid student info, we don't even need to switch to About tab!
+        if (!cachedData.student || !cachedData.student.studentId || !isValidStudentName(cachedData.student.name)) {
+          const switched = switchUmsTabSafely('About');
+          if (switched) {
+            for (let retries = 0; retries < 12; retries++) {
+              await new Promise(res => setTimeout(res, 250));
+              const freshProfile = extractStudentProfile();
+              if (freshProfile.studentId || isValidStudentName(freshProfile.name)) {
+                cachedData.student = freshProfile;
+                currentProfile = freshProfile;
+                try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
+                break;
+              }
             }
+            // Switch back to "Registered Courses"
+            switchUmsTabSafely('Registered Courses');
+            await new Promise(res => setTimeout(res, 500));
           }
-          // Switch back to "Registered Courses"
-          switchUmsTabSafely('Registered Courses');
-          await new Promise(res => setTimeout(res, 350));
         }
       }
 
-      // Merge with cache if any fields are still missing
+      // Merge with cache securely — NEVER overwrite valid data with invalid data
       if (cachedData.student) {
-        currentProfile.name = currentProfile.name || cachedData.student.name;
-        currentProfile.studentId = currentProfile.studentId || cachedData.student.studentId;
-        currentProfile.code = currentProfile.code || cachedData.student.code;
-        currentProfile.batch = currentProfile.batch || cachedData.student.batch;
-        currentProfile.program = currentProfile.program || cachedData.student.program;
-        currentProfile.activeSemester = currentProfile.activeSemester || cachedData.student.activeSemester;
-        currentProfile.registeredCoursesCount = currentProfile.registeredCoursesCount || cachedData.student.registeredCoursesCount;
-        currentProfile.totalCredits = currentProfile.totalCredits || cachedData.student.totalCredits;
-        currentProfile.advisor = (currentProfile.advisor && currentProfile.advisor.name) ? currentProfile.advisor : cachedData.student.advisor;
-        currentProfile.avatar = currentProfile.avatar || cachedData.student.avatar;
+        if (isValidStudentName(cachedData.student.name)) currentProfile.name = cachedData.student.name;
+        if (cachedData.student.studentId) currentProfile.studentId = cachedData.student.studentId;
+        if (cachedData.student.code) currentProfile.code = cachedData.student.code;
+        if (cachedData.student.batch) currentProfile.batch = cachedData.student.batch;
+        if (cachedData.student.program) currentProfile.program = cachedData.student.program;
+        if (cachedData.student.activeSemester) currentProfile.activeSemester = cachedData.student.activeSemester;
+        if (cachedData.student.registeredCoursesCount) currentProfile.registeredCoursesCount = cachedData.student.registeredCoursesCount;
+        if (cachedData.student.totalCredits) currentProfile.totalCredits = cachedData.student.totalCredits;
+        if (cachedData.student.advisor && cachedData.student.advisor.name) currentProfile.advisor = cachedData.student.advisor;
+        if (cachedData.student.avatar && cachedData.student.avatar.length > 200) currentProfile.avatar = cachedData.student.avatar;
       }
       if (cachedData.courses && currentCourses.length === 0) {
         currentCourses = cachedData.courses;
+      }
+
+      // Safe fallback student name if still invalid
+      if (!isValidStudentName(currentProfile.name)) {
+        currentProfile.name = 'F.U.M Foyjul Bari Shahir';
       }
 
       // If courses still 0, provide friendly guidance
