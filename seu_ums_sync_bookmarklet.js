@@ -154,7 +154,28 @@
       }
     }
 
-    // 5. Non-Intrusive Tab Switcher (Gentle, Checks aria-selected before clicking)
+    // 5. Active Tab Detector & Non-Intrusive Tab Switcher (Gentle, Checks aria-selected before clicking)
+    function getCurrentActiveTab() {
+      try {
+        const tabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab'));
+        const activeTab = tabs.find(el => {
+          return el.getAttribute('aria-selected') === 'true' || 
+                 el.classList.contains('mdc-tab--active') ||
+                 el.classList.contains('mat-mdc-tab-active') ||
+                 el.classList.contains('mdc-tab-indicator--active');
+        });
+        if (activeTab) {
+          const txt = (activeTab.innerText || '').trim().toLowerCase();
+          if (txt.includes('registered')) return 'registered';
+          if (txt.includes('about')) return 'about';
+        }
+        // Fallback based on distinctive DOM containers on page
+        if (document.querySelector('.student-count.grid')) return 'registered';
+        if (document.querySelector('.student-course-list-grid') || document.querySelector('.filter-info')) return 'about';
+      } catch (e) {}
+      return 'unknown';
+    }
+
     function findUmsTab(tabName) {
       try {
         const allTabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab, button, a'));
@@ -186,7 +207,7 @@
     }
 
     // 6. Extraction Functions:
-    // A) Extract Student Profile from "About" tab and Navbar
+    // A) Extract Student Profile from "About" tab and Navbar ONLY
     function extractStudentProfile() {
       try {
         const bodyText = document.body ? (document.body.innerText || '') : '';
@@ -238,7 +259,7 @@
           if (val) studentCode = val[0];
         }
         if (!studentCode) {
-          const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i);
+          const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i) || bodyText.match(/(\d{13})/);
           if (codeMatch) studentCode = codeMatch[1].trim();
         }
 
@@ -256,6 +277,59 @@
         if (!program) {
           const degMatch = bodyText.match(/(BSc\s+in\s+[A-Za-z\s]+|BBA|BA\s+in\s+[A-Za-z\s]+|LLB|MBA|MSc\s+in\s+[A-Za-z\s]+)/i);
           if (degMatch) program = degMatch[1].trim();
+        }
+
+        // Active Semester / Last Semester (e.g. Summer 2026)
+        let activeSemester = 'Summer 2026';
+        const semLabel = allDivs.find(el => el.children.length === 0 && (el.innerText.trim().toUpperCase() === 'LAST SEMESTER' || el.innerText.trim().toUpperCase() === 'ACTIVE SEMESTER'));
+        if (semLabel && semLabel.nextElementSibling) {
+          const val = (semLabel.nextElementSibling.innerText || '').trim();
+          if (val) activeSemester = val;
+        }
+        if (!activeSemester || activeSemester === 'Summer 2026') {
+          const semMatch = bodyText.match(/(?:^|\n)\s*(?:Last\s+Semester|Active\s+Semester)\s*[\n:\s]+([^\n]+)/i) || 
+                           bodyText.match(/(Summer|Fall|Spring)\s*(\d{4})/i);
+          if (semMatch) {
+            activeSemester = semMatch[2] ? (semMatch[1] + ' ' + semMatch[2]) : semMatch[1].trim();
+          }
+        }
+
+        // Registered Courses Count & Total Credits from About Tab Dashboard Cards
+        let registeredCoursesCount = 0;
+        let totalCredits = 0.0;
+
+        const countCards = Array.from(document.querySelectorAll('.card, [class*="card"], div.flex-col'));
+        for (const card of countCards) {
+          const cardText = (card.innerText || '').trim();
+          if (cardText.includes('Registered Course') && !cardText.includes('Preregistered Courses')) {
+            const countEl = card.querySelector('.text-6xl, .text-7xl, .text-5xl, [class*="text-6xl"]');
+            if (countEl) {
+              const num = parseInt(countEl.innerText.trim(), 10);
+              if (!isNaN(num)) registeredCoursesCount = num;
+            }
+            const credMatch = cardText.match(/Total\s*:\s*([\d\.]+)\s*Credits?/i);
+            if (credMatch) {
+              totalCredits = parseFloat(credMatch[1]);
+            }
+            break;
+          }
+        }
+
+        // Fallback from bodyText regex
+        if (!registeredCoursesCount || !totalCredits) {
+          const regCardMatch = bodyText.match(/(\d+)\s*\n\s*Registered\s+Course[s]?\s*\n\s*Total:\s*\n\s*([\d\.]+)\s*Credits?/i);
+          if (regCardMatch) {
+            if (!registeredCoursesCount) registeredCoursesCount = parseInt(regCardMatch[1], 10);
+            if (!totalCredits) totalCredits = parseFloat(regCardMatch[2]);
+          }
+        }
+        if (!registeredCoursesCount) {
+          const m = bodyText.match(/(\d+)\s*\n\s*Registered\s+Course[s]?/i);
+          if (m) registeredCoursesCount = parseInt(m[1], 10);
+        }
+        if (!totalCredits) {
+          const m = bodyText.match(/Registered\s+Course[s]?[\s\S]*?Total:\s*([\d\.]+)\s*Credits?/i);
+          if (m) totalCredits = parseFloat(m[1]);
         }
 
         // Advisor Name
@@ -332,27 +406,37 @@
           code: studentCode,
           batch: batch,
           program: program,
+          activeSemester: activeSemester,
+          registeredCoursesCount: registeredCoursesCount,
+          totalCredits: totalCredits,
           advisor: { name: advisorName },
           avatar: studentAvatar
         };
       } catch (e) {
-        return { name: '', studentId: '', code: '', batch: '42', program: 'BSc in EEE', advisor: { name: '' }, avatar: '' };
+        return { name: '', studentId: '', code: '', batch: '42', program: 'BSc in EEE', activeSemester: 'Summer 2026', registeredCoursesCount: 0, totalCredits: 0, advisor: { name: '' }, avatar: '' };
       }
     }
 
-    // B) Extract Routine Courses and Teachers' Photos from "Registered Courses" tab
+    // B) Extract Routine Courses and Teachers' Photos from "Registered Courses" tab ONLY
     function extractCoursesAndTeachers() {
       const courses = [];
 
       try {
-        // 1. Primary strategy: Row-by-Row DOM extraction
-        // Match any UMS row variation: student-count, student-course, mat-row, table tr
+        // STRICT GUARD: If current active tab is "About", NEVER extract routine courses from About tab!
+        // The About tab has a partial overview table (.student-course-list-grid) with NO faculty names, NO emails, and NO teacher photos.
+        const currentTab = getCurrentActiveTab();
+        if (currentTab === 'about') {
+          return []; // Return empty so orchestrator switches gently to Registered Courses tab!
+        }
+
+        // 1. Primary strategy: Row-by-Row DOM extraction ONLY from the REAL Registered Courses table
+        // Real UMS Registered Courses rows strictly use class: .student-count.grid
         const allPotentialRows = Array.from(document.querySelectorAll(
-          '.student-count.grid, [class*="student-count"], [class*="student-course"], tr[class*="course"], [class*="mat-row"], [class*="mdc-row"], table tbody tr'
+          '.student-count.grid, [class*="student-count"], tr[class*="course"], table tbody tr'
         ));
 
         const rowContainers = allPotentialRows.filter(el => {
-          if (el.classList.contains('mat-sort') || el.tagName === 'THEAD') return false;
+          if (el.classList.contains('mat-sort') || el.classList.contains('student-course-list-grid') || el.tagName === 'THEAD') return false;
           const txt = el.innerText || '';
           return /[A-Z]{3,5}\s*\d{3,4}/i.test(txt);
         });
@@ -539,8 +623,8 @@
           });
         }
 
-        // 2. Secondary fallback strategy: Robust Text-based line parsing
-        if (courses.length === 0) {
+        // 2. Secondary fallback strategy: Robust Text-based line parsing (ONLY if NOT on About tab!)
+        if (courses.length === 0 && currentTab !== 'about') {
           const bodyText = document.body ? (document.body.innerText || '') : '';
           const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
           const courseLineRegex = /^[ \t]*(?:Course\s*:\s*)?([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)(?:[\s\.\:\-]+(.*))?$/i;
@@ -640,7 +724,7 @@
       // Show progress notice
       showUmsBanner(
         '🔄 SEU Sync: ডেটা রিড করা হচ্ছে...',
-        'সাউথইস্ট UMS থেকে আপনার রুটিন, প্রোফাইল ও শিক্ষকদের ছবি নিরাপদভাবে রিড করা হচ্ছে। দয়া করে ১ সেকেন্ড অপেক্ষা করুন...',
+        'সাউথইস্ট UMS থেকে আপনার প্রোফাইল ও রুটিন নিরাপদভাবে রিড করা হচ্ছে। দয়া করে ১-২ সেকেন্ড অপেক্ষা করুন...',
         false,
         ''
       );
@@ -652,12 +736,13 @@
         if (raw) cachedData = JSON.parse(raw);
       } catch (e) {}
 
+      let activeTab = getCurrentActiveTab();
       let currentProfile = extractStudentProfile();
       let currentCourses = extractCoursesAndTeachers();
 
       // Check where we are:
-      // If we are currently on "About" tab (has profile name/ID but 0 courses)
-      if (currentCourses.length === 0 && (currentProfile.name || currentProfile.studentId)) {
+      // If we are currently on "About" tab (or courses is 0 but we have profile data)
+      if (activeTab === 'about' || (currentCourses.length === 0 && (currentProfile.name || currentProfile.studentId || currentProfile.code))) {
         // Save current profile to cache
         cachedData.student = currentProfile;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
@@ -665,7 +750,7 @@
         // Gentle Human Delay Tab Switch to "Registered Courses" with dynamic DOM polling
         const switched = switchUmsTabSafely('Registered Courses');
         if (switched) {
-          for (let retries = 0; retries < 6; retries++) {
+          for (let retries = 0; retries < 8; retries++) {
             await new Promise(res => setTimeout(res, 250));
             currentCourses = extractCoursesAndTeachers();
             if (currentCourses.length > 0) break;
@@ -673,7 +758,7 @@
         }
       }
       // If we are currently on "Registered Courses" tab (has courses but missing detailed student profile)
-      else if (currentCourses.length > 0 && (!currentProfile.studentId || !currentProfile.code || !currentProfile.avatar)) {
+      else if (currentCourses.length > 0 && (!currentProfile.studentId || !currentProfile.code || !currentProfile.avatar || !currentProfile.advisor || !currentProfile.advisor.name)) {
         // Save courses to cache
         cachedData.courses = currentCourses;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
@@ -681,7 +766,7 @@
         // Gentle Human Delay Tab Switch to "About" with dynamic DOM polling
         const switched = switchUmsTabSafely('About');
         if (switched) {
-          for (let retries = 0; retries < 6; retries++) {
+          for (let retries = 0; retries < 8; retries++) {
             await new Promise(res => setTimeout(res, 250));
             const freshProfile = extractStudentProfile();
             if (freshProfile.studentId || freshProfile.code) {
@@ -691,7 +776,7 @@
           }
           // Switch back to "Registered Courses"
           switchUmsTabSafely('Registered Courses');
-          await new Promise(res => setTimeout(res, 400));
+          await new Promise(res => setTimeout(res, 350));
         }
       }
 
@@ -702,6 +787,9 @@
         currentProfile.code = currentProfile.code || cachedData.student.code;
         currentProfile.batch = currentProfile.batch || cachedData.student.batch;
         currentProfile.program = currentProfile.program || cachedData.student.program;
+        currentProfile.activeSemester = currentProfile.activeSemester || cachedData.student.activeSemester;
+        currentProfile.registeredCoursesCount = currentProfile.registeredCoursesCount || cachedData.student.registeredCoursesCount;
+        currentProfile.totalCredits = currentProfile.totalCredits || cachedData.student.totalCredits;
         currentProfile.advisor = (currentProfile.advisor && currentProfile.advisor.name) ? currentProfile.advisor : cachedData.student.advisor;
         currentProfile.avatar = currentProfile.avatar || cachedData.student.avatar;
       }
@@ -725,6 +813,8 @@
 
       // Count teachers with photos
       const teachersWithPhotos = currentCourses.filter(c => c.faculty && c.faculty.avatar && c.faculty.avatar.length > 200).length;
+      const totalCreditsCalculated = currentCourses.reduce((sum, c) => sum + (c.credits || 0), 0);
+      const totalCreditsFinal = currentProfile.totalCredits || totalCreditsCalculated || 15.0;
 
       const syncPayload = {
         student: {
@@ -734,9 +824,11 @@
           program: currentProfile.program || 'BSc in EEE',
           batch: currentProfile.batch || '42',
           advisor: currentProfile.advisor || { name: '' },
-          avatar: currentProfile.avatar || ''
+          avatar: currentProfile.avatar || '',
+          registeredCoursesCount: currentProfile.registeredCoursesCount || currentCourses.length,
+          totalCredits: totalCreditsFinal
         },
-        activeSemester: 'Fall 2026',
+        activeSemester: currentProfile.activeSemester || 'Summer 2026',
         courses: currentCourses
       };
 
@@ -773,11 +865,12 @@
         '  ' + avatarThumbnailHtml,
         '  <div>',
         '    <div style="font-weight:700; color:#f8fafc; font-size:14px;">' + (currentProfile.name || 'Student Name') + '</div>',
-        '    <div style="font-size:12px; color:#94a3b8;">ID: ' + (currentProfile.studentId || '—') + ' | Batch: ' + (currentProfile.batch || '—') + ' | ' + (currentProfile.program || 'BSc in EEE') + '</div>',
+        '    <div style="font-size:12px; color:#94a3b8;">ID: ' + (currentProfile.studentId || '—') + ' | Code: ' + (currentProfile.code || '—') + ' | Batch: ' + (currentProfile.batch || '—') + ' | ' + (currentProfile.program || 'BSc in EEE') + '</div>',
+        '    <div style="font-size:11px; color:#38bdf8; margin-top:2px;">Advisor: ' + ((currentProfile.advisor && currentProfile.advisor.name) ? currentProfile.advisor.name : '—') + ' | ' + (currentProfile.activeSemester || 'Summer 2026') + '</div>',
         '  </div>',
         '</div>',
         '<div style="font-size:13px; color:#cbd5e1; line-height:1.45;">',
-        '  ✅ <strong>' + currentCourses.length + 'টি কোর্স</strong> এবং <strong>' + teachersWithPhotos + ' জন শিক্ষকের ছবি</strong> সফলভাবে সংগৃহীত হয়েছে!',
+        '  ✅ <strong>' + currentCourses.length + 'টি কোর্স (' + totalCreditsFinal + ' Credits)</strong> এবং <strong>' + teachersWithPhotos + ' জন শিক্ষকের ছবি</strong> সফলভাবে সংগৃহীত হয়েছে!',
         '</div>'
       ].join('');
 
