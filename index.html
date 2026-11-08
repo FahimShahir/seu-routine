@@ -2634,12 +2634,18 @@
             <div style="font-size:0.88rem; font-weight:800; color:var(--text-main);">
               আপনার ডিভাইস নির্বাচন করুন:
             </div>
-            <div class="guide-dev-pill-group">
+            <div class="guide-dev-pill-group" style="flex-wrap: wrap;">
               <button type="button" class="guide-dev-pill active" id="btnDevPc" onclick="switchGuideDevice('pc')">
-                💻 PC / Laptop (Bookmarklet)
+                💻 PC / Laptop
               </button>
-              <button type="button" class="guide-dev-pill" id="btnDevMobile" onclick="switchGuideDevice('mobile')">
-                📱 মোবাইল ফোন (১-ট্যাপ পেস্ট)
+              <button type="button" class="guide-dev-pill" id="btnDevIos" onclick="switchGuideDevice('ios')">
+                🍎 iPhone (Safari)
+              </button>
+              <button type="button" class="guide-dev-pill" id="btnDevAndroid" onclick="switchGuideDevice('android')">
+                🤖 Android (Chrome)
+              </button>
+              <button type="button" class="guide-dev-pill" id="btnDevEasy" onclick="switchGuideDevice('easy')">
+                ⭐ সহজ বিকল্প (পেস্ট)
               </button>
             </div>
           </div>
@@ -2674,7 +2680,7 @@
                   <div>
                     <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্কলেটে ১-ক্লিক করুন:</strong>
                     <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
-                      বুকমার্ক বারে থাকা <strong>"📌 Sync SEU Routine"</strong>-এ ক্লিক করলেই স্ক্রিনের শীর্ষে একটি স্মার্ট ব্যানার আসবে। সেখান থেকে <strong>"🚀 Open Routine App"</strong>-এ ক্লিক করলেই নাম, আইডি, কোড ও শিক্ষকদের আসল ছবিসহ পুরো রুটিন লাইভ হয়ে যাবে!
+                      বুকমার্ক বারে থাকা <strong>"📌 Sync SEU Routine"</strong>-এ ক্লিক করলেই স্ক্রিনের শীর্ষে একটি স্মার্ট ব্যানার আসবে। সেখান থেকে <strong>"🚀 Open Routine App"</strong>-এ ক্লিক করলেই নাম, আইডি, কোড ও শিক্ষকদের ছবিসহ পুরো রুটিন লাইভ হয়ে যাবে!
                     </p>
                   </div>
                 </div>
@@ -2691,11 +2697,134 @@
             </div>
           </div>
 
-          <!-- Mobile Guide -->
-          <div id="guideDeviceMobile" style="display:none;">
+          <!-- iPhone / iOS Safari Guide -->
+          <div id="guideDeviceIos" style="display:none;">
+            <div style="background:rgba(59,130,246,0.06); border:1.5px solid rgba(59,130,246,0.3); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+              <h3 style="margin:0 0 0.5rem 0; font-size:0.9rem; color:var(--primary); font-weight:800;">
+                🍎 iPhone / iPad (Safari) বুকমার্কলেট ইউজার ম্যানুয়াল:
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:#2563eb;">১</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্কলেট কোড কপি করুন:</strong>
+                    <p style="margin:0.2rem 0 0.4rem 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      নিচের বাটনে চাপ দিয়ে ১-ক্লিকে কোডটি কপি করে নিন:
+                    </p>
+                    <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="font-size:0.78rem; padding:0.35rem 0.75rem;">
+                      📋 Copy Bookmarklet Code
+                    </button>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:#2563eb;">২</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">সাফারিতে বুকমার্ক যুক্ত করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      Safari ব্রাউজারের নিচে থাকা <strong>Share আইকন</strong> (📤 মাঝের বক্সের ওপর তীর) চাপুন ➔ <strong>"Add Bookmark"</strong> দিন ➔ নাম দিন <code>SEU Sync</code> ➔ ডানে <strong>Save</strong> চাপুন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:#2563eb;">৩</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্ক Edit করে কোড পেস্ট করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      সাফারির নিচে <strong>Bookmarks আইকন</strong> (📖 বইয়ের চিহ্ন) চাপুন ➔ নিচে <strong>Edit</strong> চাপুন ➔ <code>SEU Sync</code>-এ ট্যাপ করুন ➔ <strong>URL ফিল্ডের আগের সব লেখা মুছে দিয়ে</strong> ধাপ ১-এর কোডটি Paste করুন ➔ <strong>Done</strong> চাপুন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:#2563eb;">৪</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">UMS-এ গিয়ে রান করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      সাফারিতে <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ যান। সাফারির Bookmarks (📖) খুলে <code>SEU Sync</code>-এ চাপ দিন (বা Address Bar-এ <code>SEU Sync</code> লিখে সার্চ অপশনে চাপুন)। ১-ক্লিকেই রুটিন অ্যাপে লোড হয়ে যাবে!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-magic" onclick="closeModal('modalHowItWorks'); openModal('modalUmsImport');" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                ✨ সহজ বিকল্প: ১০ সেকেন্ডে টেক্সট পেস্ট
+              </button>
+              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" class="btn btn-primary" style="font-size:0.82rem; padding:0.5rem 0.95rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+                🌐 UMS খুলুন (ums.seu.edu.bd)
+              </a>
+            </div>
+          </div>
+
+          <!-- Android Chrome Guide -->
+          <div id="guideDeviceAndroid" style="display:none;">
+            <div style="background:rgba(16,185,129,0.06); border:1.5px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+              <h3 style="margin:0 0 0.5rem 0; font-size:0.9rem; color:var(--accent-green); font-weight:800;">
+                🤖 Android Phone (Google Chrome) বুকমার্কলেট ইউজার ম্যানুয়াল:
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">১</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্কলেট কোড কপি করুন:</strong>
+                    <p style="margin:0.2rem 0 0.4rem 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      নিচের বাটনে চাপ দিয়ে কোডটি কপি করে নিন:
+                    </p>
+                    <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="font-size:0.78rem; padding:0.35rem 0.75rem;">
+                      📋 Copy Bookmarklet Code
+                    </button>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">২</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">ক্রোমে পেজটি স্টার (★) চাপুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      Google Chrome ব্রাউজারের উপরে ডানদিকের ৩-ডট মেনু (<code>⋮</code>) ট্যাপ করে স্টার (<code>★</code>) আইকনে চাপ দিন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">৩</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্ক Edit করে কোড পেস্ট করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      নিচে <strong>"Edit"</strong> চাপুন (অথবা Chrome Menu ➔ Bookmarks-এ যান) ➔ নাম দিন <code>SEU Sync</code> ➔ <strong>URL বক্সে থাকা আগের লিংক পুরোপুরি মুছে দিয়ে</strong> কপি করা কোডটি Paste করে সেভ করুন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">৪</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">UMS-এ গিয়ে Address Bar-এ নাম সার্চ করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ লগইন করুন ➔ ব্রাউজারের <strong>Address Bar</strong>-এ লিখুন <code>SEU Sync</code> ➔ ড্রপডাউনে স্টার (<code>★</code>) দেওয়া <code>SEU Sync</code> অপশনে ট্যাপ করলেই রুটিন সিঙ্ক হয়ে যাবে!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Android Caution -->
+              <div style="margin-top:0.85rem; padding:0.65rem 0.85rem; background:rgba(245,158,11,0.12); border-left:3px solid #f59e0b; border-radius:4px; font-size:0.78rem; line-height:1.45; color:var(--text-main);">
+                ⚠️ <strong>জরুরি সতর্কতা:</strong> ক্রোম ব্রাউজারের অ্যাড্রেস বারে সরাসরি কোড পেস্ট করবেন না। কারণ ক্রোম স্বয়ংক্রিয়ভাবে <code>javascript:</code> শব্দটি মুছে দিয়ে গুগল সার্চ করে ফেলে। বুকমার্কে সেভ করে অ্যাড্রেস বারে নাম সার্চ করাই সঠিক উপায়।
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-magic" onclick="closeModal('modalHowItWorks'); openModal('modalUmsImport');" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                ✨ সহজ বিকল্প: ১০ সেকেন্ডে টেক্সট পেস্ট
+              </button>
+              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" class="btn btn-primary" style="font-size:0.82rem; padding:0.5rem 0.95rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+                🌐 UMS খুলুন (ums.seu.edu.bd)
+              </a>
+            </div>
+          </div>
+
+          <!-- Easy Copy-Paste Guide -->
+          <div id="guideDeviceEasy" style="display:none;">
             <div style="background:rgba(16,185,129,0.08); border:1.5px solid var(--accent-green); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
               <h3 style="margin:0 0 0.4rem 0; font-weight:800; color:var(--accent-green); font-size:0.9rem;">
-                ⭐ মোবাইলে সবচেয়ে সহজ পদ্ধতি (মাত্র ১০ সেকেন্ড):
+                ⭐ মোবাইলে সবচেয়ে সহজ পদ্ধতি (বুকমার্ক ছাড়া মাত্র ১০ সেকেন্ড):
               </h3>
               <div style="display:flex; flex-direction:column; gap:0.75rem;">
                 <div style="display:flex; gap:0.6rem; align-items:flex-start;">
@@ -2726,6 +2855,14 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-magic" onclick="closeModal('modalHowItWorks'); openModal('modalUmsImport');" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                ✨ Import UMS (পেস্ট অপশন খুলুন)
+              </button>
+            </div>
+          </div>
             </div>
 
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
@@ -3119,74 +3256,96 @@
 
         <!-- TAB 2: Android Phone (Google Chrome) -->
         <div id="tabContentAndroid" class="bm-tab-content" style="display:none;">
-          <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.82rem; line-height:1.5;">
-            🤖 <strong>Android ক্রোম ব্রাউজারে ব্যবহারের নিয়ম:</strong> মোবাইলে বুকমার্ক বার থাকে না, তাই নিচের সহজ ৪টি ধাপ অনুসরণ করুন:
+          <div style="background:rgba(16,185,129,0.08); border:1.5px solid rgba(16,185,129,0.3); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.84rem; line-height:1.5;">
+            🤖 <strong>Android ক্রোম ব্রাউজার ইউজার ম্যানুয়াল:</strong> মোবাইলে ডেক্সটপের মতো বুকমার্ক বার থাকে না, তাই নিচের সহজ ৪টি ধাপে বুকমার্কলেটটি রান করুন:
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">১</span><strong>কোডটি কপি করুন:</strong>
-            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; margin-top:0.45rem; font-size:0.9rem; padding:0.6rem;">
+            <span class="mobile-step-num" style="background:var(--accent-green);">১</span><strong>বুকমার্কলেট কোড কপি করুন:</strong>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin:0.25rem 0 0.45rem 0;">
+              নিচের বাটনে ১-ক্লিক করে বুকমার্ক কোডটি আপনার ক্লিপবোর্ডে কপি করে নিন:
+            </p>
+            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; font-size:0.88rem; padding:0.55rem;">
               📋 Copy Bookmarklet Code
             </button>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">২</span><strong>এই পেজটি বুকমার্ক করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              Chrome ব্রাউজারের উপরে ডানদিকের ৩টি ডট (<code>⋮</code>) মেনুতে ট্যাপ করে স্টার (<code>★</code>) আইকনে চাপ দিন।
+            <span class="mobile-step-num" style="background:var(--accent-green);">২</span><strong>এই পেজটি স্টার (★) চেপে বুকমার্ক করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.45;">
+              Chrome ব্রাউজারের উপরে ডানদিকের ৩টি ডট (<code>⋮</code>) মেনুতে ট্যাপ করে উপরে থাকা স্টার (<code>★</code>) আইকনে চাপ দিন।
             </p>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">৩</span><strong>বুকমার্কটি এডিট করে কোড পেস্ট করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              নিচে <strong>"Edit"</strong> অপশন আসলে চাপুন (অথবা Chrome Menu -&gt; Bookmarks-এ যান)।<br>
-              • Name দিন: <code>SEU Sync</code><br>
-              • <strong>URL-এর সব লেখা মুছে দিন</strong> এবং ১ নম্বর ধাপে কপি করা কোডটি <strong>Paste</strong> করে সেভ করুন।
+            <span class="mobile-step-num" style="background:var(--accent-green);">৩</span><strong>বুকমার্ক Edit করে কোড পেস্ট করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.5;">
+              নিচে <strong>"Edit"</strong> অপশন আসলে চাপুন (অথবা Chrome Menu <code>⋮</code> ➔ Bookmarks ফোল্ডারে গিয়ে এই বুকমার্কের পাশে ৩-ডট চেপে Edit দিন):<br>
+              • <strong>Name:</strong> দিন <code>SEU Sync</code><br>
+              • <strong>URL:</strong> <strong>আগের সব লেখা সম্পূর্ণ মুছে ফেলুন (Delete all)</strong> এবং ধাপ ১-এ কপি করা কোডটি <strong>Paste</strong> করে সেভ করুন।
             </p>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">৪</span><strong>UMS-এ গিয়ে রান করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ লগইন করুন। ব্রাউজারের <strong>Address Bar</strong>-এ লিখুন <code>SEU Sync</code>। নিচে স্টার (<code>★</code>) দেওয়া বুকমার্ক অপশনে ট্যাপ করলেই রুটিন সিঙ্ক হয়ে যাবে!
+            <span class="mobile-step-num" style="background:var(--accent-green);">৪</span><strong>UMS-এ গিয়ে Address Bar-এ নাম সার্চ করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.5;">
+              ক্রোমে <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ যান ➔ ব্রাউজারের উপরে থাকা <strong>Address Bar</strong>-এ লিখুন <code>SEU Sync</code> ➔ নিচে ড্রপডাউনে স্টার (<code>★</code>) দেওয়া <code>SEU Sync</code> অপশনে ট্যাপ করলেই রুটিন সিঙ্ক সম্পন্ন!
             </p>
           </div>
+
+          <div style="padding:0.75rem 0.9rem; background:rgba(245,158,11,0.12); border-left:3px solid #f59e0b; border-radius:4px; font-size:0.78rem; line-height:1.45; color:var(--text-main); margin-bottom:0.75rem;">
+            ⚠️ <strong>গুরুত্বপূর্ণ সতর্কতা:</strong> ক্রোম ব্রাউজারের অ্যাড্রেস বারে সরাসরি কোড পেস্ট করবেন না। ক্রোম স্বয়ংক্রিয়ভাবে <code>javascript:</code> অংশ মুছে ফেলে। বুকমার্কে সেভ করে অ্যাড্রেস বারে নাম সার্চ করাই একমাত্র সঠিক উপায়।
+          </div>
+
+          <button class="btn btn-magic" style="width:100%; font-size:0.88rem; padding:0.6rem;" onclick="switchBookmarkletTab('mobileEasy')">
+            ✨ বুকমার্ক বানাতে ঝামেলা লাগলে? ১০ সেকেন্ডে টেক্সট পেস্ট করুন
+          </button>
         </div>
 
         <!-- TAB 3: iPhone / iPad (Safari) -->
         <div id="tabContentIos" class="bm-tab-content" style="display:none;">
-          <div style="background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.82rem; line-height:1.5;">
-            🍎 <strong>iPhone / iPad Safari-তে ব্যবহারের নিয়ম:</strong>
+          <div style="background:rgba(59,130,246,0.08); border:1.5px solid rgba(59,130,246,0.3); border-radius:var(--radius-sm); padding:0.85rem; margin-bottom:0.85rem; font-size:0.84rem; line-height:1.5;">
+            🍎 <strong>iPhone / iPad Safari ইউজার ম্যানুয়াল:</strong> সাফারিতে খুব সহজে বুকমার্কলেট সেট করার ৪টি ধাপ:
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">১</span><strong>কোডটি কপি করুন:</strong>
-            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; margin-top:0.45rem; font-size:0.9rem; padding:0.6rem;">
+            <span class="mobile-step-num" style="background:#2563eb;">১</span><strong>বুকমার্কলেট কোড কপি করুন:</strong>
+            <p style="font-size:0.78rem; color:var(--text-muted); margin:0.25rem 0 0.45rem 0;">
+              নিচের বাটনে ১-ট্যাপ করে জাভাস্ক্রিপ্ট কোডটি কপি করে নিন:
+            </p>
+            <button class="btn btn-primary" onclick="copyBookmarkletCode(event)" style="width:100%; font-size:0.88rem; padding:0.55rem;">
               📋 Copy Bookmarklet Code
             </button>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">২</span><strong>বুকমার্ক তৈরি করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              সাফারির নিচের Share বাটন (তীর চিহ্নিত বক্স) চাপুন এবং <strong>"Add Bookmark"</strong> সিলেক্ট করুন। নাম দিন <code>SEU Sync</code> এবং Save চাপুন।
+            <span class="mobile-step-num" style="background:#2563eb;">২</span><strong>সাফারিতে বুকমার্ক যুক্ত করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.45;">
+              Safari ব্রাউজারের নিচে থাকা <strong>Share আইকন</strong> (📤 মাঝের চারকোনা বক্সের ওপর তীর) চাপুন ➔ তালিকা থেকে <strong>"Add Bookmark"</strong> সিলেক্ট করুন ➔ নাম দিন <code>SEU Sync</code> ➔ ডানে <strong>Save</strong> চাপুন।
             </p>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">৩</span><strong>URL ফিল্ডে কোড পেস্ট করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              সাফারির Bookmarks (বইয়ের আইকন) খুলুন -&gt; নিচে <strong>Edit</strong> চাপুন -&gt; <code>SEU Sync</code> বুকমার্কে ট্যাপ করুন -&gt; <strong>URL মুছে দিয়ে কপি করা কোডটি Paste করুন</strong> -&gt; Done চাপুন।
+            <span class="mobile-step-num" style="background:#2563eb;">৩</span><strong>বুকমার্ক Edit করে কোড পেস্ট করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.5;">
+              সাফারির নিচের মেনু থেকে <strong>Bookmarks আইকন</strong> (📖 বইয়ের মতো চিহ্ন) চাপুন ➔ নিচে ডানে থাকা <strong>"Edit"</strong> চাপুন ➔ <code>SEU Sync</code> বুকমার্কে ট্যাপ করুন ➔ <strong>URL বক্সে থাকা আগের লিংক সম্পূর্ণ মুছে ফেলুন (Delete all)</strong> ➔ ধাপ ১-এ কপি করা কোডটি <strong>Paste</strong> করে <strong>Done</strong> চাপুন।
             </p>
           </div>
 
           <div class="mobile-step-box">
-            <span class="mobile-step-num">৪</span><strong>UMS-এ গিয়ে রান করুন:</strong>
-            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0;">
-              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ যান। Bookmarks আইকনে ট্যাপ করে <code>SEU Sync</code>-এ ক্লিক করলেই আপনার রুটিন অ্যাপে খুলে যাবে!
+            <span class="mobile-step-num" style="background:#2563eb;">৪</span><strong>UMS-এ গিয়ে রান করুন:</strong>
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 0 0; line-height:1.5;">
+              সাফারিতে <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ লগইন করুন ➔ সাফারির Bookmarks (📖) খুলে <code>SEU Sync</code> বুকমার্কে চাপ দিন (অথবা Address Bar-এ <code>SEU Sync</code> লিখে সার্চ ফলাফলে ট্যাপ করুন) ➔ সাথে সাথে ১-ক্লিক সিঙ্ক ব্যানার চালু হয়ে যাবে!
             </p>
           </div>
+
+          <div style="padding:0.75rem 0.9rem; background:rgba(59,130,246,0.1); border-left:3px solid var(--primary); border-radius:4px; font-size:0.78rem; line-height:1.45; color:var(--text-main); margin-bottom:0.75rem;">
+            💡 <strong>আইফোন টিপস:</strong> একবার এই বুকমার্কলেটটি সাফারিতে সেভ করা থাকলে সেমিস্টার পরিবর্তনের সময়ও যেকোনো দিন UMS পেজে ঢুকে ১-ট্যাপে নতুন রুটিন সিঙ্ক করা যাবে।
+          </div>
+
+          <button class="btn btn-magic" style="width:100%; font-size:0.88rem; padding:0.6rem;" onclick="switchBookmarkletTab('mobileEasy')">
+            ✨ বুকমার্ক বানাতে ঝামেলা লাগলে? ১০ সেকেন্ডে টেক্সট পেস্ট করুন
+          </button>
         </div>
 
         <!-- TAB 4: মোবাইলে আরও সহজ উপায় (Paste UMS Text) -->
@@ -4486,14 +4645,13 @@
     }
 
     function switchGuideDevice(dev) {
-      const pcBox = document.getElementById('guideDevicePc');
-      const mobileBox = document.getElementById('guideDeviceMobile');
-      const btnPc = document.getElementById('btnDevPc');
-      const btnMobile = document.getElementById('btnDevMobile');
-      if (btnPc) btnPc.classList.toggle('active', dev === 'pc');
-      if (btnMobile) btnMobile.classList.toggle('active', dev === 'mobile');
-      if (pcBox) pcBox.style.display = (dev === 'pc') ? 'block' : 'none';
-      if (mobileBox) mobileBox.style.display = (dev === 'mobile') ? 'block' : 'none';
+      const devices = ['pc', 'ios', 'android', 'easy'];
+      devices.forEach(d => {
+        const btn = document.getElementById('btnDev' + d.charAt(0).toUpperCase() + d.slice(1));
+        const box = document.getElementById('guideDevice' + d.charAt(0).toUpperCase() + d.slice(1));
+        if (btn) btn.classList.toggle('active', d === dev);
+        if (box) box.style.display = (d === dev) ? 'block' : 'none';
+      });
     }
 
     function openGuideSafetyTab() {
