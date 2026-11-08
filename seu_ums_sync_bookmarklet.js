@@ -343,57 +343,141 @@
     // B) Extract Routine Courses and Teachers' Photos from "Registered Courses" tab
     function extractCoursesAndTeachers() {
       const courses = [];
-      const courseRegex = /^[ \t]*([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)[ \t]*$/i;
 
       try {
-        // Primary strategy: Row-by-Row DOM extraction
-        const rowContainers = Array.from(document.querySelectorAll('.student-count.grid, div[class*="student-count"], tr[class*="course"], [class*="mat-row"]'));
+        // 1. Primary strategy: Row-by-Row DOM extraction
+        // Match any UMS row variation: student-count, student-course, mat-row, table tr
+        const allPotentialRows = Array.from(document.querySelectorAll(
+          '.student-count.grid, [class*="student-count"], [class*="student-course"], tr[class*="course"], [class*="mat-row"], [class*="mdc-row"], table tbody tr'
+        ));
+
+        const rowContainers = allPotentialRows.filter(el => {
+          if (el.classList.contains('mat-sort') || el.tagName === 'THEAD') return false;
+          const txt = el.innerText || '';
+          return /[A-Z]{3,5}\s*\d{3,4}/i.test(txt);
+        });
         
         if (rowContainers.length > 0) {
           rowContainers.forEach(row => {
-            // Skip header row if present
-            if (row.classList.contains('mat-sort') || (row.innerText.includes('Course') && row.innerText.includes('Faculty') && row.innerText.includes('Schedule'))) {
-              return;
-            }
-
             const rowText = row.innerText || '';
             const match = rowText.match(/([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)/i);
             if (!match) return;
 
             const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
+            if (rawCode.startsWith('PC') || rawCode.startsWith('ROOM') || rawCode.startsWith('SEC')) return;
+
             const parts = rawCode.split('.');
             const code = parts[0];
             const sec = parts[1] || '1';
 
-            // Title
+            // 1.1 Course Title: Look inside the first column or near course code
             let title = '';
-            const titleEl = row.querySelector('.text-sm.text-gray-500, [class*="text-gray-500"], .course-title');
-            if (titleEl) {
-              title = titleEl.innerText.trim();
+            const firstCol = row.children[0] || row;
+            const titleCandidates = Array.from(firstCol.querySelectorAll('.text-sm, .text-gray-500, [class*="text-gray"], .course-title, div, span, p'));
+            for (const el of titleCandidates) {
+              const txt = (el.innerText || '').trim();
+              if (txt && txt.length > 2 && 
+                  !txt.includes('@') && 
+                  !txt.includes('mailto:') && 
+                  !txt.startsWith('SEC') && 
+                  !txt.startsWith('PC') && 
+                  !txt.startsWith('[') && 
+                  !/^(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(txt) &&
+                  !/^[A-Z]{3,5}\s*\d{3,4}/i.test(txt)) {
+                title = txt;
+                break;
+              }
+            }
+            if (!title) {
+              // Row-level fallback for title
+              const rowGray = Array.from(row.querySelectorAll('.text-gray-500, [class*="text-gray-500"], .course-title'));
+              for (const el of rowGray) {
+                const txt = (el.innerText || '').trim();
+                if (txt && txt.length > 3 && !txt.includes('@') && !txt.includes('mailto:')) {
+                  title = txt;
+                  break;
+                }
+              }
+            }
+            if (!title) {
+              // Line fallback
+              const lines = rowText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+              for (let i = 0; i < lines.length; i++) {
+                if (lines[i].includes(code) && i + 1 < lines.length) {
+                  const nextL = lines[i+1];
+                  if (!nextL.includes('@') && !nextL.includes('#') && !nextL.startsWith('[') && !/^(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(nextL)) {
+                    title = nextL;
+                    break;
+                  }
+                }
+              }
             }
 
-            // Faculty Initials & Name
-            let facInitials = '';
-            let facName = '';
-            const facMatch = rowText.match(/\[([A-Z]+)\]\s*([^@\n<]+)/i);
-            if (facMatch) {
-              facInitials = facMatch[1].toUpperCase();
-              facName = facMatch[2].trim();
-            }
-
-            // Faculty Email
+            // 1.2 Faculty Email
             let facEmail = '';
             const emailEl = row.querySelector('a[href^="mailto:"]');
             if (emailEl) {
               facEmail = emailEl.getAttribute('href').replace('mailto:', '').trim();
             } else {
-              const mailMatch = rowText.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
+              const mailMatch = (row.innerHTML || rowText).match(/mailto:([^\s'"<>]+)/i) || rowText.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
               if (mailMatch) facEmail = mailMatch[1].trim();
             }
 
-            // Faculty Avatar Image directly inside this specific row! (Optimized: 52x52 px)
+            // 1.3 Faculty Initials & Clean Name
+            let facInitials = '';
+            let facName = '';
+            const facMatch = rowText.match(/\[([A-Z]{2,5})\]\s*([^<\n@#]+)/i);
+            if (facMatch) {
+              facInitials = facMatch[1].toUpperCase();
+              facName = facMatch[2].trim();
+            } else {
+              const parenMatch = rowText.match(/\(([A-Z]{2,5})\)\s*([^<\n@#]+)/i) || rowText.match(/([^<\n@#]+)\s*\(([A-Z]{2,5})\)/i);
+              if (parenMatch) {
+                if (parenMatch[1].length <= 5 && parenMatch[1] === parenMatch[1].toUpperCase()) {
+                  facInitials = parenMatch[1];
+                  facName = parenMatch[2].trim();
+                } else {
+                  facName = parenMatch[1].trim();
+                  facInitials = parenMatch[2].toUpperCase();
+                }
+              } else {
+                const fontSemi = Array.from(row.querySelectorAll('.font-semibold, [class*="font-semibold"], td, div'));
+                for (const fs of fontSemi) {
+                  const txt = (fs.innerText || '').trim();
+                  if (txt.length > 3 && !txt.includes(code) && !txt.includes('Credit') && 
+                      !/^(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(txt) && !txt.startsWith('PC')) {
+                    const clone = fs.cloneNode(true);
+                    clone.querySelectorAll('a, mat-icon, [class*="text-gray"], div').forEach(c => c.remove());
+                    const pureTxt = (clone.innerText || '').trim();
+                    if (pureTxt.length > 2) {
+                      facName = pureTxt.replace(/\[[A-Z]+\]/gi, '').trim();
+                      const inBrackets = (pureTxt.match(/\[([A-Z]+)\]/i) || [])[1];
+                      if (inBrackets) facInitials = inBrackets.toUpperCase();
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+
+            // CRITICAL: Clean email username if glued to faculty name!
+            if (facEmail && facEmail.includes('@')) {
+              const emailUser = facEmail.split('@')[0].trim();
+              if (facName.toLowerCase().endsWith(emailUser.toLowerCase())) {
+                facName = facName.substring(0, facName.length - emailUser.length).trim();
+              }
+              if (facName.toLowerCase().endsWith(facEmail.toLowerCase())) {
+                facName = facName.substring(0, facName.length - facEmail.length).trim();
+              }
+            }
+            facName = facName.replace(/[\s\.\,\-]+$/, '').trim();
+            if (!facInitials && facName) {
+              facInitials = facName.split(/\s+/).filter(w => w && w[0] === w[0].toUpperCase()).map(w => w[0]).slice(0, 3).join('');
+            }
+
+            // 1.4 Faculty Avatar Photo
             let facAvatar = '';
-            const facImg = row.querySelector('img[alt="User avatar"], img[class*="rounded-full"], img');
+            const facImg = row.querySelector('img[alt="User avatar"], img[class*="rounded-full"], .rounded-full img, img');
             if (facImg) {
               const b64 = getElementBase64(facImg, 52, 0.55);
               if (b64 && b64.length > 200 && !b64.includes('svg+xml')) {
@@ -401,7 +485,7 @@
               }
             }
 
-            // Schedules
+            // 1.5 Schedules
             const schedules = [];
             const schedMatches = rowText.matchAll(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/gi);
             for (const sm of schedMatches) {
@@ -414,13 +498,36 @@
               });
             }
 
+            // 1.6 Accurate Lab vs Theory and Credits (Never use section .2 as lab indicator!)
+            const titleLow = title.toLowerCase();
+            const codeUpp = code.toUpperCase();
+            let isLab = titleLow.includes('lab') || titleLow.includes('sessional') || 
+                        titleLow.includes('practical') || titleLow.includes('project') || 
+                        titleLow.includes('thesis') || codeUpp.includes('LAB') || 
+                        codeUpp.endsWith('L');
+
+            // Check if schedule duration is >= 100 minutes
+            for (const s of schedules) {
+              if (s.startTime && s.endTime) {
+                const [h1, m1] = s.startTime.split(':').map(Number);
+                const [h2, m2] = s.endTime.split(':').map(Number);
+                if ((h2 * 60 + m2) - (h1 * 60 + m1) >= 100) {
+                  isLab = true;
+                  break;
+                }
+              }
+            }
+
+            const courseType = isLab ? 'Lab' : 'Theory';
+            const credits = (isLab && !titleLow.includes('project') && !titleLow.includes('thesis')) ? 1.5 : 3.0;
+
             courses.push({
               codeWithSec: rawCode,
               code: code,
               section: sec,
               title: title,
-              credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0,
-              type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory',
+              credits: credits,
+              type: courseType,
               faculty: {
                 initials: facInitials,
                 name: facName,
@@ -432,30 +539,37 @@
           });
         }
 
-        // Secondary fallback strategy: Text-based line parsing if rowContainers query found 0
+        // 2. Secondary fallback strategy: Robust Text-based line parsing
         if (courses.length === 0) {
           const bodyText = document.body ? (document.body.innerText || '') : '';
-          const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+          const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+          const courseLineRegex = /^[ \t]*(?:Course\s*:\s*)?([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)(?:[\s\.\:\-]+(.*))?$/i;
           let curCourse = null;
 
           for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            const match = line.match(courseRegex);
+            const match = line.match(courseLineRegex);
 
-            if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC')) {
+            if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC') && 
+                !/^(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(line)) {
               if (curCourse) courses.push(curCourse);
+
               const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
               const parts = rawCode.split('.');
               const code = parts[0];
               const sec = parts[1] || '1';
+              let sameLineTitle = (match[2] || '').trim();
+              if (sameLineTitle && (sameLineTitle.startsWith('[') || sameLineTitle.includes('@'))) {
+                sameLineTitle = '';
+              }
 
               curCourse = {
                 codeWithSec: rawCode,
                 code: code,
                 section: sec,
-                title: '',
-                credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0,
-                type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory',
+                title: sameLineTitle,
+                credits: 3.0,
+                type: 'Theory',
                 faculty: { initials: '', name: '', email: '', avatar: '' },
                 schedules: []
               };
@@ -464,19 +578,22 @@
 
             if (!curCourse) continue;
 
-            const facMatch = line.match(/\[([A-Z]+)\]\s*([^@\n]+)/i);
+            // Faculty
+            const facMatch = line.match(/\[([A-Z]{2,5})\]\s*([^@\n<]+)/i);
             if (facMatch) {
               curCourse.faculty.initials = facMatch[1].toUpperCase();
               curCourse.faculty.name = facMatch[2].trim();
               continue;
             }
 
+            // Email
             const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
             if (emailMatch) {
               curCourse.faculty.email = emailMatch[1].trim();
               continue;
             }
 
+            // Schedule
             const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i);
             if (schedMatch) {
               curCourse.schedules.push({
@@ -489,18 +606,36 @@
               continue;
             }
 
+            // Title if on next line
             if (!curCourse.title && !line.includes('@') && !line.includes('#') && !line.startsWith('[')) {
               curCourse.title = line;
             }
           }
           if (curCourse) courses.push(curCourse);
+
+          // Post-process fallback courses
+          courses.forEach(c => {
+            const email = c.faculty.email;
+            if (email && email.includes('@')) {
+              const u = email.split('@')[0].trim();
+              if (c.faculty.name.toLowerCase().endsWith(u.toLowerCase())) {
+                c.faculty.name = c.faculty.name.substring(0, c.faculty.name.length - u.length).trim();
+              }
+            }
+            c.faculty.name = c.faculty.name.replace(/[\s\.\,\-]+$/, '').trim();
+            const tLow = c.title.toLowerCase();
+            const cUpp = c.code.toUpperCase();
+            const isL = tLow.includes('lab') || tLow.includes('sessional') || tLow.includes('practical') || 
+                        tLow.includes('project') || tLow.includes('thesis') || cUpp.includes('LAB');
+            c.type = isL ? 'Lab' : 'Theory';
+            c.credits = (isL && !tLow.includes('project') && !tLow.includes('thesis')) ? 1.5 : 3.0;
+          });
         }
       } catch (e) {}
 
       return courses;
     }
 
-    // 7. Main Orchestrator: Smart Non-Intrusive 2-Tab Extraction Workflow
     async function runSmartSync() {
       // Show progress notice
       showUmsBanner(
@@ -527,11 +662,14 @@
         cachedData.student = currentProfile;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
 
-        // Gentle Human Delay Tab Switch to "Registered Courses"
+        // Gentle Human Delay Tab Switch to "Registered Courses" with dynamic DOM polling
         const switched = switchUmsTabSafely('Registered Courses');
         if (switched) {
-          await new Promise(res => setTimeout(res, 850));
-          currentCourses = extractCoursesAndTeachers();
+          for (let retries = 0; retries < 6; retries++) {
+            await new Promise(res => setTimeout(res, 250));
+            currentCourses = extractCoursesAndTeachers();
+            if (currentCourses.length > 0) break;
+          }
         }
       }
       // If we are currently on "Registered Courses" tab (has courses but missing detailed student profile)
@@ -540,13 +678,16 @@
         cachedData.courses = currentCourses;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
 
-        // Gentle Human Delay Tab Switch to "About"
+        // Gentle Human Delay Tab Switch to "About" with dynamic DOM polling
         const switched = switchUmsTabSafely('About');
         if (switched) {
-          await new Promise(res => setTimeout(res, 850));
-          const freshProfile = extractStudentProfile();
-          if (freshProfile.name || freshProfile.studentId) {
-            currentProfile = freshProfile;
+          for (let retries = 0; retries < 6; retries++) {
+            await new Promise(res => setTimeout(res, 250));
+            const freshProfile = extractStudentProfile();
+            if (freshProfile.studentId || freshProfile.code) {
+              currentProfile = freshProfile;
+              break;
+            }
           }
           // Switch back to "Registered Courses"
           switchUmsTabSafely('Registered Courses');
