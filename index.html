@@ -2029,6 +2029,236 @@
       line-height: 1.45;
     }
 
+    /* Ambient Aurora Glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -12%;
+      left: 15%;
+      width: 70vw;
+      height: 45vh;
+      background: radial-gradient(ellipse at center, rgba(37, 99, 235, 0.08), transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+    [data-theme="dark"] body::before {
+      background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.12), transparent 70%);
+    }
+
+    /* Premium Guide Pill Button in Toolbar */
+    .btn-guide-pill {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(6, 182, 212, 0.16)) !important;
+      border: 1px solid rgba(6, 182, 212, 0.45) !important;
+      color: var(--accent-cyan) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.18);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-guide-pill:hover {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.22), rgba(6, 182, 212, 0.26)) !important;
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.3);
+      border-color: var(--accent-cyan) !important;
+    }
+
+    /* Guide Modal Navigation Tabs & Pill Strip */
+    .guide-nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.65rem;
+      margin-bottom: 1.25rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .guide-nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .guide-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.5rem 0.95rem;
+      border-radius: var(--radius-full);
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: var(--font-main);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .guide-nav-btn:hover {
+      color: var(--text-main);
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .guide-nav-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--accent-cyan));
+      color: #ffffff !important;
+      border-color: transparent !important;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+    .guide-tab-panel {
+      animation: guideFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes guideFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Device Switcher Pills inside Guide Tab 1 */
+    .guide-dev-pill-group {
+      display: inline-flex;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-full);
+      padding: 3px;
+      gap: 4px;
+      margin-bottom: 1rem;
+    }
+    .guide-dev-pill {
+      border: none;
+      background: transparent;
+      padding: 5px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-main);
+    }
+    .guide-dev-pill.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    /* FAQ Card Styles */
+    .faq-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .faq-card {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1.1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .faq-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--card-shadow);
+    }
+    .faq-question {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .faq-answer {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+      margin: 0;
+      padding-left: 1.6rem;
+    }
+
+    /* Interactive Profile Meta Tags */
+    .meta-tag.meta-tag-interactive {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .meta-tag.meta-tag-interactive:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Live Pulsing Slot Aura for active classes */
+    .course-card-slot.slot-active-glow {
+      box-shadow: 0 0 0 2px #10b981, 0 8px 24px -4px rgba(16, 185, 129, 0.45) !important;
+      animation: slotActivePulse 2.5s infinite ease-in-out;
+    }
+    @keyframes slotActivePulse {
+      0%, 100% {
+        box-shadow: 0 0 0 2px #10b981, 0 8px 20px -4px rgba(16, 185, 129, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 0 3px #10b981, 0 12px 30px -4px rgba(16, 185, 129, 0.7);
+      }
+    }
+
+    /* Quick Guide Chip in Main Routine View */
+    .routine-quick-guide-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(6, 182, 212, 0.08));
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.95rem;
+      font-size: 0.82rem;
+      color: var(--text-main);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      margin-bottom: 0.25rem;
+    }
+    .routine-quick-guide-bar button {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: var(--font-main);
+      font-size: 0.82rem;
+    }
+    .routine-quick-guide-bar button:hover {
+      text-decoration: underline;
+    }
+
+    /* Live avatar pulsing indicator */
+    .avatar-live-indicator {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2px solid var(--bg-surface);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+      animation: pulseLiveIndicator 2s infinite ease-in-out;
+    }
+    @keyframes pulseLiveIndicator {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.85; }
+    }
+
 </style>
 </head>
 <body>
@@ -2056,11 +2286,11 @@
         <button class="btn btn-outline" id="btnNewSemester" onclick="openNewSemesterModal()" style="display:none;">➕ New Semester</button>
         <button class="btn btn-safe" id="btnBookmarkletModal" onclick="openBookmarkletModal()">📌 1-Click Bookmarklet</button>
         <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">✨ Import UMS</button>
-        <button class="btn btn-outline" id="btnHowItWorksModal" onclick="openModal('modalHowItWorks')" title="কীভাবে এই সিস্টেমটি কাজ করে জানুন">💡 কীভাবে চলে?</button>
+        <button class="btn btn-guide-pill" id="btnHowItWorksModal" onclick="openModal('modalHowItWorks')" title="অ্যাপ ব্যবহারের পূর্ণাঙ্গ নির্দেশিকা ও নিরাপত্তা গাইড">💡 কীভাবে কাজ করে? (Full Guide)</button>
         <button class="btn btn-outline" id="btnAddSlot" onclick="openAddSlotModal()" style="display:none;">📅 Add Slot</button>
         <button class="btn btn-outline" id="btnProfileModal" onclick="openModal('modalProfile')" style="display:none;">👤 Profile</button>
         <button class="btn btn-outline" id="btnBackupModal" onclick="openModal('modalBackup')" style="display:none;">💾 Share / Backup</button>
-        <button class="btn btn-outline" id="btnGuideModal" onclick="openModal('modalPublicGuide')">📖 Safety & Guide</button>
+        <button class="btn btn-outline" id="btnGuideModal" onclick="openGuideSafetyTab()">📖 Safety & Guide</button>
         <button class="btn btn-outline" id="btnPrintBtn" onclick="window.print()" style="display:none;">🖨️ Print</button>
         <button class="btn btn-primary" id="btnExportCal" style="display:none;">📅 Export .ics</button>
       </div>
@@ -2125,6 +2355,25 @@
           </div>
           <button class="btn btn-outline" onclick="startBlankRoutine()">➕ Blank Timetable</button>
         </div>
+
+        <!-- Comprehensive In-App Feature Guide Card -->
+        <div class="onboard-card guide-feature-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08)); border: 1.5px solid rgba(6,182,212,0.35);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+                <span style="font-size:1.3rem;">📖</span>
+                <h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text-main);">অ্যাপটি কীভাবে কাজ করে ও ব্যবহারের পূর্ণাঙ্গ নির্দেশিকা</h3>
+                <span style="font-size:0.7rem; background:rgba(6,182,212,0.2); color:var(--accent-cyan); font-weight:800; padding:2px 8px; border-radius:12px;">🌟 নতুনদের জন্য গাইড</span>
+              </div>
+              <p style="margin:0; font-size:0.84rem; color:var(--text-muted); max-width:680px; line-height:1.5;">
+                পিসি ও মোবাইলে বুকমার্কলেট সেটআপ, UMS ২-ট্যাব সিঙ্ক মেকানিজম, অ্যাকাউন্ট ১০০% সেফ থাকার প্রযুক্তিগত ব্যাখ্যা এবং প্রো-ফিচারসমূহের সম্পূর্ণ চিত্র দেখে নিন।
+              </p>
+            </div>
+            <button class="btn btn-guide-pill" onclick="openModal('modalHowItWorks')" style="padding:0.65rem 1.25rem; font-size:0.88rem;">
+              💡 কীভাবে চলে জানুন (Open Guide)
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="onboarding-footer-note">
@@ -2157,8 +2406,8 @@
               <span>Campus: <strong>Permanent Campus (PC)</strong></span>
             </div>
             <div class="profile-meta-tags">
-              <span class="meta-tag">ID: <strong id="studentIdDisplay">—</strong></span>
-              <span class="meta-tag">Code: <strong id="studentCodeDisplay">—</strong></span>
+              <span class="meta-tag meta-tag-interactive" onclick="copyStudentMeta('id')" title="Click to copy Student ID">ID: <strong id="studentIdDisplay">—</strong> <small>📋</small></span>
+              <span class="meta-tag meta-tag-interactive" onclick="copyStudentMeta('code')" title="Click to copy Student Code">Code: <strong id="studentCodeDisplay">—</strong> <small>📋</small></span>
               <span class="meta-tag">Active Semester: <strong id="studentActiveSemesterTag">—</strong></span>
               <span class="meta-tag">Courses: <strong id="studentCourseCountTag">0 Courses</strong></span>
               <span class="meta-tag">Credits: <strong id="studentCreditsTag">0.0 Credits</strong></span>
@@ -2168,6 +2417,17 @@
           </div>
         </div>
       </section>
+
+      <!-- Quick Guide Bar -->
+      <div class="routine-quick-guide-bar">
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span style="font-size:1.15rem;">💡</span>
+          <span><strong>নির্দেশিকা:</strong> অ্যাপ কীভাবে কাজ করে, UMS ২-ট্যাব সিঙ্ক এবং অ্যাকাউন্ট ১০০% সেফ থাকার নিয়মাবলী দেখতে চান?</span>
+        </div>
+        <button onclick="openModal('modalHowItWorks')">
+          <span>📖 পূর্ণাঙ্গ গাইডলাইন দেখুন ➜</span>
+        </button>
+      </div>
 
       <!-- Live Status & Upcoming Class Tracker -->
       <section class="status-tracker-bar">
@@ -2308,116 +2568,375 @@
   <!-- ========================================================
        MODAL: About the Developer & Creator (F.U.M Foyjul Bari Shahir)
        ======================================================== -->
-    <!-- ========================================================
-       MODAL: কীভাবে আমার এটি কাজ করে? (How It Works & Architecture)
+  <!-- ========================================================
+       MODAL: কীভাবে আমার এটি কাজ করে? (Full Interactive Guide & Architecture Hub)
        ======================================================== -->
   <div class="modal-backdrop" id="modalHowItWorks">
-    <div class="modal-card" style="max-width: 680px;">
-      <div class="modal-header" style="background: linear-gradient(135deg, rgba(37,99,235,0.12), rgba(6,182,212,0.12));">
-        <div style="display:flex; align-items:center; gap:0.6rem;">
-          <span style="font-size:1.4rem;">💡</span>
+    <div class="modal-card" style="max-width: 760px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, rgba(37,99,235,0.14), rgba(6,182,212,0.14)); border-bottom: 1px solid rgba(6,182,212,0.25);">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <span style="font-size:1.6rem;">💡</span>
           <div>
-            <h2 style="margin:0; font-size:1.15rem;">কীভাবে আমার এই সিস্টেম কাজ করে?</h2>
-            <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">Architecture, Privacy & Zero-Network Safety Engine</p>
+            <h2 style="margin:0; font-size:1.15rem; font-weight:800; color:var(--text-main);">কীভাবে আমার এই সিস্টেম কাজ করে?</h2>
+            <p style="margin:0; font-size:0.75rem; color:var(--text-muted);">পূর্ণাঙ্গ ব্যবহার নির্দেশিকা, সিস্টেম আর্কিটেকচার ও জিরো-রিস্ক নিরাপত্তা গাইড</p>
           </div>
         </div>
         <button class="modal-close" onclick="closeModal('modalHowItWorks')">×</button>
       </div>
 
-      <div class="modal-body" style="padding: 1.4rem;">
+      <div class="modal-body" style="padding: 1.25rem 1.4rem;">
         
-        <!-- Quick Summary Banner -->
-        <div style="background:linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.1)); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-md); padding:1rem; margin-bottom:1.25rem;">
-          <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; color:var(--accent-green); margin-bottom:0.25rem;">
-            <span>🛡️ ১০০% ক্লায়েন্ট-সাইড ও অ্যাকাউন্ট সেফ আর্কিটেকচার</span>
-          </div>
-          <p style="margin:0; font-size:0.83rem; line-height:1.45; color:var(--text-main);">
-            আপনার এই সিস্টেমটি কোনো সাধারণ রুটিন অ্যাপ নয়। এটি একটি <strong>Local-First Progressive Web App (PWA)</strong>, যা সম্পূর্ণ আপনার নিজস্ব ব্রাউজারের ভেতর মেমরিতে রান করে। <strong>বিশ্ববিদ্যালয়ের UMS সার্ভারে কোনো এক্সটার্নাল ট্রাফিক পাঠানো হয় না এবং কোনো পাসওয়ার্ড চাওয়া হয় না।</strong>
-          </p>
-        </div>
-
-        <!-- 4-Step Technical Pipeline -->
-        <h3 style="font-size:0.95rem; margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
-          <span>⚙️</span> সম্পূর্ণ ডাটা সিঙ্ক ও কাজের ৪টি ধাপ:
-        </h3>
-
-        <div class="tech-pipeline-grid">
-          
-          <div class="tech-step-card">
-            <div class="tech-step-header">
-              <span class="tech-step-num">১</span>
-              <strong>ব্রাউজার স্যান্ডবক্সিং ও রিড-অনলি DOM এক্সট্রাকশন</strong>
-            </div>
-            <p>
-              ইউজার যখন UMS-এর <em>Registered Courses</em> বা <em>About</em> ট্যাবে বুকমার্কলেটে ক্লিক করে, তখন এটি সম্পূর্ণ ক্লায়েন্ট-সাইডে ইউজার ইন্টারফেসে প্রদর্শিত টেক্সটগুলো রিড করে। এটি কোনো ফর্ম সাবমিট করে না বা কোনো ইন্টারনাল টোকেন পরিবর্তন করে না।
-            </p>
-          </div>
-
-          <div class="tech-step-card">
-            <div class="tech-step-header">
-              <span class="tech-step-num">২</span>
-              <strong>স্মার্ট ২-ট্যাব সিঙ্ক ও অটোমেটিক ফলব্যাক</strong>
-            </div>
-            <p>
-              <strong>কোর্স ও রুটিন:</strong> Registered Courses ট্যাব থেকে প্রতিটি কোর্সের নাম, সেকশন, রুম, সময় ও স্যারের নাম সংগ্রহ করে।<br>
-              <strong>স্টুডেন্ট তথ্য ও ছবি:</strong> About ট্যাব থেকে নাম, আইডি, কোড ও ছবি রিড করে। যদি রুটিন পেজ থেকেও ক্লিক করা হয়, তবে টপ নেভিগেশন বারের প্রোফাইল এভাটার থেকে স্বয়ংক্রিয়ভাবে আসল ছবি সংগ্রহ করে নেয়।
-            </p>
-          </div>
-
-          <div class="tech-step-card">
-            <div class="tech-step-header">
-              <span class="tech-step-num">৩</span>
-              <strong>HTML5 Canvas ইমেজ অপটিমাইজেশন</strong>
-            </div>
-            <p>
-              বড় রেজোলিউশনের ছবিগুলোকে মেমরিতে থাকা অদৃশ্য Canvas-এ ড্র করে স্টুডেন্ট ছবিকে <strong>80x80 px (~2KB)</strong> এবং শিক্ষকদের ছবিকে <strong>52x52 px (~1.1KB)</strong> এ রূপান্তর করা হয়। ফলে ৫২,০০০+ অক্ষরের পেলোড কমে মাত্র <strong>~১০.৫ কিলোবাইটে</strong> চলে আসে, যা কোনো ব্রাউজার ইউআরএলে ট্রাঙ্কেট হয় না।
-            </p>
-          </div>
-
-          <div class="tech-step-card">
-            <div class="tech-step-header">
-              <span class="tech-step-num">৪</span>
-              <strong>ডুয়াল-চ্যানেল সিঙ্ক ও অফলাইন PWA ইঞ্জিন</strong>
-            </div>
-            <p>
-              <strong>চ্যানেল ১ (Direct postMessage):</strong> অ্যাপ আগে থেকে খোলা থাকলে ১ মিলি-সেকেন্ডে ইন-মেমোরি মেসেজ পাঠিয়ে তাৎক্ষণিক সিঙ্ক করে।<br>
-              <strong>চ্যানেল ২ (URL Hash):</strong> অ্যাপ বন্ধ থাকলে নিরাপদ হ্যাশ লিংকে ওপেন করে।<br>
-              <strong>অফলাইন ক্যাশে:</strong> ডাটা ব্রাউজারের <code>localStorage</code>-এ সংরক্ষিত থাকে এবং Service Worker (v14) দিয়ে ইন্টারনেট ছাড়া ক্যাম্পাসে অফলাইনে চোখের পলকে ওপেন হয়।
-            </p>
-          </div>
-
-        </div>
-
-        <!-- UMS Anti-Block 3-Shield Protection -->
-        <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:1rem; margin-top:1.25rem;">
-          <h4 style="margin:0 0 0.5rem 0; font-size:0.9rem; color:var(--text-main); display:flex; align-items:center; gap:0.4rem;">
-            <span>🛡️</span> কেন ইউএমএস অ্যাকাউন্ট কখনো ব্লক হবে না?
-          </h4>
-          <ul style="margin:0; padding-left:1.2rem; font-size:0.8rem; line-height:1.6; color:var(--text-muted);">
-            <li><strong>০ সার্ভার ট্রাফিক:</strong> আপনার ব্রাউজার অলরেডি যে পেজ লোড করেছে, বুকমার্কলেট শুধু তার স্ক্রিন ডাটা রিড করে। UMS সার্ভারে কোনো এক্সট্রা রিকোয়েস্ট যায় না।</li>
-            <li><strong>কোনো অটোমেশন বট নয়:</strong> এটি কোনো অটোমেটেড ক্রলার বা হেডলেস স্ক্রিপ্ট নয়; এটি ব্রাউজারের সাধারণ জাভাস্ক্রিপ্ট স্যান্ডবক্সে চলে।</li>
-            <li><strong>নো ক্রেডেনশিয়াল স্টোরেজ:</strong> অ্যাপটি কোনো স্টুডেন্ট পাসওয়ার্ড বা কুকি চায় না বা সংরক্ষণ করে না।</li>
-          </ul>
-        </div>
-
-        <!-- Creator & Architect Footer Banner -->
-        <div style="margin-top:1.25rem; padding:0.9rem; border-radius:var(--radius-md); background:linear-gradient(135deg, rgba(79,70,229,0.1), rgba(6,182,212,0.1)); border:1px solid rgba(79,70,229,0.25); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
-          <div>
-            <div style="font-size:0.88rem; font-weight:800; color:var(--text-main);">
-              👨‍💻 সিস্টেম আর্কিটেক্ট ও লিড ডেভেলপার
-            </div>
-            <div style="font-size:0.78rem; color:var(--primary); font-weight:700;">
-              F.U.M Foyjul Bari Shahir (Batch 42, Dept. of EEE)
-            </div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">
-              ID: 0232330005131002 • Southeast University
-            </div>
-          </div>
-          <button class="btn btn-primary" style="padding:0.45rem 0.9rem; font-size:0.8rem;" onclick="openModal('modalAboutDeveloper')">
-            👤 বিস্তারিত প্রোফাইল
+        <!-- Category Tab Navigation Strip -->
+        <div class="guide-nav-tabs" id="guideNavTabs">
+          <button type="button" class="guide-nav-btn active" id="guideBtnStart" onclick="switchGuideTab('start')">
+            <span>🚀</span> <span>দ্রুত শুরু (Quick Start)</span>
+          </button>
+          <button type="button" class="guide-nav-btn" id="guideBtnEngine" onclick="switchGuideTab('engine')">
+            <span>⚙️</span> <span>সিস্টেম ইঞ্জিন (Architecture)</span>
+          </button>
+          <button type="button" class="guide-nav-btn" id="guideBtnSafety" onclick="switchGuideTab('safety')">
+            <span>🛡️</span> <span>অ্যাকাউন্ট নিরাপত্তা (100% Safe)</span>
+          </button>
+          <button type="button" class="guide-nav-btn" id="guideBtnFeatures" onclick="switchGuideTab('features')">
+            <span>✨</span> <span>প্রো ফিচারসমূহ (Features)</span>
+          </button>
+          <button type="button" class="guide-nav-btn" id="guideBtnFaq" onclick="switchGuideTab('faq')">
+            <span>❓</span> <span>প্রশ্ন ও উত্তর (FAQ)</span>
           </button>
         </div>
 
+        <!-- ==============================================
+             TAB 1: 🚀 দ্রুত শুরু ও সিঙ্ক (PC vs Mobile)
+             ============================================== -->
+        <div class="guide-tab-panel" id="guideTabStart" style="display:block;">
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+            <div style="font-size:0.88rem; font-weight:800; color:var(--text-main);">
+              আপনার ডিভাইস নির্বাচন করুন:
+            </div>
+            <div class="guide-dev-pill-group">
+              <button type="button" class="guide-dev-pill active" id="btnDevPc" onclick="switchGuideDevice('pc')">
+                💻 PC / Laptop (Bookmarklet)
+              </button>
+              <button type="button" class="guide-dev-pill" id="btnDevMobile" onclick="switchGuideDevice('mobile')">
+                📱 মোবাইল ফোন (১-ট্যাপ পেস্ট)
+              </button>
+            </div>
+          </div>
+
+          <!-- PC Guide -->
+          <div id="guideDevicePc" style="display:block;">
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+              <h4 style="margin:0 0 0.5rem 0; font-size:0.9rem; color:var(--primary); font-weight:800;">
+                💻 কম্পিউটারে ৩টি সহজ ধাপে রুটিন সিঙ্ক:
+              </h4>
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num">১</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্ক বারে ড্র্যাগ করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      টপ বারের <strong>"📌 1-Click Bookmarklet"</strong> বাটনে ক্লিক করে বুকমার্কটি ড্র্যাগ করে আপনার ব্রাউজারের বুকমার্ক বারে ছেড়ে দিন (বুকমার্ক বার আনতে চাপুন <code>Ctrl + Shift + B</code>)।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num">২</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">সাউথইস্ট UMS-এ লগইন করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      <a href="https://ums.seu.edu.bd/dashboard" target="_blank" style="color:var(--primary); font-weight:700;">ums.seu.edu.bd/dashboard</a>-এ লগইন করে ড্যাশবোর্ডে থাকুন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num">৩</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">বুকমার্কলেটে ১-ক্লিক করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      বুকমার্ক বারে থাকা <strong>"📌 Sync SEU Routine"</strong>-এ ক্লিক করলেই স্ক্রিনের শীর্ষে একটি স্মার্ট ব্যানার আসবে। সেখান থেকে <strong>"🚀 Open Routine App"</strong>-এ ক্লিক করলেই নাম, আইডি, কোড ও শিক্ষকদের আসল ছবিসহ পুরো রুটিন লাইভ হয়ে যাবে!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-safe" onclick="closeModal('modalHowItWorks'); openBookmarkletModal();" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                📌 বুকমার্কলেট কোড নিন
+              </button>
+              <a href="https://ums.seu.edu.bd/dashboard" target="_blank" class="btn btn-primary" style="font-size:0.82rem; padding:0.5rem 0.95rem; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+                🌐 UMS খুলুন (ums.seu.edu.bd)
+              </a>
+            </div>
+          </div>
+
+          <!-- Mobile Guide -->
+          <div id="guideDeviceMobile" style="display:none;">
+            <div style="background:rgba(16,185,129,0.08); border:1.5px solid var(--accent-green); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+              <div style="display:flex; align-items:center; gap:0.4rem; font-weight:800; color:var(--accent-green); font-size:0.9rem; margin-bottom:0.4rem;">
+                <span>⭐ মোবাইলে সবচেয়ে সহজ পদ্ধতি (মাত্র ১০ সেকেন্ড):</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">১</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">UMS-এ যান:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      ফোনের ব্রাউজারে UMS-এ লগইন করে <strong>Registered Courses</strong> পেজে যান।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">২</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">লেখাগুলো কপি করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      স্ক্রিনের ওপর আঙুল চেপে ধরে <strong>Select All</strong> দিয়ে পুরো লেখা কপি (Copy) করুন।
+                    </p>
+                  </div>
+                </div>
+                <div style="display:flex; gap:0.6rem; align-items:flex-start;">
+                  <span class="tech-step-num" style="background:var(--accent-green);">৩</span>
+                  <div>
+                    <strong style="font-size:0.84rem; color:var(--text-main);">১-ট্যাপে পেস্ট করুন:</strong>
+                    <p style="margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.45;">
+                      এই অ্যাপে এসে <strong>"✨ Import UMS"</strong> বাটনে ট্যাপ করে <strong>"📋 Paste from Clipboard"</strong> চাপুন। স্বয়ংক্রিয়ভাবে সব কোর্স, ক্রেডিট ও সময়সূচি তৈরি হয়ে যাবে!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-magic" onclick="closeModal('modalHowItWorks'); openModal('modalUmsImport');" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                ✨ Import UMS (পেস্ট অপশন খুলুন)
+              </button>
+              <button class="btn btn-outline" onclick="closeModal('modalHowItWorks'); openBookmarkletModal();" style="font-size:0.82rem; padding:0.5rem 0.95rem;">
+                📱 মোবাইল বুকমার্ক নিয়ম দেখুন
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==============================================
+             TAB 2: ⚙️ সিস্টেম ইঞ্জিন ও ২-ট্যাব আর্কিটেকচার
+             ============================================== -->
+        <div class="guide-tab-panel" id="guideTabEngine" style="display:none;">
+          
+          <div style="background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08)); border:1px solid rgba(6,182,212,0.3); border-radius:var(--radius-sm); padding:0.9rem 1rem; margin-bottom:1rem;">
+            <div style="font-weight:800; font-size:0.88rem; color:var(--primary); margin-bottom:0.25rem;">
+              🧠 ক্লায়েন্ট-সাইড মেমরি ও ২-ট্যাব সিঙ্ক ইঞ্জিন
+            </div>
+            <p style="margin:0; font-size:0.8rem; color:var(--text-main); line-height:1.45;">
+              সাউথইস্ট UMS-এ ছাত্রের প্রোফাইল এবং ক্লাসের রুটিন দুটি আলাদা স্ক্রিনে থাকে। বুকমার্কলেটটি নির্ভুলভাবে উভয় স্ক্রিন সমন্বয় করে একটি সমন্বিত প্রোফাইল প্রস্তুত করে:
+            </p>
+          </div>
+
+          <div class="tech-pipeline-grid">
+            <div class="tech-step-card">
+              <div class="tech-step-header">
+                <span class="tech-step-num">১</span>
+                <strong>About ট্যাব ➔ প্রোফাইল মেটাডেটা সংগ্রহ</strong>
+              </div>
+              <p>
+                শিক্ষার্থীর পুরো নাম (যেমন: F.U.M Foyjul Bari Shahir), ১৬ ডিজিটের স্টুডেন্ট আইডি (0232330005131002), কোড (2023200500002), ব্যাচ ৪২, ডিপার্টমেন্ট, অ্যাক্টিভ সেমিস্টার, অ্যাডভাইজার এবং আসল প্রফেশনাল ছবি রিড করে।
+              </p>
+            </div>
+
+            <div class="tech-step-card">
+              <div class="tech-step-header">
+                <span class="tech-step-num">২</span>
+                <strong>Registered Courses ট্যাব ➔ সম্পূর্ণ রুটিন ও শিক্ষক তথ্য</strong>
+              </div>
+              <p>
+                কোর্সের কোড ও সেকশন (EEE442.2), পুরো নাম (Optoelectronics Lab), টাইপ (Lab/Theory), ক্রেডিট (1.5/3.0), সময়সূচি ও রুম নম্বর (MON 14:00~16:00 @ PC211), এবং শিক্ষকদের আসল নাম (Rakayet Rafi), ইনিশিয়াল [RR], ইমেইল ও শিক্ষকের ছবি সংগ্রহ করে।
+              </p>
+            </div>
+
+            <div class="tech-step-card">
+              <div class="tech-step-header">
+                <span class="tech-step-num">৩</span>
+                <strong>HTML5 Canvas আল্ট্রা-ইমেজ কম্প্রেশন</strong>
+              </div>
+              <p>
+                ভারী ছবিগুলোকে ব্রাউজার মেমরিতে অদৃশ্য Canvas-এ ড্র করে স্টুডেন্ট ছবিকে <strong>80x80 px (~2KB)</strong> এবং শিক্ষকদের ছবিকে <strong>52x52 px (~1.1KB)</strong> এ রূপান্তর করা হয়। ফলে ৫২,০০০+ অক্ষরের পেলোড কমে মাত্র <strong>~১০.৫ কিলোবাইটে</strong> চলে আসে, যা কোনো ব্রাউজার ইউআরএলে ট্রাঙ্কেট হয় না।
+              </p>
+            </div>
+
+            <div class="tech-step-card">
+              <div class="tech-step-header">
+                <span class="tech-step-num">৪</span>
+                <strong>ডুয়াল-চ্যানেল সিঙ্ক (Dual-Channel Sync)</strong>
+              </div>
+              <p>
+                <strong>চ্যানেল ১ (Direct postMessage):</strong> অ্যাপ আগে থেকে খোলা থাকলে ১ মিলি-সেকেন্ডে ইন-মেমোরি মেসেজ পাঠিয়ে তাৎক্ষণিক সিঙ্ক করে।<br>
+                <strong>চ্যানেল ২ (URL Hash):</strong> অ্যাপ বন্ধ থাকলে নিরাপদ হ্যাশ লিংকে ওপেন করে।<br>
+                <strong>অফলাইন ক্যাশে:</strong> ডাটা ব্রাউজারের <code>localStorage</code>-এ সংরক্ষিত থাকে এবং Service Worker দিয়ে ইন্টারনেট ছাড়া চোখের পলকে ওপেন হয়।
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==============================================
+             TAB 3: 🛡️ ১০০% নিরাপত্তা ও জিরো-রিস্ক গ্যারান্টি
+             ============================================== -->
+        <div class="guide-tab-panel" id="guideTabSafety" style="display:none;">
+          
+          <div style="background:rgba(16,185,129,0.08); border:1.5px solid var(--accent-green); border-radius:var(--radius-sm); padding:1rem; margin-bottom:1rem;">
+            <div style="display:flex; align-items:center; gap:0.4rem; font-weight:800; color:var(--accent-green); font-size:0.92rem; margin-bottom:0.35rem;">
+              <span>🛡️</span> কেন ইউএমএস অ্যাকাউন্ট কখনো ব্লক বা ব্যান হবে না? (০% ঝুঁকি)
+            </div>
+            <p style="margin:0; font-size:0.82rem; line-height:1.55; color:var(--text-main);">
+              অনেক শিক্ষার্থী উদ্বিগ্ন থাকেন যে বুকমার্কলেট বা কোনো টুল ব্যবহার করলে বিশ্ববিদ্যালয় কর্তৃপক্ষ অ্যাকাউন্ট ব্যান করতে পারে কিনা। <strong>প্রযুক্তিগতভাবে এটি শতভাগ অসম্ভব। কারণ:</strong>
+            </p>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem;">
+              <strong style="color:var(--text-main); font-size:0.84rem;">১. ০টি সার্ভার রিকোয়েস্ট (Zero Network Traffic):</strong>
+              <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+                বুকমার্কলেটটি UMS সার্ভারে কোনো নেটওয়ার্ক কল (fetch বা XHR) পাঠায় না। আপনার ব্রাউজার ইতিমধ্যে যে ডেটা স্ক্রিনে প্রদর্শন করেছে, এটি কেবল সেই প্রদর্শিত টেক্সট রিড করে—যেমনটা আপনি মাউস দিয়ে টেক্সট সিলেক্ট করে Ctrl+C চাপলে হয়। সার্ভার কোনো বাড়তি রিকোয়েস্টই দেখতে পায় না।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem;">
+              <strong style="color:var(--text-main); font-size:0.84rem;">২. পাসওয়ার্ড ও কুকি সম্পূর্ণ অক্ষত:</strong>
+              <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+                এটি কোনোদিন আপনার পাসওয়ার্ড, লগইন সেশন বা কুকি রিড করে না।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem;">
+              <strong style="color:var(--text-main); font-size:0.84rem;">৩. সম্পূর্ণ রিড-অনলি (100% Read-Only):</strong>
+              <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+                স্ক্রিপ্টটির কোনো কোর্স যোগ, ড্রপ বা বিশ্ববিদ্যালয়ের ডাটাবেজ পরিবর্তনের ক্ষমতা নেই। এটি কেবল আপনার ক্লাস রুটিন তৈরি করার জন্য টেক্সট রিড করে।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem 1rem;">
+              <strong style="color:var(--text-main); font-size:0.84rem;">৪. অ্যান্টি-স্প্যাম মিউটেক্স ও স্বাভাবিক মানুষের গতি:</strong>
+              <p style="margin:0.25rem 0 0 0; font-size:0.8rem; color:var(--text-muted); line-height:1.5;">
+                বারবার দ্রুত ক্লিক করলেও স্প্যামিং প্রতিরোধ করা হয় এবং স্বাভাবিক মানুষের শান্ত গতিতে ট্যাব চেক করা হয়।
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==============================================
+             TAB 4: ✨ অ্যাপের প্রো ফিচারসমূহ
+             ============================================== -->
+        <div class="guide-tab-panel" id="guideTabFeatures" style="display:none;">
+          
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem;">
+              <div style="font-weight:800; font-size:0.85rem; color:var(--accent-green); margin-bottom:0.25rem;">
+                🟢 লাইভ ক্লাস ট্র্যাকার ও কাউন্টডাউন
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:var(--text-muted); line-height:1.45;">
+                আজকের দিনে পরবর্তী ক্লাস কখন, কোন রুমে এবং ক্লাস শেষ হতে বা শুরু হতে কত মিনিট বাকি তা সেকেন্ডে সেকেন্ডে লাইভ ট্র্যাক করে।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem;">
+              <div style="font-weight:800; font-size:0.85rem; color:var(--primary); margin-bottom:0.25rem;">
+                👨‍🏫 শিক্ষক ডিরেক্টরি ও ওয়ান-ট্যাপ ইমেইল
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:var(--text-muted); line-height:1.45;">
+                কোর্সের স্যার বা ম্যামের ছবির ওপর ট্যাপ করে সরাসরি প্রাতিষ্ঠানিক ইমেইল পাঠানোর এবং যোগাযোগ করার সুবিধা।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem;">
+              <div style="font-weight:800; font-size:0.85rem; color:var(--accent-cyan); margin-bottom:0.25rem;">
+                📱 ফুল-স্ক্রিন রেসপন্সিভ জুম
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:var(--text-muted); line-height:1.45;">
+                মোবাইলের ছোট স্ক্রিনে পুরো সপ্তাহের রুটিন এক নজরে দেখতে "📱 Full View" এবং বড় অক্ষরে দেখতে "🔍 100%" মোড।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem;">
+              <div style="font-weight:800; font-size:0.85rem; color:var(--accent-amber); margin-bottom:0.25rem;">
+                📅 গুগল ক্যালেন্ডার এক্সপোর্ট (.ics)
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:var(--text-muted); line-height:1.45;">
+                এক ক্লিকে সমস্ত ক্লাসের অ্যালার্ম ও শিডিউল ফোন বা ল্যাপটপের ক্যালেন্ডারে (Google / Apple Calendar) যুক্ত করার সুবিধা।
+              </p>
+            </div>
+
+            <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:0.85rem; grid-column:1 / -1;">
+              <div style="font-weight:800; font-size:0.85rem; color:var(--accent-purple); margin-bottom:0.25rem;">
+                📴 ১০০% অফলাইন PWA ইঞ্জিন
+              </div>
+              <p style="margin:0; font-size:0.78rem; color:var(--text-muted); line-height:1.45;">
+                ইন্টারনেট বা ওয়াইফাই না থাকলেও ক্যাম্পাসে বা বাসে চোখের পলকে রুটিন ওপেন হয়। ব্রাউজার থেকে "Install App" দিলে ফোনের আসল অ্যাপের মতো হোমস্ক্রিনে আইকন চলে আসবে।
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ==============================================
+             TAB 5: ❓ সাধারণ জিজ্ঞাসা ও সমাধান (FAQ)
+             ============================================== -->
+        <div class="guide-tab-panel" id="guideTabFaq" style="display:none;">
+          
+          <div class="faq-grid">
+            <div class="faq-card">
+              <div class="faq-question">
+                <span>❓</span> <span>বুকমার্কলেটে ক্লিক করার পর যদি কোর্স শূন্য দেখায় বা নাম না আসে?</span>
+              </div>
+              <p class="faq-answer">
+                <strong>সমাধান:</strong> UMS মেন্যু থেকে সরাসরি <strong>"Registered Courses"</strong> ট্যাবে যান এবং আরেকবার বুকমার্কলেটে ক্লিক করুন। অথবা <strong>"About"</strong> ট্যাবে যান। বুকমার্কলেটটি স্বয়ংক্রিয়ভাবে উভয় ট্যাব সমন্বয় করে সম্পূর্ণ তথ্য নিয়ে নেবে।
+              </p>
+            </div>
+
+            <div class="faq-card">
+              <div class="faq-question">
+                <span>❓</span> <span>নতুন সেমিস্টার শুরু হলে আমার রুটিন কীভাবে আপডেট করব?</span>
+              </div>
+              <p class="faq-answer">
+                <strong>সমাধান:</strong> নতুন সেমিস্টারের কোর্স রেজিস্ট্রেশন সম্পন্ন হওয়ার পর UMS-এ গিয়ে আরেকবার বুকমার্কলেটে ক্লিক করলেই স্বয়ংক্রিয়ভাবে নতুন সেমিস্টার ও কোর্স যুক্ত হয়ে যাবে। পুরানো সেমিস্টারের রুটিনও ড্রপডাউনে সেভ থাকবে।
+              </p>
+            </div>
+
+            <div class="faq-card">
+              <div class="faq-question">
+                <span>❓</span> <span>আমার কোনো ব্যক্তিগত তথ্য কি ইন্টারনেটে অন্য কারো কাছে চলে যাবে?</span>
+              </div>
+              <p class="faq-answer">
+                <strong>সমাধান:</strong> একেবারেই না! এই অ্যাপটির কোনো সেন্ট্রাল সার্ভার বা ডাটাবেজ নেই। আপনার নাম, আইডি ও রুটিন সম্পূর্ণ আপনার ডিভাইসের নিজস্ব ব্রাউজারের <code>localStorage</code>-এ সুরক্ষিত থাকে।
+              </p>
+            </div>
+
+            <div class="faq-card">
+              <div class="faq-question">
+                <span>❓</span> <span>আমার সেকশনের রুটিন বন্ধুদের সাথে কীভাবে শেয়ার করব?</span>
+              </div>
+              <p class="faq-answer">
+                <strong>সমাধান:</strong> টপ বারের <strong>"💾 Share / Backup"</strong> অপশনে ক্লিক করে JSON ফাইলটি ডাউনলোড করে বন্ধুদের মেসেঞ্জারে বা হোয়াটসঅ্যাপে পাঠিয়ে দিন। তারা এই অ্যাপে এসে "Upload Batch File" দিলে চোখের পলকে পুরো রুটিন পেয়ে যাবে!
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; background:var(--bg-muted); border-top:1px solid var(--border-color); padding:0.85rem 1.4rem;">
+        <div style="display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; color:var(--text-muted);">
+          <span>👨‍💻 Created by</span>
+          <button class="footer-dev-pill" style="padding:2px 8px; font-size:0.75rem;" onclick="closeModal('modalHowItWorks'); openModal('modalAboutDeveloper');">
+            F.U.M Foyjul Bari Shahir (EEE Batch 42)
+          </button>
+        </div>
+        <button class="btn btn-primary" onclick="closeModal('modalHowItWorks')" style="padding:0.5rem 1.1rem; font-size:0.85rem;">
+          বুঝেছি, ধন্যবাদ! ✓
+        </button>
       </div>
     </div>
   </div>
@@ -3364,10 +3883,10 @@
 
       const avatarContainer = document.getElementById('studentAvatarContainer');
       if (activeProfile.avatar && activeProfile.avatar.startsWith('data:image')) {
-        avatarContainer.innerHTML = `<img src="${activeProfile.avatar}" id="studentAvatarImg" class="profile-avatar-img" alt="${activeProfile.name}">`;
+        avatarContainer.innerHTML = `<img src="${activeProfile.avatar}" id="studentAvatarImg" class="profile-avatar-img" alt="${activeProfile.name}"><div class="avatar-live-indicator" id="avatarLiveIndicator" title="Live Campus Status"></div>`;
       } else {
         const initials = (activeProfile.name || 'SEU').split(' ').map(n => n[0]).slice(0, 2).join('');
-        avatarContainer.innerHTML = `<div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent-cyan));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:1.3rem;">${initials}</div>`;
+        avatarContainer.innerHTML = `<div style="width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent-cyan));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:1.3rem;">${initials}</div><div class="avatar-live-indicator" id="avatarLiveIndicator" title="Live Campus Status"></div>`;
       }
     }
 
@@ -3503,6 +4022,15 @@
             card.className = 'course-card-slot ' + (isLab ? 'slot-lab' : 'slot-theory');
             if (selectedHighlightCode === matchedCourse.code) {
               card.classList.add('highlighted');
+            }
+
+            // Highlight if active class right now
+            const nowSlot = new Date();
+            const daysArrSlot = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+            const curDaySlot = daysArrSlot[nowSlot.getDay()];
+            const curTimeSlot = `${String(nowSlot.getHours()).padStart(2, '0')}:${String(nowSlot.getMinutes()).padStart(2, '0')}`;
+            if ((day.key || '').toUpperCase() === curDaySlot && curTimeSlot >= matchedSchedule.startTime && curTimeSlot < matchedSchedule.endTime) {
+              card.classList.add('slot-active-glow');
             }
 
             const fac = matchedCourse.faculty || {};
@@ -3808,6 +4336,24 @@
           `;
         }
       }
+
+      // Synchronize live status ring on student avatar
+      const avatarDot = document.getElementById('avatarLiveIndicator');
+      if (avatarDot) {
+        if (ongoing) {
+          avatarDot.style.background = '#10b981';
+          avatarDot.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.9)';
+          avatarDot.title = `Live Class: ${ongoing.course.codeWithSec || ongoing.course.code}`;
+        } else if (nextClass) {
+          avatarDot.style.background = '#f59e0b';
+          avatarDot.style.boxShadow = '0 0 8px rgba(245, 158, 11, 0.8)';
+          avatarDot.title = `Next Class: ${nextClass.course.codeWithSec || nextClass.course.code}`;
+        } else {
+          avatarDot.style.background = '#38bdf8';
+          avatarDot.style.boxShadow = '0 0 8px rgba(56, 189, 248, 0.6)';
+          avatarDot.title = 'Campus: Break Time / No Active Class';
+        }
+      }
     }
 
     function timeDiffMinutes(t1, t2) {
@@ -3893,6 +4439,56 @@
         if (btn) btn.classList.toggle('active', t === tab);
         if (contentEl) contentEl.style.display = (t === tab) ? 'block' : 'none';
       });
+    }
+
+    // Comprehensive Interactive Guide Tab Switcher
+    function switchGuideTab(tab) {
+      const tabs = ['start', 'engine', 'safety', 'features', 'faq'];
+      tabs.forEach(t => {
+        const btn = document.getElementById('guideBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        const panel = document.getElementById('guideTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) btn.classList.toggle('active', t === tab);
+        if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
+      });
+    }
+
+    function switchGuideDevice(dev) {
+      const pcBox = document.getElementById('guideDevicePc');
+      const mobileBox = document.getElementById('guideDeviceMobile');
+      const btnPc = document.getElementById('btnDevPc');
+      const btnMobile = document.getElementById('btnDevMobile');
+      if (btnPc) btnPc.classList.toggle('active', dev === 'pc');
+      if (btnMobile) btnMobile.classList.toggle('active', dev === 'mobile');
+      if (pcBox) pcBox.style.display = (dev === 'pc') ? 'block' : 'none';
+      if (mobileBox) mobileBox.style.display = (dev === 'mobile') ? 'block' : 'none';
+    }
+
+    function openGuideSafetyTab() {
+      switchGuideTab('safety');
+      openModal('modalHowItWorks');
+    }
+
+    function copyStudentMeta(type) {
+      if (!activeProfile) return;
+      let val = '';
+      let label = '';
+      if (type === 'id') {
+        val = activeProfile.studentId || '';
+        label = 'Student ID';
+      } else if (type === 'code') {
+        val = activeProfile.code || '';
+        label = 'Student Code';
+      }
+      if (!val) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(val).then(() => {
+          showToast(`📋 Copied ${label}: ${val}`);
+        }).catch(() => {
+          prompt(`Copy ${label}:`, val);
+        });
+      } else {
+        prompt(`Copy ${label}:`, val);
+      }
     }
 
     function pasteFromClipboard() {
