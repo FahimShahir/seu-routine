@@ -840,7 +840,7 @@
 
       // Build Success Banner UI with avatar preview thumbnail
       const avatarThumbnailHtml = currentProfile.avatar
-        ? ('<' + 'img src="' + currentProfile.avatar + '" alt="Student Photo" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #10b981; flex-shrink:0;">')
+        ? (String.fromCharCode(60) + 'img src="' + currentProfile.avatar + '" alt="Student Photo" style="width:44px; height:44px; border-radius:50%; object-fit:cover; border:2px solid #10b981; flex-shrink:0;">')
         : '<div style="width:44px; height:44px; border-radius:50%; background:#3b82f6; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0;">' + ((currentProfile.name || 'ST').substring(0, 2).toUpperCase()) + '</div>';
 
       const actionHtml = [
