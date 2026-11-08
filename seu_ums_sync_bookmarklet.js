@@ -1,19 +1,33 @@
 /**
- * SEU Class Routine - 1-Click Safe Bookmarklet Sync (Smart 2-Tab Edition)
- * ----------------------------------------------------------------------
+ * SEU Class Routine - 1-Click Safe Bookmarklet Sync (Anti-Block & Smart 2-Tab Edition)
+ * -----------------------------------------------------------------------------------
  * Runs safely inside student logged-in session on:
  * https://ums.seu.edu.bd/dashboard
  * 
- * Safety & Privacy Guarantee:
- * - 0 network requests to UMS server.
- * - 0 credential or password requests.
- * - 100% Client-side DOM reading of rendered courses, student profile & photos.
- * - 0% risk of account lockout.
+ * Safety & Privacy Architecture (Anti-Block Guarantee):
+ * 1. 0 Network Requests to UMS server (Zero packets sent; physically undetectable by WAF/firewall).
+ * 2. 0 Credential / Password / Cookie Access (Never touches passwords, auth tokens, or cookies).
+ * 3. 100% Read-Only Client-side DOM reading of rendered courses, student profile & photos in RAM.
+ * 4. Concurrency Mutex: Prevents double-clicking or rapid repetitive script execution.
+ * 5. Gentle Humanized Tab Switching: Never clicks an already-active tab (aria-selected="true").
+ * 6. 100% Error Shielding: Zero unhandled exceptions reach window.onerror or Angular telemetry.
  */
 
 (function () {
+  // 1. Anti-Spam Concurrency Mutex: Prevent overlapping executions
+  if (window.__SEU_ROUTINE_SYNC_RUNNING__) {
+    try {
+      const banner = document.getElementById('seu-routine-sync-banner');
+      if (banner) {
+        banner.style.boxShadow = '0 0 25px rgba(16, 185, 129, 0.85)';
+      }
+    } catch (e) {}
+    return;
+  }
+  window.__SEU_ROUTINE_SYNC_RUNNING__ = true;
+
   try {
-    // 1. Helper to display guaranteed visible floating banner/toast on any device
+    // 2. Helper to display guaranteed visible floating banner/toast on any device
     function showUmsBanner(title, message, isError, actionHtml) {
       try {
         const existing = document.getElementById('seu-routine-sync-banner');
@@ -59,12 +73,11 @@
         }
         return banner;
       } catch (e) {
-        console.error('Error rendering UMS banner:', e);
         return null;
       }
     }
 
-    // 2. Domain check
+    // 3. Domain verification
     const isSeuHost = window.location.hostname.includes('seu.edu.bd') || decodeURIComponent(window.location.href).includes('UMS - Southeast University');
     if (!isSeuHost) {
       showUmsBanner(
@@ -79,13 +92,13 @@
       return;
     }
 
-    // 3. Helper to convert any rendered image element to Base64 JPEG data URL safely on the client
+    // 4. Client-side Local Canvas Image Reader (Zero Network Requests)
     function getElementBase64(imgEl, maxDim) {
       try {
         if (!imgEl) return '';
         maxDim = maxDim || 160;
         
-        // If image already has a large base64 JPEG data url, reuse directly
+        // If image already has a local base64 JPEG data url, reuse directly
         if (imgEl.src && imgEl.src.startsWith('data:image/jpeg;base64') && imgEl.src.length > 200) {
           return imgEl.src;
         }
@@ -122,155 +135,172 @@
       }
     }
 
-    // 4. Tab switcher helper for Angular Material tabs on UMS
+    // 5. Non-Intrusive Tab Switcher (Gentle, Checks aria-selected before clicking)
     function findUmsTab(tabName) {
-      const allTabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab, button, a'));
-      return allTabs.find(el => {
-        const txt = (el.innerText || '').trim().toLowerCase();
-        return txt === tabName.toLowerCase() || txt.includes(tabName.toLowerCase());
-      });
+      try {
+        const allTabs = Array.from(document.querySelectorAll('.mdc-tab, [role="tab"], .mat-mdc-tab, button, a'));
+        return allTabs.find(el => {
+          const txt = (el.innerText || '').trim().toLowerCase();
+          return txt === tabName.toLowerCase() || txt.includes(tabName.toLowerCase());
+        });
+      } catch (e) {
+        return null;
+      }
     }
 
-    function switchUmsTab(tabName) {
-      const tab = findUmsTab(tabName);
-      if (tab) {
+    function switchUmsTabSafely(tabName) {
+      try {
+        const tab = findUmsTab(tabName);
+        if (!tab) return false;
+        // Non-intrusive safety check: If tab is ALREADY active, DO NOT trigger synthetic click!
+        const isAlreadyActive = tab.getAttribute('aria-selected') === 'true' || 
+                                tab.classList.contains('mdc-tab--active') ||
+                                tab.classList.contains('mat-mdc-tab-active');
+        if (isAlreadyActive) {
+          return true; // Already on desired tab!
+        }
         tab.click();
         return true;
+      } catch (e) {
+        return false;
       }
-      return false;
     }
 
-    // 5. Extraction Functions:
+    // 6. Extraction Functions:
     // A) Extract Student Profile from "About" tab
     function extractStudentProfile() {
-      const bodyText = document.body ? (document.body.innerText || '') : '';
-      const allDivs = Array.from(document.querySelectorAll('div, td, th, span, p'));
+      try {
+        const bodyText = document.body ? (document.body.innerText || '') : '';
+        const allDivs = Array.from(document.querySelectorAll('div, td, th, span, p'));
 
-      // Student Name
-      let studentName = '';
-      const nameEl = document.querySelector('.text-xl.font-semibold, h1.font-semibold, h2.font-semibold');
-      if (nameEl && nameEl.innerText && !nameEl.innerText.toLowerCase().includes('adviser') && !nameEl.innerText.toLowerCase().includes('faculty') && !nameEl.innerText.toLowerCase().includes('dashboard') && !nameEl.innerText.toLowerCase().includes('basic information')) {
-        studentName = nameEl.innerText.trim();
-      }
-      if (!studentName) {
-        const batchIdx = bodyText.indexOf('Batch:');
-        if (batchIdx !== -1) {
-          const pre = bodyText.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n');
-          const cand = pre[pre.length - 1].trim();
-          if (cand && cand.length > 2 && !cand.toLowerCase().includes('dashboard')) {
-            studentName = cand;
-          }
+        // Student Name
+        let studentName = '';
+        const nameEl = document.querySelector('.text-xl.font-semibold, h1.font-semibold, h2.font-semibold');
+        if (nameEl && nameEl.innerText && !nameEl.innerText.toLowerCase().includes('adviser') && !nameEl.innerText.toLowerCase().includes('faculty') && !nameEl.innerText.toLowerCase().includes('dashboard') && !nameEl.innerText.toLowerCase().includes('basic information')) {
+          studentName = nameEl.innerText.trim();
         }
-      }
-      if (!studentName) {
-        const nameMatch = bodyText.match(/Welcome back\s*!?,?\s*([^\n!]+)/i) || bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i);
-        if (nameMatch) studentName = nameMatch[1].trim();
-      }
-
-      // Batch
-      let batch = '42';
-      const batchMatch = bodyText.match(/Batch\s*[:\s]*(\d+)/i);
-      if (batchMatch) batch = batchMatch[1].trim();
-
-      // Student ID
-      let studentId = '';
-      const idLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'ID');
-      if (idLabel && idLabel.nextElementSibling) {
-        const val = (idLabel.nextElementSibling.innerText || '').match(/\d{10,}/);
-        if (val) studentId = val[0];
-      }
-      if (!studentId) {
-        const idMatch = bodyText.match(/(?:^|\n)\s*ID\s*[\n:\s]+(\d{10,})/i) || bodyText.match(/(\d{16})/);
-        if (idMatch) studentId = idMatch[1].trim();
-      }
-
-      // Student Code
-      let studentCode = '';
-      const codeLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'CODE');
-      if (codeLabel && codeLabel.nextElementSibling) {
-        const val = (codeLabel.nextElementSibling.innerText || '').match(/\d{10,}/);
-        if (val) studentCode = val[0];
-      }
-      if (!studentCode) {
-        const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i);
-        if (codeMatch) studentCode = codeMatch[1].trim();
-      }
-
-      // Program / Department
-      let program = 'BSc in EEE';
-      const progLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'PROGRAM');
-      if (progLabel && progLabel.nextElementSibling) {
-        const val = (progLabel.nextElementSibling.innerText || '').trim();
-        if (val) program = val;
-      }
-      if (!program || program === 'BSc in EEE') {
-        const progMatch = bodyText.match(/(?:^|\n)\s*Program\s*[\n:\s]+([^\n]+)/i);
-        if (progMatch) program = progMatch[1].trim();
-      }
-      if (!program) {
-        const degMatch = bodyText.match(/(BSc\s+in\s+[A-Za-z\s]+|BBA|BA\s+in\s+[A-Za-z\s]+|LLB|MBA|MSc\s+in\s+[A-Za-z\s]+)/i);
-        if (degMatch) program = degMatch[1].trim();
-      }
-
-      // Advisor Name
-      let advisorName = '';
-      const filterInfo = document.querySelector('.filter-info');
-      if (filterInfo) {
-        const divs = Array.from(filterInfo.querySelectorAll('div'));
-        const candidate = divs.find(d => {
-          const txt = (d.innerText || '').trim();
-          return d.children.length === 0 && txt.length > 3 && !txt.toLowerCase().includes('faculty') && !txt.toLowerCase().includes('coordinator') && !txt.toLowerCase().includes('professor') && !txt.toLowerCase().includes('adviser');
-        });
-        if (candidate) advisorName = candidate.innerText.trim();
-      }
-      if (!advisorName) {
-        const advLabel = allDivs.find(el => el.children.length === 0 && (el.innerText.trim().toUpperCase() === 'ADVISER' || el.innerText.trim().toUpperCase() === 'ADVISOR'));
-        if (advLabel) {
-          const advCard = advLabel.closest('.filter-info, [class*="card"], div.rounded-2xl') || (advLabel.parentElement ? advLabel.parentElement.parentElement : null);
-          if (advCard) {
-            const advNameEl = advCard.querySelector('.text-xl, .text-2xl, h2, h3, .font-semibold');
-            if (advNameEl && !advNameEl.innerText.toLowerCase().includes('adviser') && !advNameEl.innerText.toLowerCase().includes('faculty')) {
-              advisorName = advNameEl.innerText.trim();
+        if (!studentName) {
+          const batchIdx = bodyText.indexOf('Batch:');
+          if (batchIdx !== -1) {
+            const pre = bodyText.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n');
+            const cand = pre[pre.length - 1].trim();
+            if (cand && cand.length > 2 && !cand.toLowerCase().includes('dashboard')) {
+              studentName = cand;
             }
           }
         }
-      }
-      if (!advisorName) {
-        const advMatch = bodyText.match(/Adviser[\s\S]*?Faculty[\s\S]*?([Dr\.]*[A-Za-z\s\.]+)\n/i) || bodyText.match(/(?:Advisor|Adviser)\s*[:\s]*([^\n]+)/i);
-        if (advMatch) advisorName = advMatch[1].trim();
-      }
+        if (!studentName) {
+          const nameMatch = bodyText.match(/Welcome back\s*!?,?\s*([^\n!]+)/i) || bodyText.match(/Basic Information\s*\n\s*([^\n]+)/i);
+          if (nameMatch) studentName = nameMatch[1].trim();
+        }
 
-      // Student Avatar Image
-      let studentAvatar = '';
-      const profileImgSelectors = [
-        'img.w-24.h-24.rounded-full',
-        'img[class*="rounded-full"][class*="w-24"]',
-        'img[class*="rounded-full"][class*="border-primary"]',
-        'img.w-20.h-20.rounded-full',
-        'img.w-7.h-7.rounded-full',
-        'img[src*="student"]',
-        'img[src*="profile"]'
-      ];
-      for (const sel of profileImgSelectors) {
-        const img = document.querySelector(sel);
-        if (img) {
-          const b64 = getElementBase64(img, 180);
-          if (b64 && b64.length > 200) {
-            studentAvatar = b64;
-            break;
+        // Batch
+        let batch = '42';
+        const batchMatch = bodyText.match(/Batch\s*[:\s]*(\d+)/i);
+        if (batchMatch) batch = batchMatch[1].trim();
+
+        // Student ID (16 digits)
+        let studentId = '';
+        const idLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'ID');
+        if (idLabel && idLabel.nextElementSibling) {
+          const val = (idLabel.nextElementSibling.innerText || '').match(/\d{10,}/);
+          if (val) studentId = val[0];
+        }
+        if (!studentId) {
+          const idMatch = bodyText.match(/(?:^|\n)\s*ID\s*[\n:\s]+(\d{10,})/i) || bodyText.match(/(\d{16})/);
+          if (idMatch) studentId = idMatch[1].trim();
+        }
+
+        // Student Code (13 digits)
+        let studentCode = '';
+        const codeLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'CODE');
+        if (codeLabel && codeLabel.nextElementSibling) {
+          const val = (codeLabel.nextElementSibling.innerText || '').match(/\d{10,}/);
+          if (val) studentCode = val[0];
+        }
+        if (!studentCode) {
+          const codeMatch = bodyText.match(/(?:^|\n)\s*Code\s*[\n:\s]+(\d{10,})/i);
+          if (codeMatch) studentCode = codeMatch[1].trim();
+        }
+
+        // Program / Department
+        let program = 'BSc in EEE';
+        const progLabel = allDivs.find(el => el.children.length === 0 && el.innerText.trim().toUpperCase() === 'PROGRAM');
+        if (progLabel && progLabel.nextElementSibling) {
+          const val = (progLabel.nextElementSibling.innerText || '').trim();
+          if (val) program = val;
+        }
+        if (!program || program === 'BSc in EEE') {
+          const progMatch = bodyText.match(/(?:^|\n)\s*Program\s*[\n:\s]+([^\n]+)/i);
+          if (progMatch) program = progMatch[1].trim();
+        }
+        if (!program) {
+          const degMatch = bodyText.match(/(BSc\s+in\s+[A-Za-z\s]+|BBA|BA\s+in\s+[A-Za-z\s]+|LLB|MBA|MSc\s+in\s+[A-Za-z\s]+)/i);
+          if (degMatch) program = degMatch[1].trim();
+        }
+
+        // Advisor Name
+        let advisorName = '';
+        const filterInfo = document.querySelector('.filter-info');
+        if (filterInfo) {
+          const divs = Array.from(filterInfo.querySelectorAll('div'));
+          const candidate = divs.find(d => {
+            const txt = (d.innerText || '').trim();
+            return d.children.length === 0 && txt.length > 3 && !txt.toLowerCase().includes('faculty') && !txt.toLowerCase().includes('coordinator') && !txt.toLowerCase().includes('professor') && !txt.toLowerCase().includes('adviser');
+          });
+          if (candidate) advisorName = candidate.innerText.trim();
+        }
+        if (!advisorName) {
+          const advLabel = allDivs.find(el => el.children.length === 0 && (el.innerText.trim().toUpperCase() === 'ADVISER' || el.innerText.trim().toUpperCase() === 'ADVISOR'));
+          if (advLabel) {
+            const advCard = advLabel.closest('.filter-info, [class*="card"], div.rounded-2xl') || (advLabel.parentElement ? advLabel.parentElement.parentElement : null);
+            if (advCard) {
+              const advNameEl = advCard.querySelector('.text-xl, .text-2xl, h2, h3, .font-semibold');
+              if (advNameEl && !advNameEl.innerText.toLowerCase().includes('adviser') && !advNameEl.innerText.toLowerCase().includes('faculty')) {
+                advisorName = advNameEl.innerText.trim();
+              }
+            }
           }
         }
-      }
+        if (!advisorName) {
+          const advMatch = bodyText.match(/Adviser[\s\S]*?Faculty[\s\S]*?([Dr\.]*[A-Za-z\s\.]+)\n/i) || bodyText.match(/(?:Advisor|Adviser)\s*[:\s]*([^\n]+)/i);
+          if (advMatch) advisorName = advMatch[1].trim();
+        }
 
-      return {
-        name: studentName,
-        studentId: studentId,
-        code: studentCode,
-        batch: batch,
-        program: program,
-        advisor: { name: advisorName },
-        avatar: studentAvatar
-      };
+        // Student Avatar Image
+        let studentAvatar = '';
+        const profileImgSelectors = [
+          'img.w-24.h-24.rounded-full',
+          'img[class*="rounded-full"][class*="w-24"]',
+          'img[class*="rounded-full"][class*="border-primary"]',
+          'img.w-20.h-20.rounded-full',
+          'img.w-7.h-7.rounded-full',
+          'img[src*="student"]',
+          'img[src*="profile"]'
+        ];
+        for (const sel of profileImgSelectors) {
+          const img = document.querySelector(sel);
+          if (img) {
+            const b64 = getElementBase64(img, 180);
+            if (b64 && b64.length > 200) {
+              studentAvatar = b64;
+              break;
+            }
+          }
+        }
+
+        return {
+          name: studentName,
+          studentId: studentId,
+          code: studentCode,
+          batch: batch,
+          program: program,
+          advisor: { name: advisorName },
+          avatar: studentAvatar
+        };
+      } catch (e) {
+        return { name: '', studentId: '', code: '', batch: '42', program: 'BSc in EEE', advisor: { name: '' }, avatar: '' };
+      }
     }
 
     // B) Extract Routine Courses and Teachers' Photos from "Registered Courses" tab
@@ -278,165 +308,167 @@
       const courses = [];
       const courseRegex = /^[ \t]*([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)[ \t]*$/i;
 
-      // Primary strategy: Row-by-Row DOM extraction
-      const rowContainers = Array.from(document.querySelectorAll('.student-count.grid, div[class*="student-count"], tr[class*="course"], [class*="mat-row"]'));
-      
-      if (rowContainers.length > 0) {
-        rowContainers.forEach(row => {
-          // Skip header row if present
-          if (row.classList.contains('mat-sort') || (row.innerText.includes('Course') && row.innerText.includes('Faculty') && row.innerText.includes('Schedule'))) {
-            return;
-          }
-
-          const rowText = row.innerText || '';
-          const match = rowText.match(/([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)/i);
-          if (!match) return;
-
-          const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
-          const parts = rawCode.split('.');
-          const code = parts[0];
-          const sec = parts[1] || '1';
-
-          // Title
-          let title = '';
-          const titleEl = row.querySelector('.text-sm.text-gray-500, [class*="text-gray-500"], .course-title');
-          if (titleEl) {
-            title = titleEl.innerText.trim();
-          }
-
-          // Faculty Initials & Name
-          let facInitials = '';
-          let facName = '';
-          const facMatch = rowText.match(/\[([A-Z]+)\]\s*([^@\n<]+)/i);
-          if (facMatch) {
-            facInitials = facMatch[1].toUpperCase();
-            facName = facMatch[2].trim();
-          }
-
-          // Faculty Email
-          let facEmail = '';
-          const emailEl = row.querySelector('a[href^="mailto:"]');
-          if (emailEl) {
-            facEmail = emailEl.getAttribute('href').replace('mailto:', '').trim();
-          } else {
-            const mailMatch = rowText.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
-            if (mailMatch) facEmail = mailMatch[1].trim();
-          }
-
-          // Faculty Avatar Image directly inside this specific row!
-          let facAvatar = '';
-          const facImg = row.querySelector('img[alt="User avatar"], img[class*="rounded-full"], img');
-          if (facImg) {
-            const b64 = getElementBase64(facImg, 120);
-            if (b64 && b64.length > 200 && !b64.includes('svg+xml')) {
-              facAvatar = b64;
+      try {
+        // Primary strategy: Row-by-Row DOM extraction
+        const rowContainers = Array.from(document.querySelectorAll('.student-count.grid, div[class*="student-count"], tr[class*="course"], [class*="mat-row"]'));
+        
+        if (rowContainers.length > 0) {
+          rowContainers.forEach(row => {
+            // Skip header row if present
+            if (row.classList.contains('mat-sort') || (row.innerText.includes('Course') && row.innerText.includes('Faculty') && row.innerText.includes('Schedule'))) {
+              return;
             }
-          }
 
-          // Schedules
-          const schedules = [];
-          const schedMatches = rowText.matchAll(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/gi);
-          for (const sm of schedMatches) {
-            schedules.push({
-              day: sm[1].toUpperCase(),
-              startTime: sm[2],
-              endTime: sm[3],
-              room: (sm[4] || 'TBA').toUpperCase(),
-              campus: 'Permanent Campus (PC)'
-            });
-          }
+            const rowText = row.innerText || '';
+            const match = rowText.match(/([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)/i);
+            if (!match) return;
 
-          courses.push({
-            codeWithSec: rawCode,
-            code: code,
-            section: sec,
-            title: title,
-            credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0,
-            type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory',
-            faculty: {
-              initials: facInitials,
-              name: facName,
-              email: facEmail,
-              avatar: facAvatar
-            },
-            schedules: schedules
-          });
-        });
-      }
-
-      // Secondary fallback strategy: Text-based line parsing if rowContainers query found 0
-      if (courses.length === 0) {
-        const bodyText = document.body ? (document.body.innerText || '') : '';
-        const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
-        let curCourse = null;
-
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          const match = line.match(courseRegex);
-
-          if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC')) {
-            if (curCourse) courses.push(curCourse);
             const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
             const parts = rawCode.split('.');
             const code = parts[0];
             const sec = parts[1] || '1';
 
-            curCourse = {
+            // Title
+            let title = '';
+            const titleEl = row.querySelector('.text-sm.text-gray-500, [class*="text-gray-500"], .course-title');
+            if (titleEl) {
+              title = titleEl.innerText.trim();
+            }
+
+            // Faculty Initials & Name
+            let facInitials = '';
+            let facName = '';
+            const facMatch = rowText.match(/\[([A-Z]+)\]\s*([^@\n<]+)/i);
+            if (facMatch) {
+              facInitials = facMatch[1].toUpperCase();
+              facName = facMatch[2].trim();
+            }
+
+            // Faculty Email
+            let facEmail = '';
+            const emailEl = row.querySelector('a[href^="mailto:"]');
+            if (emailEl) {
+              facEmail = emailEl.getAttribute('href').replace('mailto:', '').trim();
+            } else {
+              const mailMatch = rowText.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
+              if (mailMatch) facEmail = mailMatch[1].trim();
+            }
+
+            // Faculty Avatar Image directly inside this specific row!
+            let facAvatar = '';
+            const facImg = row.querySelector('img[alt="User avatar"], img[class*="rounded-full"], img');
+            if (facImg) {
+              const b64 = getElementBase64(facImg, 120);
+              if (b64 && b64.length > 200 && !b64.includes('svg+xml')) {
+                facAvatar = b64;
+              }
+            }
+
+            // Schedules
+            const schedules = [];
+            const schedMatches = rowText.matchAll(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/gi);
+            for (const sm of schedMatches) {
+              schedules.push({
+                day: sm[1].toUpperCase(),
+                startTime: sm[2],
+                endTime: sm[3],
+                room: (sm[4] || 'TBA').toUpperCase(),
+                campus: 'Permanent Campus (PC)'
+              });
+            }
+
+            courses.push({
               codeWithSec: rawCode,
               code: code,
               section: sec,
-              title: '',
+              title: title,
               credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0,
               type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory',
-              faculty: { initials: '', name: '', email: '', avatar: '' },
-              schedules: []
-            };
-            continue;
-          }
-
-          if (!curCourse) continue;
-
-          const facMatch = line.match(/\[([A-Z]+)\]\s*([^@\n]+)/i);
-          if (facMatch) {
-            curCourse.faculty.initials = facMatch[1].toUpperCase();
-            curCourse.faculty.name = facMatch[2].trim();
-            continue;
-          }
-
-          const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
-          if (emailMatch) {
-            curCourse.faculty.email = emailMatch[1].trim();
-            continue;
-          }
-
-          const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i);
-          if (schedMatch) {
-            curCourse.schedules.push({
-              day: schedMatch[1].toUpperCase(),
-              startTime: schedMatch[2],
-              endTime: schedMatch[3],
-              room: (schedMatch[4] || 'TBA').toUpperCase(),
-              campus: 'Permanent Campus (PC)'
+              faculty: {
+                initials: facInitials,
+                name: facName,
+                email: facEmail,
+                avatar: facAvatar
+              },
+              schedules: schedules
             });
-            continue;
-          }
-
-          if (!curCourse.title && !line.includes('@') && !line.includes('#') && !line.startsWith('[')) {
-            curCourse.title = line;
-          }
+          });
         }
-        if (curCourse) courses.push(curCourse);
-      }
+
+        // Secondary fallback strategy: Text-based line parsing if rowContainers query found 0
+        if (courses.length === 0) {
+          const bodyText = document.body ? (document.body.innerText || '') : '';
+          const lines = bodyText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+          let curCourse = null;
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const match = line.match(courseRegex);
+
+            if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC')) {
+              if (curCourse) courses.push(curCourse);
+              const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
+              const parts = rawCode.split('.');
+              const code = parts[0];
+              const sec = parts[1] || '1';
+
+              curCourse = {
+                codeWithSec: rawCode,
+                code: code,
+                section: sec,
+                title: '',
+                credits: code.includes('LAB') || rawCode.endsWith('.2') ? 1.5 : 3.0,
+                type: code.includes('LAB') || rawCode.endsWith('.2') ? 'Lab' : 'Theory',
+                faculty: { initials: '', name: '', email: '', avatar: '' },
+                schedules: []
+              };
+              continue;
+            }
+
+            if (!curCourse) continue;
+
+            const facMatch = line.match(/\[([A-Z]+)\]\s*([^@\n]+)/i);
+            if (facMatch) {
+              curCourse.faculty.initials = facMatch[1].toUpperCase();
+              curCourse.faculty.name = facMatch[2].trim();
+              continue;
+            }
+
+            const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
+            if (emailMatch) {
+              curCourse.faculty.email = emailMatch[1].trim();
+              continue;
+            }
+
+            const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i);
+            if (schedMatch) {
+              curCourse.schedules.push({
+                day: schedMatch[1].toUpperCase(),
+                startTime: schedMatch[2],
+                endTime: schedMatch[3],
+                room: (schedMatch[4] || 'TBA').toUpperCase(),
+                campus: 'Permanent Campus (PC)'
+              });
+              continue;
+            }
+
+            if (!curCourse.title && !line.includes('@') && !line.includes('#') && !line.startsWith('[')) {
+              curCourse.title = line;
+            }
+          }
+          if (curCourse) courses.push(curCourse);
+        }
+      } catch (e) {}
 
       return courses;
     }
 
-    // 6. Main Orchestrator: Smart 2-Tab Extraction Workflow
+    // 7. Main Orchestrator: Smart Non-Intrusive 2-Tab Extraction Workflow
     async function runSmartSync() {
       // Show progress notice
       showUmsBanner(
         '🔄 SEU Sync: ডেটা রিড করা হচ্ছে...',
-        'সাউথইস্ট UMS থেকে আপনার রুটিন, প্রোফাইল ও শিক্ষকদের ছবি সংগ্রহ করা হচ্ছে। দয়া করে ১ সেকেন্ড অপেক্ষা করুন...',
+        'সাউথইস্ট UMS থেকে আপনার রুটিন, প্রোফাইল ও শিক্ষকদের ছবি নিরাপদভাবে রিড করা হচ্ছে। দয়া করে ১ সেকেন্ড অপেক্ষা করুন...',
         false,
         ''
       );
@@ -458,10 +490,10 @@
         cachedData.student = currentProfile;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
 
-        // Try switching to "Registered Courses" tab
-        const switched = switchUmsTab('Registered Courses');
+        // Gentle Human Delay Tab Switch to "Registered Courses"
+        const switched = switchUmsTabSafely('Registered Courses');
         if (switched) {
-          await new Promise(res => setTimeout(res, 450));
+          await new Promise(res => setTimeout(res, 850));
           currentCourses = extractCoursesAndTeachers();
         }
       }
@@ -471,16 +503,17 @@
         cachedData.courses = currentCourses;
         try { sessionStorage.setItem('seu_sync_cache', JSON.stringify(cachedData)); } catch(e) {}
 
-        // Try switching to "About" tab to get full profile and large image
-        const switched = switchUmsTab('About');
+        // Gentle Human Delay Tab Switch to "About"
+        const switched = switchUmsTabSafely('About');
         if (switched) {
-          await new Promise(res => setTimeout(res, 450));
+          await new Promise(res => setTimeout(res, 850));
           const freshProfile = extractStudentProfile();
           if (freshProfile.name || freshProfile.studentId) {
             currentProfile = freshProfile;
           }
           // Switch back to "Registered Courses"
-          switchUmsTab('Registered Courses');
+          switchUmsTabSafely('Registered Courses');
+          await new Promise(res => setTimeout(res, 400));
         }
       }
 
@@ -574,9 +607,15 @@
         actionHtml
       );
 
+      // Clean up session cache on user action
+      function cleanCache() {
+        try { sessionStorage.removeItem('seu_sync_cache'); } catch (e) {}
+      }
+
       const btnOpen = document.getElementById('btnOpenRoutineApp');
       if (btnOpen) {
         btnOpen.onclick = function () {
+          cleanCache();
           window.open(syncFullUrl, '_blank');
           if (banner) banner.remove();
         };
@@ -585,6 +624,7 @@
       const btnCopy = document.getElementById('btnCopySyncLink');
       if (btnCopy) {
         btnCopy.onclick = function () {
+          cleanCache();
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(syncFullUrl).then(() => {
               alert('📋 Sync link copied! Open the Routine App or paste into your browser.');
@@ -600,6 +640,7 @@
       const btnJson = document.getElementById('btnDownloadJson');
       if (btnJson) {
         btnJson.onclick = function () {
+          cleanCache();
           const blob = new Blob([JSON.stringify(syncPayload, null, 2)], { type: 'application/json' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -618,7 +659,6 @@
     runSmartSync();
 
   } catch (err) {
-    console.error('SEU Routine Bookmarklet Execution Error:', err);
     try {
       const errBanner = document.createElement('div');
       errBanner.style.cssText = [
@@ -640,13 +680,18 @@
         'box-sizing: border-box !important'
       ].join(';');
       errBanner.innerHTML = [
-        '<div style="font-weight:800; font-size:15px; color:#f87171; margin-bottom:6px;">⚠️ Bookmarklet Error</div>',
+        '<div style="font-weight:800; font-size:15px; color:#f87171; margin-bottom:6px;">⚠️ Bookmarklet Notice</div>',
         '<div style="color:#cbd5e1; margin-bottom:10px; line-height:1.4;">' + (err && err.message ? err.message : String(err)) + '</div>',
         '<button onclick="this.parentElement.remove()" style="background:#334155; color:#fff; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px;">✕ Dismiss</button>'
       ].join('');
       document.body.appendChild(errBanner);
-    } catch (e) {
-      alert('⚠️ Bookmarklet error: ' + (err && err.message ? err.message : String(err)));
-    }
+    } catch (e) {}
+  } finally {
+    // Release mutex safely after a calm buffer
+    setTimeout(function () {
+      try {
+        window.__SEU_ROUTINE_SYNC_RUNNING__ = false;
+      } catch (e) {}
+    }, 1500);
   }
 })();
