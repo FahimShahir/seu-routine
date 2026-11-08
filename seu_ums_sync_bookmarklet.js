@@ -1,6 +1,6 @@
 /**
- * SEU Class Routine - 1-Click Safe Bookmarklet Sync (Anti-Block & Smart 2-Tab Edition)
- * -----------------------------------------------------------------------------------
+ * SEU Class Routine - 1-Click Safe Bookmarklet Sync (Anti-Block & Image Optimized)
+ * --------------------------------------------------------------------------------
  * Runs safely inside student logged-in session on:
  * https://ums.seu.edu.bd/dashboard
  * 
@@ -10,7 +10,9 @@
  * 3. 100% Read-Only Client-side DOM reading of rendered courses, student profile & photos in RAM.
  * 4. Concurrency Mutex: Prevents double-clicking or rapid repetitive script execution.
  * 5. Gentle Humanized Tab Switching: Never clicks an already-active tab (aria-selected="true").
- * 6. 100% Error Shielding: Zero unhandled exceptions reach window.onerror or Angular telemetry.
+ * 6. High-Efficiency Image Downscaling: Compact 80x80 & 52x52 JPEGs prevent browser URL truncation.
+ * 7. Dual-Channel Lossless Transport: window.postMessage + compact URL hash (< 11 KB).
+ * 8. 100% Error Shielding: Zero unhandled exceptions reach window.onerror or Angular telemetry.
  */
 
 (function () {
@@ -92,46 +94,63 @@
       return;
     }
 
-    // 4. Client-side Local Canvas Image Reader (Zero Network Requests)
-    function getElementBase64(imgEl, maxDim) {
+    // 4. Client-side Local Image Downscaler & Extractor (Zero Network Requests)
+    function getElementBase64(imgEl, maxDim, quality) {
       try {
         if (!imgEl) return '';
-        maxDim = maxDim || 160;
-        
-        // If image already has a local base64 JPEG data url, reuse directly
-        if (imgEl.src && imgEl.src.startsWith('data:image/jpeg;base64') && imgEl.src.length > 200) {
-          return imgEl.src;
+        maxDim = maxDim || 64;
+        quality = quality || 0.60;
+
+        let candidateSrc = '';
+
+        // 4.1 Direct src check (ignore empty or SVG placeholders)
+        if (imgEl.src && !imgEl.src.startsWith('data:image/svg')) {
+          candidateSrc = imgEl.src;
         }
 
-        // Check computed background-image if src is empty or SVG placeholder
-        let bgUrl = '';
-        if ((!imgEl.src || imgEl.src.startsWith('data:image/svg')) && window.getComputedStyle) {
-          const bg = window.getComputedStyle(imgEl).backgroundImage;
-          const bgMatch = bg && bg.match(/url\(['"]?(data:image\/[^'"]+)['"]?\)/i);
-          if (bgMatch && bgMatch[1].length > 200) {
-            return bgMatch[1];
+        // 4.2 Computed background-image check (resolves CSS variables and classes)
+        if (!candidateSrc && window.getComputedStyle) {
+          const bg = window.getComputedStyle(imgEl).backgroundImage || (imgEl.style ? imgEl.style.backgroundImage : '');
+          if (bg && bg.includes('data:image/')) {
+            const m = bg.match(/url\(['"]?(data:image\/[^'"]+)['"]?\)/i);
+            if (m && m[1]) candidateSrc = m[1];
           }
         }
 
+        // 4.3 Setup compact canvas
         const canvas = document.createElement('canvas');
-        let w = imgEl.naturalWidth || imgEl.width || 120;
-        let h = imgEl.naturalHeight || imgEl.height || 120;
-        if (w > maxDim || h > maxDim) {
-          if (w >= h) {
-            h = Math.round((h * maxDim) / w);
-            w = maxDim;
-          } else {
-            w = Math.round((w * maxDim) / h);
-            h = maxDim;
-          }
-        }
-        canvas.width = Math.max(w, 40);
-        canvas.height = Math.max(h, 40);
+        canvas.width = maxDim;
+        canvas.height = maxDim;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/jpeg', 0.82);
-      } catch (e) {
-        return (imgEl && imgEl.src && imgEl.src.startsWith('data:image')) ? imgEl.src : '';
+
+        // If we have a data URL candidate, downscale it onto the canvas
+        if (candidateSrc && candidateSrc.startsWith('data:image/')) {
+          try {
+            const tempImg = new Image();
+            tempImg.src = candidateSrc;
+            ctx.drawImage(tempImg, 0, 0, maxDim, maxDim);
+            const compressed = canvas.toDataURL('image/jpeg', quality);
+            if (compressed && compressed.length > 200) {
+              return compressed;
+            }
+          } catch (e) {}
+
+          // If canvas compression failed, return candidate directly if under reasonable size
+          if (candidateSrc.length < 15000) return candidateSrc;
+        }
+
+        // 4.4 If imgEl is an active IMG tag with natural dimensions, draw directly
+        if (imgEl.tagName && imgEl.tagName.toUpperCase() === 'IMG' && imgEl.complete && imgEl.naturalWidth > 0) {
+          try {
+            ctx.drawImage(imgEl, 0, 0, maxDim, maxDim);
+            const b64 = canvas.toDataURL('image/jpeg', quality);
+            if (b64 && b64.length > 200) return b64;
+          } catch (taintErr) {}
+        }
+
+        return '';
+      } catch (err) {
+        return '';
       }
     }
 
@@ -167,7 +186,7 @@
     }
 
     // 6. Extraction Functions:
-    // A) Extract Student Profile from "About" tab
+    // A) Extract Student Profile from "About" tab and Navbar
     function extractStudentProfile() {
       try {
         const bodyText = document.body ? (document.body.innerText || '') : '';
@@ -267,24 +286,42 @@
           if (advMatch) advisorName = advMatch[1].trim();
         }
 
-        // Student Avatar Image
+        // Student Avatar Image (Multi-source: About tab + Navbar + Header)
         let studentAvatar = '';
         const profileImgSelectors = [
           'img.w-24.h-24.rounded-full',
-          'img[class*="rounded-full"][class*="w-24"]',
-          'img[class*="rounded-full"][class*="border-primary"]',
+          'img[class*="w-24"][class*="rounded-full"]',
           'img.w-20.h-20.rounded-full',
           'img.w-7.h-7.rounded-full',
+          '.border-primary-600 img',
+          'header img.rounded-full',
+          'nav img.rounded-full',
           'img[src*="student"]',
           'img[src*="profile"]'
         ];
+
         for (const sel of profileImgSelectors) {
           const img = document.querySelector(sel);
           if (img) {
-            const b64 = getElementBase64(img, 180);
-            if (b64 && b64.length > 200) {
+            const b64 = getElementBase64(img, 80, 0.65);
+            if (b64 && b64.length > 200 && !b64.includes('svg+xml')) {
               studentAvatar = b64;
               break;
+            }
+          }
+        }
+
+        // Fallback: Check any .rounded-full element with background-image containing data:image
+        if (!studentAvatar && window.getComputedStyle) {
+          const roundedEls = Array.from(document.querySelectorAll('.rounded-full'));
+          for (const el of roundedEls) {
+            const bg = window.getComputedStyle(el).backgroundImage;
+            if (bg && bg.includes('data:image/jpeg')) {
+              const b64 = getElementBase64(el, 80, 0.65);
+              if (b64 && b64.length > 200) {
+                studentAvatar = b64;
+                break;
+              }
             }
           }
         }
@@ -354,11 +391,11 @@
               if (mailMatch) facEmail = mailMatch[1].trim();
             }
 
-            // Faculty Avatar Image directly inside this specific row!
+            // Faculty Avatar Image directly inside this specific row! (Optimized: 52x52 px)
             let facAvatar = '';
             const facImg = row.querySelector('img[alt="User avatar"], img[class*="rounded-full"], img');
             if (facImg) {
-              const b64 = getElementBase64(facImg, 120);
+              const b64 = getElementBase64(facImg, 52, 0.55);
               if (b64 && b64.length > 200 && !b64.includes('svg+xml')) {
                 facAvatar = b64;
               }
@@ -578,8 +615,11 @@
         '  <button id="btnOpenRoutineApp" style="background:#2563eb; color:white; border:none; padding:9px 15px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px; box-shadow:0 2px 6px rgba(37,99,235,0.4);">',
         '    🚀 Open Routine App',
         '  </button>',
-        '  <button id="btnCopySyncLink" style="background:#0284c7; color:white; border:none; padding:9px 12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">',
-        '    📋 Copy Link',
+        '  <button id="btnCopyJsonData" style="background:#0284c7; color:white; border:none; padding:9px 12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">',
+        '    📋 Copy Routine Data',
+        '  </button>',
+        '  <button id="btnCopySyncLink" style="background:#475569; color:white; border:none; padding:9px 12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">',
+        '    🔗 Copy Link',
         '  </button>',
         '  <button id="btnDownloadJson" style="background:#334155; color:white; border:none; padding:9px 12px; border-radius:8px; font-weight:600; cursor:pointer; font-size:13px;">',
         '    💾 Save JSON',
@@ -612,22 +652,52 @@
         try { sessionStorage.removeItem('seu_sync_cache'); } catch (e) {}
       }
 
+      // 1. Open Routine App with dual-channel (postMessage + URL hash fallback)
       const btnOpen = document.getElementById('btnOpenRoutineApp');
       if (btnOpen) {
         btnOpen.onclick = function () {
           cleanCache();
-          window.open(syncFullUrl, '_blank');
+          const win = window.open(syncFullUrl, '_blank');
+          if (win) {
+            const sendMsg = function () {
+              try {
+                win.postMessage({ type: 'SEU_ROUTINE_SYNC', payload: syncPayload }, '*');
+              } catch (e) {}
+            };
+            setTimeout(sendMsg, 250);
+            setTimeout(sendMsg, 750);
+            setTimeout(sendMsg, 1500);
+          }
           if (banner) banner.remove();
         };
       }
 
+      // 2. 1-Tap Copy Data JSON for easy paste into the Routine App
+      const btnCopyData = document.getElementById('btnCopyJsonData');
+      if (btnCopyData) {
+        btnCopyData.onclick = function () {
+          cleanCache();
+          const jsonStr = JSON.stringify(syncPayload, null, 2);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(jsonStr).then(() => {
+              alert('📋 Routine & Photos copied! Open the Routine App and tap "Paste from Clipboard".');
+            }).catch(() => {
+              prompt('Copy your Routine JSON below:', jsonStr);
+            });
+          } else {
+            prompt('Copy your Routine JSON below:', jsonStr);
+          }
+        };
+      }
+
+      // 3. Copy Link
       const btnCopy = document.getElementById('btnCopySyncLink');
       if (btnCopy) {
         btnCopy.onclick = function () {
           cleanCache();
           if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(syncFullUrl).then(() => {
-              alert('📋 Sync link copied! Open the Routine App or paste into your browser.');
+              alert('🔗 Sync link copied! Paste into your browser.');
             }).catch(() => {
               prompt('Copy your Sync Link below:', syncFullUrl);
             });
@@ -637,6 +707,7 @@
         };
       }
 
+      // 4. Download JSON
       const btnJson = document.getElementById('btnDownloadJson');
       if (btnJson) {
         btnJson.onclick = function () {
