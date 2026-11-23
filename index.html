@@ -973,7 +973,8 @@
       display: flex;
     }
 
-    .modal-card {
+    .modal-card,
+    .modal {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
@@ -1223,17 +1224,17 @@
       }
       .view-tabs {
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: repeat(4, 1fr);
         width: 100%;
         padding: 3px;
-        gap: 2px;
+        gap: 3px;
         border-radius: var(--radius-sm);
       }
       .tab-btn {
         padding: 0.45rem 0.2rem;
-        font-size: 0.76rem;
+        font-size: 0.72rem;
         justify-content: center;
-        border-radius: 4px;
+        border-radius: 6px;
         white-space: nowrap;
       }
       .tab-label-full {
@@ -1241,6 +1242,14 @@
       }
       .tab-label-short {
         display: inline !important;
+      }
+
+      /* Compact text toggles on mobile */
+      .dev-badge-short, .tb-btn-short, .cal-btn-short, .zoom-text-short {
+        display: inline !important;
+      }
+      .dev-badge-full, .tb-btn-full, .cal-btn-full, .zoom-text-full {
+        display: none !important;
       }
       .filter-tools {
         max-width: 100%;
@@ -1461,28 +1470,46 @@
         font-size: 0.95rem;
       }
 
-      /* Mobile Modals (Bottom Sheet) */
+      /* Mobile Modals (Native-style Bottom Sheet) */
       .modal-backdrop {
         padding: 0;
         align-items: flex-end;
       }
-      .modal-card {
-        width: 100%;
-        max-width: 100vw;
-        max-height: 88vh;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        border-top-left-radius: var(--radius-lg);
-        border-top-right-radius: var(--radius-lg);
+      .modal-card,
+      .modal {
+        width: 100% !important;
+        max-width: 100vw !important;
+        max-height: 90vh !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 20px !important;
+        border-top-right-radius: 20px !important;
+        box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.4) !important;
+        background: var(--bg-surface) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
       }
       .modal-header {
-        padding: 0.85rem 1rem;
+        padding: 0.9rem 1.1rem !important;
+        position: sticky;
+        top: 0;
+        background: var(--bg-surface);
+        z-index: 10;
+        border-bottom: 1px solid var(--border-color);
       }
       .modal-body {
-        padding: 0.9rem 1rem;
+        padding: 1rem 1.1rem !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
       }
       .modal-footer {
-        padding: 0.75rem 1rem;
+        padding: 0.85rem 1.1rem calc(0.85rem + env(safe-area-inset-bottom, 0px)) 1.1rem !important;
+        position: sticky;
+        bottom: 0;
+        background: var(--bg-surface);
+        z-index: 10;
+        border-top: 1px solid var(--border-color);
       }
 
       /* Mobile Footer */
@@ -1491,6 +1518,14 @@
         padding: 1.25rem 0.5rem;
         font-size: 0.78rem;
       }
+    }
+
+    /* Default Desktop Labels */
+    .dev-badge-short, .tb-btn-short, .cal-btn-short, .zoom-text-short {
+      display: none;
+    }
+    .dev-badge-full, .tb-btn-full, .cal-btn-full, .zoom-text-full {
+      display: inline;
     }
 
     @media (min-width: 769px) {
@@ -1502,6 +1537,12 @@
       }
       .mobile-swipe-cue {
         display: none;
+      }
+      .dev-badge-short, .tb-btn-short, .cal-btn-short, .zoom-text-short {
+        display: none !important;
+      }
+      .dev-badge-full, .tb-btn-full, .cal-btn-full, .zoom-text-full {
+        display: inline !important;
       }
     }
     /* Developer Profile Modal Styles */
@@ -1930,7 +1971,7 @@
     }
     @media (max-width: 768px) {
       body {
-        padding-bottom: 74px !important;
+        padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important;
       }
       .mobile-bottom-nav {
         display: flex;
@@ -1938,20 +1979,20 @@
         bottom: 0;
         left: 0;
         right: 0;
-        height: 62px;
-        background: rgba(255, 255, 255, 0.92);
+        min-height: 62px;
+        height: calc(62px + env(safe-area-inset-bottom, 0px));
+        background: rgba(255, 255, 255, 0.94);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-top: 1px solid rgba(226, 232, 240, 0.9);
         z-index: 999;
         align-items: center;
         justify-content: space-around;
-        padding: 0 0.5rem;
+        padding: 0 0.25rem env(safe-area-inset-bottom, 0px) 0.25rem;
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       [data-theme="dark"] .mobile-bottom-nav {
-        background: rgba(17, 24, 39, 0.92);
+        background: rgba(17, 24, 39, 0.94);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
       }
@@ -1960,11 +2001,11 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 3px;
+        gap: 2px;
         background: transparent;
         border: none;
         color: var(--text-muted);
-        padding: 0.35rem 0.4rem;
+        padding: 0.35rem 0.15rem;
         cursor: pointer;
         font-size: 0.68rem;
         font-weight: 700;
@@ -1972,17 +2013,29 @@
         transition: all 0.2s ease;
         border-radius: var(--radius-sm);
         flex: 1;
+        min-height: 48px;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
       }
       .mobile-nav-btn .m-nav-icon {
         font-size: 1.15rem;
         line-height: 1;
         transition: transform 0.2s ease;
       }
+      .mobile-nav-btn .m-nav-label {
+        white-space: nowrap;
+        font-size: 0.65rem;
+        letter-spacing: -0.2px;
+        line-height: 1.2;
+      }
+      .mobile-nav-btn:active {
+        transform: scale(0.92);
+      }
       .mobile-nav-btn.active {
         color: var(--primary);
       }
       .mobile-nav-btn.active .m-nav-icon {
-        transform: scale(1.15);
+        transform: translateY(-2px) scale(1.1);
       }
     }
 
@@ -2270,9 +2323,11 @@
       gap: 0.65rem;
       align-items: stretch;
       overflow-x: auto;
-      padding: 0.25rem 0.1rem;
+      padding: 0.25rem 0.15rem 0.45rem 0.15rem;
       margin-bottom: 0.25rem;
       scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
     }
     .live-countdown-strip::-webkit-scrollbar {
       height: 4px;
@@ -2292,6 +2347,8 @@
       box-shadow: var(--shadow-sm);
       flex: 1 0 auto;
       min-width: 210px;
+      scroll-snap-align: start;
+      touch-action: manipulation;
     }
     .strip-chip:hover {
       transform: translateY(-2px);
@@ -2536,6 +2593,57 @@
       text-transform: uppercase;
     }
 
+    /* Mobile Enhancements for Master Dashboard & Tables */
+    @media (max-width: 600px) {
+      .dashboard-wrapper {
+        gap: 1rem;
+      }
+      .dashboard-hero-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+      .dashboard-card {
+        padding: 1.05rem 1.15rem;
+        border-radius: 14px;
+      }
+      .dashboard-timer-display {
+        font-size: 1.35rem;
+      }
+      .stat-metric-pill {
+        padding: 0.9rem 1.05rem;
+        border-radius: 14px;
+        gap: 0.85rem;
+      }
+      .stat-metric-num {
+        font-size: 1.45rem;
+      }
+      .dashboard-section-card {
+        padding: 1.1rem 0.95rem;
+        border-radius: 14px;
+      }
+      .item-card-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 0.85rem 0.95rem;
+      }
+      .item-card-row > div:last-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        border-top: 1px solid rgba(226, 232, 240, 0.4);
+        padding-top: 0.5rem;
+      }
+      [data-theme="dark"] .item-card-row > div:last-child {
+        border-top-color: rgba(255, 255, 255, 0.08);
+      }
+      .exam-review-table th, .exam-review-table td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.78rem;
+      }
+    }
+
 
     /* Sleek More Menu Dropdown & Calendar System Switcher */
     .more-item-btn {
@@ -2580,7 +2688,10 @@
     <!-- Top Control Toolbar (Always visible) -->
     <header class="top-toolbar">
       <div class="toolbar-brand-row">
-        <button class="btn btn-developer-badge" id="btnDeveloperBadge" onclick="openModal('modalAboutDeveloper')" title="Click to view Creator & Lead Developer Profile">👨‍💻 Dev: Foyjul Bari Shahir</button>
+        <button class="btn btn-developer-badge" id="btnDeveloperBadge" onclick="openModal('modalAboutDeveloper')" title="Click to view Creator & Lead Developer Profile">
+          <span class="dev-badge-full">👨‍💻 Dev: Foyjul Bari Shahir</span>
+          <span class="dev-badge-short">👨‍💻 Shahir (EEE 42)</span>
+        </button>
         <div class="toolbar-quick-toggles">
           <button class="btn btn-pwa" id="btnInstallApp" style="display:none;" onclick="triggerPwaInstall()">📱 Install</button>
           <button class="btn btn-outline" id="btnTimeToggle" onclick="toggleTimeFormat()">12h</button>
@@ -2598,10 +2709,22 @@
         <button class="btn btn-danger" id="btnExitDemoToolbar" onclick="exitDemoMode()" style="display:none; font-weight:700;">✕ Exit Demo</button>
         
         <!-- Primary Clean Quick Actions -->
-        <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">✨ Import UMS</button>
-        <button class="btn btn-outline" id="btnAddCtToolbar" onclick="openAddCtModal()" title="Schedule Class Test">📝 + Add CT</button>
-        <button class="btn btn-outline" id="btnExamPdfToolbar" onclick="openExamPdfModal()" title="Upload Exam Routine PDF">📄 Exam Routine PDF</button>
-        <button class="btn btn-outline" id="btnAcademicCal" onclick="openAcademicCalendarModal()" title="SEU Academic Calendar">📅 Academic Calendar</button>
+        <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">
+          <span class="tb-btn-full">✨ Import UMS</span>
+          <span class="tb-btn-short">✨ Import</span>
+        </button>
+        <button class="btn btn-outline" id="btnAddCtToolbar" onclick="openAddCtModal()" title="Schedule Class Test">
+          <span class="tb-btn-full">📝 + Add CT</span>
+          <span class="tb-btn-short">📝 +CT</span>
+        </button>
+        <button class="btn btn-outline" id="btnExamPdfToolbar" onclick="openExamPdfModal()" title="Upload Exam Routine PDF">
+          <span class="tb-btn-full">📄 Exam Routine PDF</span>
+          <span class="tb-btn-short">📄 Exam PDF</span>
+        </button>
+        <button class="btn btn-outline" id="btnAcademicCal" onclick="openAcademicCalendarModal()" title="SEU Academic Calendar">
+          <span class="tb-btn-full">📅 Academic Calendar</span>
+          <span class="tb-btn-short">📅 Calendar</span>
+        </button>
 
         <!-- More Utilities Dropdown -->
         <div class="more-utilities-wrap" style="position:relative; display:inline-block;">
@@ -2754,10 +2877,9 @@
       </section>
 
       <div class="status-pill-wrap" id="statusPillWrap">
-          <div class="status-dot" id="statusDot"></div>
-          <div id="liveClassStatus">Evaluating class schedule...</div>
-        </div>
-      </section>
+        <div class="status-dot" id="statusDot"></div>
+        <div id="liveClassStatus">Evaluating class schedule...</div>
+      </div>
 
       <!-- Compact Live Countdown Strip (Accessible across all views) -->
       <section class="live-countdown-strip" id="liveCountdownStrip">
@@ -2970,13 +3092,16 @@
 
           <div class="zoom-preset-actions">
             <button type="button" class="btn-zoom-preset active" id="btnPresetFit" onclick="setRoutineZoomMode('fit')" title="Fit entire weekly routine onto mobile screen">
-              📱 Full View
+              <span class="zoom-text-full">📱 Full View</span>
+              <span class="zoom-text-short">📱 Fit</span>
             </button>
             <button type="button" class="btn-zoom-preset" id="btnPreset100" onclick="setRoutineZoomMode('100')" title="Zoom into 100% normal size">
-              🔍 100%
+              <span class="zoom-text-full">🔍 100%</span>
+              <span class="zoom-text-short">100%</span>
             </button>
             <button type="button" class="btn-zoom-preset" id="btnPresetReset" onclick="resetRoutineZoom()" title="Reset Zoom">
-              ↺ Reset
+              <span class="zoom-text-full">↺ Reset</span>
+              <span class="zoom-text-short">↺</span>
             </button>
           </div>
         </div>
@@ -6729,7 +6854,7 @@
   </script>
   <!-- Mobile Sticky Bottom Navigation Bar (Visible on mobile/tablets) -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile Navigation">
-        <button class="mobile-nav-btn" id="mNavDashboard" onclick="mobileSwitchView('dashboard')">
+    <button class="mobile-nav-btn" id="mNavDashboard" onclick="mobileSwitchView('dashboard')">
       <span class="m-nav-icon">📊</span>
       <span class="m-nav-label">ড্যাশবোর্ড</span>
     </button>
@@ -6739,19 +6864,19 @@
     </button>
     <button class="mobile-nav-btn" id="mNavToday" onclick="mobileSwitchView('agenda')">
       <span class="m-nav-icon">📅</span>
-      <span class="m-nav-label">আজকের ক্লাস</span>
+      <span class="m-nav-label">আজকে</span>
     </button>
     <button class="mobile-nav-btn" id="mNavCourses" onclick="mobileSwitchView('table')">
       <span class="m-nav-icon">📚</span>
-      <span class="m-nav-label">কোর্স ও শিক্ষক</span>
+      <span class="m-nav-label">কোর্সসমূহ</span>
     </button>
     <button class="mobile-nav-btn" id="mNavImport" onclick="openModal('modalUmsImport')">
       <span class="m-nav-icon">✨</span>
-      <span class="m-nav-label">ইমপোর্ট UMS</span>
+      <span class="m-nav-label">ইমপোর্ট</span>
     </button>
     <button class="mobile-nav-btn" id="mNavHow" onclick="openModal('modalHowItWorks')">
       <span class="m-nav-icon">💡</span>
-      <span class="m-nav-label">কীভাবে চলে?</span>
+      <span class="m-nav-label">গাইড</span>
     </button>
   </nav>
 
@@ -6760,7 +6885,7 @@
          MODAL: EXAM ROUTINE PDF AUTO-MATCHER
          ======================================================== -->
     <div class="modal-backdrop" id="modalExamPdf">
-      <div class="modal" style="max-width: 780px;">
+      <div class="modal modal-card" style="max-width: 780px;">
         <div class="modal-header">
           <div style="display:flex; align-items:center; gap:0.6rem;">
             <span style="font-size:1.5rem;">📄</span>
@@ -6831,7 +6956,7 @@
          MODAL: ADD / EDIT CLASS TEST (CT) (CLASS-TIME CONSTRAINT)
          ======================================================== -->
     <div class="modal-backdrop" id="modalAddCt">
-      <div class="modal" style="max-width: 560px;">
+      <div class="modal modal-card" style="max-width: 560px;">
         <div class="modal-header">
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span style="font-size:1.4rem;">📝</span>
@@ -6910,7 +7035,7 @@
          MODAL: ACADEMIC CALENDAR & DYNAMIC ANNUAL EXTENSIBILITY
          ======================================================== -->
     <div class="modal-backdrop" id="modalAcademicCalendar">
-      <div class="modal" style="max-width: 760px;">
+      <div class="modal modal-card" style="max-width: 760px;">
         <div class="modal-header">
           <div style="display:flex; align-items:center; gap:0.6rem;">
             <span style="font-size:1.5rem;">📅</span>
@@ -6925,10 +7050,12 @@
           <!-- Dual-System Segmented Switcher (Tri vs Bi) -->
           <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem; flex-wrap:wrap; background:var(--bg-main); padding:6px; border-radius:14px; border:1px solid var(--border-color); margin-bottom:0.75rem;">
             <button type="button" class="btn-cal-system active" id="btnSysTriModal" onclick="switchCalendarSystem('triSemester')" style="border-radius:9px; padding:6px 14px; font-size:0.84rem; font-weight:800;">
-              🎓 Tri-Semester (UG Engineering / BBA / Law)
+              <span class="cal-btn-full">🎓 Tri-Semester (UG Engineering / BBA / Law)</span>
+              <span class="cal-btn-short">🎓 Tri-Semester</span>
             </button>
             <button type="button" class="btn-cal-system" id="btnSysBiModal" onclick="switchCalendarSystem('biSemester')" style="border-radius:9px; padding:6px 14px; font-size:0.84rem; font-weight:800;">
-              💊 Bi-Semester (Pharmacy & Masters)
+              <span class="cal-btn-full">💊 Bi-Semester (Pharmacy & Masters)</span>
+              <span class="cal-btn-short">💊 Bi-Semester</span>
             </button>
           </div>
 
@@ -6996,7 +7123,7 @@
          MODAL: MANUAL EXAM ENTRY
          ======================================================== -->
     <div class="modal-backdrop" id="modalManualExam">
-      <div class="modal" style="max-width: 520px;">
+      <div class="modal modal-card" style="max-width: 520px;">
         <div class="modal-header">
           <div style="display:flex; align-items:center; gap:0.5rem;">
             <span style="font-size:1.4rem;">🏛️</span>
