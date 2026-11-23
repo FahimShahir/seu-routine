@@ -1,0 +1,479 @@
+{
+  "year": 2026,
+  "sourceUrl": "https://seu.edu.bd/academic-calendar-2026",
+  "lastUpdated": "2026-11-23",
+  "semesters": {
+    "Summer - 2026": {
+      "holidays": [
+        {
+          "title": "Holiday (Ashura) *",
+          "dateStr": "June 26",
+          "startDate": "2026-06-26",
+          "endDate": "2026-06-26",
+          "days": 1,
+          "semester": "Summer - 2026"
+        },
+        {
+          "title": "July Mass Upraising Day/July Gono-obbhutthan Dibos",
+          "dateStr": "Aug 5",
+          "startDate": "2026-08-05",
+          "endDate": "2026-08-05",
+          "days": 1,
+          "semester": "Summer - 2026"
+        },
+        {
+          "title": "Holiday (Eid-e-Miladun-Nabi) *",
+          "dateStr": "Aug 26",
+          "startDate": "2026-08-26",
+          "endDate": "2026-08-26",
+          "days": 1,
+          "semester": "Summer - 2026"
+        },
+        {
+          "title": "Holiday (Janmashtami) *",
+          "dateStr": "Sept 04",
+          "startDate": "2026-09-04",
+          "endDate": "2026-09-04",
+          "days": 1,
+          "semester": "Summer - 2026"
+        }
+      ],
+      "milestones": [
+        {
+          "title": "Classes begin",
+          "dateStr": "June 30",
+          "startDate": "2026-06-30",
+          "endDate": "2026-06-30",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date of Self-Issuance of Admit Card for Midterm Examination",
+          "dateStr": "Aug 13",
+          "startDate": "2026-08-13",
+          "endDate": "2026-08-13",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Midterm Examination (8 Days)",
+          "dateStr": "Aug 15 - 22",
+          "startDate": "2026-08-15",
+          "endDate": "2026-08-22",
+          "days": 8,
+          "type": "exam"
+        },
+        {
+          "title": "Last Date of Classes (UG-Regular)",
+          "dateStr": "Oct 01",
+          "startDate": "2026-10-01",
+          "endDate": "2026-10-01",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last Date of Classes (UG-Diploma & Master's)",
+          "dateStr": "Oct 03",
+          "startDate": "2026-10-03",
+          "endDate": "2026-10-03",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date Self-Issuance of Admit Card for Final Examination",
+          "dateStr": "Oct 03",
+          "startDate": "2026-10-03",
+          "endDate": "2026-10-03",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Final Examination (8 Days)",
+          "dateStr": "Oct 04-11",
+          "startDate": "2026-10-04",
+          "endDate": "2026-10-11",
+          "days": 8,
+          "type": "exam"
+        },
+        {
+          "title": "Classes begin of Fall Semester 2026",
+          "dateStr": "Oct 25",
+          "startDate": "2026-10-25",
+          "endDate": "2026-10-25",
+          "days": 1,
+          "type": "milestone"
+        }
+      ],
+      "totalHolidayDays": 4
+    },
+    "Spring - 2026": {
+      "holidays": [
+        {
+          "title": "Holiday (Sharaswati Puja) *",
+          "dateStr": "Jan 23",
+          "startDate": "2026-01-23",
+          "endDate": "2026-01-23",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Shab-e-Barat) *",
+          "dateStr": "Feb 04",
+          "startDate": "2026-02-04",
+          "endDate": "2026-02-04",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Shaheed Dibash & International Mother Language Day)",
+          "dateStr": "Feb 21",
+          "startDate": "2026-02-21",
+          "endDate": "2026-02-21",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*",
+          "dateStr": "March 16 - 25",
+          "startDate": "2026-03-16",
+          "endDate": "2026-03-25",
+          "days": 10,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Independence Day)",
+          "dateStr": "March 26",
+          "startDate": "2026-03-26",
+          "endDate": "2026-03-26",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Bangla Nababorsho) *",
+          "dateStr": "April 14",
+          "startDate": "2026-04-14",
+          "endDate": "2026-04-14",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (May Day & Buddha Purnima)*",
+          "dateStr": "May 01",
+          "startDate": "2026-05-01",
+          "endDate": "2026-05-01",
+          "days": 1,
+          "semester": "Spring - 2026"
+        },
+        {
+          "title": "Holiday (Eid-Ul-Azha) *",
+          "dateStr": "May 22 - June 01",
+          "startDate": "2026-05-22",
+          "endDate": "2026-06-01",
+          "days": 11,
+          "semester": "Spring - 2026"
+        }
+      ],
+      "milestones": [
+        {
+          "title": "Classes begin",
+          "dateStr": "Feb 15",
+          "startDate": "2026-02-15",
+          "endDate": "2026-02-15",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date of Self-issuance of Admit Card for Midterm Examination",
+          "dateStr": "April 11",
+          "startDate": "2026-04-11",
+          "endDate": "2026-04-11",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Midterm Examination (8 Days)",
+          "dateStr": "April 12 - 21",
+          "startDate": "2026-04-12",
+          "endDate": "2026-04-21",
+          "days": 10,
+          "type": "exam"
+        },
+        {
+          "title": "Last Date of Classes (UG-Regular)",
+          "dateStr": "June 11",
+          "startDate": "2026-06-11",
+          "endDate": "2026-06-11",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last Date of Classes (UG-Diploma & Master's)",
+          "dateStr": "June 12",
+          "startDate": "2026-06-12",
+          "endDate": "2026-06-12",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date of Self-issuance of Admit card for Final Examination",
+          "dateStr": "June 12",
+          "startDate": "2026-06-12",
+          "endDate": "2026-06-12",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Final Examination (8 Days)",
+          "dateStr": "June 13 - 20",
+          "startDate": "2026-06-13",
+          "endDate": "2026-06-20",
+          "days": 8,
+          "type": "exam"
+        },
+        {
+          "title": "Classes begin of Summer Semester 2026",
+          "dateStr": "June 30",
+          "startDate": "2026-06-30",
+          "endDate": "2026-06-30",
+          "days": 1,
+          "type": "milestone"
+        }
+      ],
+      "totalHolidayDays": 27
+    },
+    "Fall - 2026": {
+      "holidays": [
+        {
+          "title": "Holiday (Durga puja)*",
+          "dateStr": "Oct 20 -21",
+          "startDate": "2026-10-20",
+          "endDate": "2026-10-21",
+          "days": 2,
+          "semester": "Fall - 2026"
+        },
+        {
+          "title": "Holiday (National Revolution and Solidarity Day)",
+          "dateStr": "Nov 07",
+          "startDate": "2026-11-07",
+          "endDate": "2026-11-07",
+          "days": 1,
+          "semester": "Fall - 2026"
+        },
+        {
+          "title": "Holiday (Victory Day)",
+          "dateStr": "Dec 16",
+          "startDate": "2026-12-16",
+          "endDate": "2026-12-16",
+          "days": 1,
+          "semester": "Fall - 2026"
+        },
+        {
+          "title": "Holiday (Christmas Day)",
+          "dateStr": "Dec 25",
+          "startDate": "2026-12-25",
+          "endDate": "2026-12-25",
+          "days": 1,
+          "semester": "Fall - 2026"
+        }
+      ],
+      "milestones": [
+        {
+          "title": "Classes begin",
+          "dateStr": "Oct 25",
+          "startDate": "2026-10-25",
+          "endDate": "2026-10-25",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date of Self-Issuance of Admit Card for Midterm Examination",
+          "dateStr": "Dec 01",
+          "startDate": "2026-12-01",
+          "endDate": "2026-12-01",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Midterm Examination (8 Days)",
+          "dateStr": "Dec 01 - 08",
+          "startDate": "2026-12-01",
+          "endDate": "2026-12-08",
+          "days": 8,
+          "type": "exam"
+        },
+        {
+          "title": "Last Date of Classes (UG-Regular)",
+          "dateStr": "Jan 14, 2027",
+          "startDate": "2027-01-14",
+          "endDate": "2027-01-14",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last Date of Classes (UG-Diploma & Master's)",
+          "dateStr": "Jan 16, 2027",
+          "startDate": "2027-01-16",
+          "endDate": "2027-01-16",
+          "days": 1,
+          "type": "milestone"
+        },
+        {
+          "title": "Last date of Self-issuance of Admit card for Final Examination",
+          "dateStr": "Jan 17, 2027",
+          "startDate": "2027-01-17",
+          "endDate": "2027-01-17",
+          "days": 1,
+          "type": "exam"
+        },
+        {
+          "title": "Final Examination (8 Days)",
+          "dateStr": "Jan 17 - 24, 2027",
+          "startDate": "2027-01-17",
+          "endDate": "2027-01-24",
+          "days": 8,
+          "type": "exam"
+        },
+        {
+          "title": "Classes begin of Spring 2027",
+          "dateStr": "Feb 03 , 2027",
+          "startDate": "2027-02-03",
+          "endDate": "2027-02-03",
+          "days": 1,
+          "type": "milestone"
+        }
+      ],
+      "totalHolidayDays": 5
+    }
+  },
+  "allHolidays": [
+    {
+      "title": "Holiday (Sharaswati Puja) *",
+      "dateStr": "Jan 23",
+      "startDate": "2026-01-23",
+      "endDate": "2026-01-23",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Shab-e-Barat) *",
+      "dateStr": "Feb 04",
+      "startDate": "2026-02-04",
+      "endDate": "2026-02-04",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Shaheed Dibash & International Mother Language Day)",
+      "dateStr": "Feb 21",
+      "startDate": "2026-02-21",
+      "endDate": "2026-02-21",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*",
+      "dateStr": "March 16 - 25",
+      "startDate": "2026-03-16",
+      "endDate": "2026-03-25",
+      "days": 10,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Independence Day)",
+      "dateStr": "March 26",
+      "startDate": "2026-03-26",
+      "endDate": "2026-03-26",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Bangla Nababorsho) *",
+      "dateStr": "April 14",
+      "startDate": "2026-04-14",
+      "endDate": "2026-04-14",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (May Day & Buddha Purnima)*",
+      "dateStr": "May 01",
+      "startDate": "2026-05-01",
+      "endDate": "2026-05-01",
+      "days": 1,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Eid-Ul-Azha) *",
+      "dateStr": "May 22 - June 01",
+      "startDate": "2026-05-22",
+      "endDate": "2026-06-01",
+      "days": 11,
+      "semester": "Spring - 2026"
+    },
+    {
+      "title": "Holiday (Ashura) *",
+      "dateStr": "June 26",
+      "startDate": "2026-06-26",
+      "endDate": "2026-06-26",
+      "days": 1,
+      "semester": "Summer - 2026"
+    },
+    {
+      "title": "July Mass Upraising Day/July Gono-obbhutthan Dibos",
+      "dateStr": "Aug 5",
+      "startDate": "2026-08-05",
+      "endDate": "2026-08-05",
+      "days": 1,
+      "semester": "Summer - 2026"
+    },
+    {
+      "title": "Holiday (Eid-e-Miladun-Nabi) *",
+      "dateStr": "Aug 26",
+      "startDate": "2026-08-26",
+      "endDate": "2026-08-26",
+      "days": 1,
+      "semester": "Summer - 2026"
+    },
+    {
+      "title": "Holiday (Janmashtami) *",
+      "dateStr": "Sept 04",
+      "startDate": "2026-09-04",
+      "endDate": "2026-09-04",
+      "days": 1,
+      "semester": "Summer - 2026"
+    },
+    {
+      "title": "Holiday (Durga puja)*",
+      "dateStr": "Oct 20 -21",
+      "startDate": "2026-10-20",
+      "endDate": "2026-10-21",
+      "days": 2,
+      "semester": "Fall - 2026"
+    },
+    {
+      "title": "Holiday (National Revolution and Solidarity Day)",
+      "dateStr": "Nov 07",
+      "startDate": "2026-11-07",
+      "endDate": "2026-11-07",
+      "days": 1,
+      "semester": "Fall - 2026"
+    },
+    {
+      "title": "Holiday (Victory Day)",
+      "dateStr": "Dec 16",
+      "startDate": "2026-12-16",
+      "endDate": "2026-12-16",
+      "days": 1,
+      "semester": "Fall - 2026"
+    },
+    {
+      "title": "Holiday (Christmas Day)",
+      "dateStr": "Dec 25",
+      "startDate": "2026-12-25",
+      "endDate": "2026-12-25",
+      "days": 1,
+      "semester": "Fall - 2026"
+    }
+  ],
+  "totalYearHolidayDays": 36
+}

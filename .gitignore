@@ -5,6 +5,8 @@ __pycache__/
 
 # Local UMS HTML Dumps & sensitive logs
 UMS - Southeast University*
+Registered Courses.html
+about.html
 *.log
 *.tmp
 

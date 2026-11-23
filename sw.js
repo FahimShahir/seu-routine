@@ -1,4 +1,4 @@
-const CACHE_NAME = 'seu-routine-cache-v21';
+const CACHE_NAME = 'seu-routine-cache-v22';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -6,7 +6,10 @@ const ASSETS_TO_CACHE = [
   './icons/icon-192.png',
   './icons/icon-512.png',
   './routine_data.json',
-  './seu_ums_sync_bookmarklet.js'
+  './seu_ums_sync_bookmarklet.js',
+  './libs/pdf.min.js',
+  './libs/pdf.worker.min.js',
+  './seu_academic_calendar_2026.json'
 ];
 
 // Install: Cache critical assets

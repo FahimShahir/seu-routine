@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+  <!-- Offline PDF.js for Client-Side Exam Routine Parsing -->
+  <script src="./libs/pdf.min.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <title>SEU Class Routine & Schedule — Production</title>
@@ -2259,6 +2261,281 @@
       50% { transform: scale(1.15); opacity: 0.85; }
     }
 
+
+    /* ========================================================
+       MASTER DASHBOARD, COUNTDOWNS & CALENDAR STYLES
+       ======================================================== */
+    .live-countdown-strip {
+      display: flex;
+      gap: 0.65rem;
+      align-items: stretch;
+      overflow-x: auto;
+      padding: 0.25rem 0.1rem;
+      margin-bottom: 0.25rem;
+      scrollbar-width: thin;
+    }
+    .live-countdown-strip::-webkit-scrollbar {
+      height: 4px;
+    }
+    .strip-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.9rem;
+      border-radius: 12px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      flex: 1 0 auto;
+      min-width: 210px;
+    }
+    .strip-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+    .strip-chip .chip-icon {
+      font-size: 1.25rem;
+    }
+    .strip-chip-body {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .strip-chip .chip-label {
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .strip-chip .chip-val {
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.86rem;
+    }
+    .chip-class { border-left: 3.5px solid #3b82f6; }
+    .chip-ct { border-left: 3.5px solid #8b5cf6; }
+    .chip-exam { border-left: 3.5px solid #ef4444; }
+    .chip-holiday { border-left: 3.5px solid #10b981; }
+
+    /* Master Dashboard Layout */
+    .dashboard-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+      width: 100%;
+    }
+    .dashboard-hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    .dashboard-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 1.25rem 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .dashboard-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .dashboard-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .card-class::before { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+    .card-ct::before { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+    .card-exam::before { background: linear-gradient(90deg, #ef4444, #f59e0b); }
+    .card-holiday::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+
+    .dashboard-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-badge-title {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-weight: 800;
+      font-size: 0.92rem;
+      color: var(--text-main);
+    }
+    .card-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    .dashboard-timer-display {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .timer-unit-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: sans-serif;
+      font-weight: 600;
+      margin-right: 0.25rem;
+    }
+    .card-target-info {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .card-target-info strong {
+      color: var(--text-main);
+    }
+    .dashboard-card-actions {
+      margin-top: auto;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .dashboard-stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .stat-metric-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.15rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-metric-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .stat-metric-num {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+    .stat-metric-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .dashboard-section-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .dashboard-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.1rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .dashboard-section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .item-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1.1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.65rem;
+      background: var(--bg-main);
+      gap: 1rem;
+      flex-wrap: wrap;
+      transition: all 0.2s ease;
+    }
+    .item-card-row:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .item-card-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .badge-code {
+      font-weight: 800;
+      font-size: 0.86rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(59,130,246,0.12);
+      color: var(--primary);
+      border: 1px solid rgba(59,130,246,0.25);
+    }
+    .pdf-dropzone {
+      border: 2px dashed var(--border-color);
+      border-radius: 16px;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      background: var(--bg-main);
+      transition: all 0.2s ease;
+    }
+    .pdf-dropzone:hover, .pdf-dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(59,130,246,0.06);
+    }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .exam-review-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    .exam-review-table th, .exam-review-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+    }
+    .exam-review-table th {
+      background: var(--bg-surface);
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+
 </style>
 </head>
 <body>
@@ -2288,6 +2565,10 @@
         <button class="btn btn-safe" id="btnBookmarkletModal" onclick="openBookmarkletModal()">📌 1-Click Bookmarklet</button>
         <button class="btn btn-magic" id="btnMagicImport" onclick="openModal('modalUmsImport')">✨ Import UMS</button>
         <button class="btn btn-guide-pill" id="btnHowItWorksModal" onclick="openModal('modalHowItWorks')" title="অ্যাপ ব্যবহারের পূর্ণাঙ্গ নির্দেশিকা ও নিরাপত্তা গাইড">💡 কীভাবে কাজ করে? (Full Guide)</button>
+                <button class="btn btn-outline" id="btnDashboardToolbar" onclick="switchView('dashboard')" style="display:none;" title="Master Dashboard">📊 Dashboard</button>
+        <button class="btn btn-outline" id="btnAcademicCal" onclick="openAcademicCalendarModal()" title="SEU Academic Calendar">📅 Academic Calendar</button>
+        <button class="btn btn-outline" id="btnExamPdfToolbar" onclick="openExamPdfModal()" title="Upload Exam Routine PDF">📄 Exam Routine PDF</button>
+        <button class="btn btn-outline" id="btnAddCtToolbar" onclick="openAddCtModal()" title="Schedule Class Test">📝 + Add CT</button>
         <button class="btn btn-outline" id="btnAddSlot" onclick="openAddSlotModal()" style="display:none;">📅 Add Slot</button>
         <button class="btn btn-outline" id="btnProfileModal" onclick="openModal('modalProfile')" style="display:none;">👤 Profile</button>
         <button class="btn btn-outline" id="btnBackupModal" onclick="openModal('modalBackup')" style="display:none;">💾 Share / Backup</button>
@@ -2465,9 +2746,44 @@
         </div>
       </section>
 
+      <!-- Compact Live Countdown Strip (Accessible across all views) -->
+      <section class="live-countdown-strip" id="liveCountdownStrip">
+        <div class="strip-chip chip-class" onclick="switchView('grid')" title="Click to view weekly routine">
+          <span class="chip-icon">🎓</span>
+          <div class="strip-chip-body">
+            <span class="chip-label">Next Class</span>
+            <span class="chip-val" id="stripNextClass">Evaluating...</span>
+          </div>
+        </div>
+        <div class="strip-chip chip-ct" onclick="switchView('dashboard')" title="Click to view Class Tests in Dashboard">
+          <span class="chip-icon">📝</span>
+          <div class="strip-chip-body">
+            <span class="chip-label">Next CT (Class Test)</span>
+            <span class="chip-val" id="stripNextCt">None scheduled</span>
+          </div>
+        </div>
+        <div class="strip-chip chip-exam" onclick="switchView('dashboard')" title="Click to view Exam Schedule">
+          <span class="chip-icon">🏛️</span>
+          <div class="strip-chip-body">
+            <span class="chip-label">Next Exam</span>
+            <span class="chip-val" id="stripNextExam">No exam loaded</span>
+          </div>
+        </div>
+        <div class="strip-chip chip-holiday" onclick="openAcademicCalendarModal()" title="Click to view Academic Calendar & Off-days">
+          <span class="chip-icon">🏖️</span>
+          <div class="strip-chip-body">
+            <span class="chip-label">Next Off-Day</span>
+            <span class="chip-val" id="stripNextHoliday">Calculating...</span>
+          </div>
+        </div>
+      </section>
+
       <!-- View Switcher & Search Bar -->
       <section class="controls-bar">
         <div class="view-tabs">
+                    <button class="tab-btn" id="tabBtnDashboard" onclick="switchView('dashboard')">
+            <span>📊</span> <span class="tab-label-full">Master Dashboard</span><span class="tab-label-short">Dashboard</span>
+          </button>
           <button class="tab-btn active" id="tabBtnGrid" onclick="switchView('grid')">
             <span>📅</span> <span class="tab-label-full">Weekly Timetable</span><span class="tab-label-short">Grid</span>
           </button>
@@ -2482,6 +2798,137 @@
           <input type="text" id="courseSearch" class="search-input" placeholder="🔍 Search course, faculty, room..." oninput="handleSearch(this.value)">
         </div>
       </section>
+
+            <!-- VIEW 0: Master Timetable & Countdown Dashboard -->
+      <main id="viewDashboard" class="dashboard-wrapper" style="display:none;">
+        <!-- Hero 4 Countdown Cards -->
+        <div class="dashboard-hero-grid">
+          <!-- Card 1: Next Class -->
+          <div class="dashboard-card card-class">
+            <div class="dashboard-card-header">
+              <span class="card-badge-title">🎓 Next Class</span>
+              <span class="card-tag" id="dashClassTag" style="background:rgba(59,130,246,0.15); color:var(--primary);">Routine</span>
+            </div>
+            <div class="dashboard-timer-display" id="dashClassCountdown">-- : -- : --</div>
+            <div class="card-target-info" id="dashClassInfo">Loading class schedule...</div>
+            <div class="dashboard-card-actions">
+              <button class="btn btn-outline" style="font-size:0.78rem; padding:4px 10px;" onclick="switchView('grid')">📅 View Routine Grid</button>
+            </div>
+          </div>
+
+          <!-- Card 2: Next CT -->
+          <div class="dashboard-card card-ct">
+            <div class="dashboard-card-header">
+              <span class="card-badge-title">📝 Next Class Test (CT)</span>
+              <span class="card-tag" id="dashCtTag" style="background:rgba(139,92,246,0.15); color:#8b5cf6;">Class Hours</span>
+            </div>
+            <div class="dashboard-timer-display" id="dashCtCountdown">-- : -- : --</div>
+            <div class="card-target-info" id="dashCtInfo">No CT scheduled yet.</div>
+            <div class="dashboard-card-actions">
+              <button class="btn btn-magic" style="font-size:0.78rem; padding:4px 10px;" onclick="openAddCtModal()">➕ Schedule CT</button>
+            </div>
+          </div>
+
+          <!-- Card 3: Next Exam -->
+          <div class="dashboard-card card-exam">
+            <div class="dashboard-card-header">
+              <span class="card-badge-title">🏛️ Next Exam</span>
+              <span class="card-tag" id="dashExamTag" style="background:rgba(239,68,68,0.15); color:#ef4444;">Official Routine</span>
+            </div>
+            <div class="dashboard-timer-display" id="dashExamCountdown">-- : -- : --</div>
+            <div class="card-target-info" id="dashExamInfo">Upload Exam PDF to detect rooms & countdown.</div>
+            <div class="dashboard-card-actions">
+              <button class="btn btn-safe" style="font-size:0.78rem; padding:4px 10px;" onclick="openExamPdfModal()">📄 Upload Exam PDF</button>
+            </div>
+          </div>
+
+          <!-- Card 4: Next Off-Day -->
+          <div class="dashboard-card card-holiday">
+            <div class="dashboard-card-header">
+              <span class="card-badge-title">🏖️ Next University Holiday</span>
+              <span class="card-tag" id="dashHolidayTag" style="background:rgba(16,185,129,0.15); color:#10b981;">Academic Cal</span>
+            </div>
+            <div class="dashboard-timer-display" id="dashHolidayCountdown">-- : -- : --</div>
+            <div class="card-target-info" id="dashHolidayInfo">Calculating off-days...</div>
+            <div class="dashboard-card-actions">
+              <button class="btn btn-outline" style="font-size:0.78rem; padding:4px 10px;" onclick="openAcademicCalendarModal()">📅 Full Calendar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Calendar & Off-Day Analytics -->
+        <div class="dashboard-stat-row">
+          <div class="stat-metric-pill">
+            <div class="stat-metric-icon">🏖️</div>
+            <div>
+              <div class="stat-metric-num" id="dashSemesterOffDays">-- Days</div>
+              <div class="stat-metric-desc" id="dashSemesterOffDesc">Active Semester Holidays (Summer 2026)</div>
+            </div>
+          </div>
+
+          <div class="stat-metric-pill">
+            <div class="stat-metric-icon">🗓️</div>
+            <div>
+              <div class="stat-metric-num" id="dashYearOffDays">36 Days</div>
+              <div class="stat-metric-desc">Full Academic Year 2026 (16 Official Holiday Periods)</div>
+            </div>
+          </div>
+
+          <div class="stat-metric-pill">
+            <div class="stat-metric-icon">🎓</div>
+            <div>
+              <div class="stat-metric-num" id="dashEnrolledCoursesCount">0</div>
+              <div class="stat-metric-desc">Active Registered Courses & Sections</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Academic Calendar Milestones Bar -->
+        <div class="dashboard-section-card">
+          <div class="dashboard-section-header">
+            <div class="dashboard-section-title">
+              <span>📅</span> SEU Academic Calendar Milestones (Official 2026)
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Source: <a href="https://seu.edu.bd/academic-calendar-2026" target="_blank" id="calSourceLink" style="color:var(--primary); font-weight:700;">seu.edu.bd/academic-calendar-2026</a></span>
+              <button class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px;" onclick="openAcademicCalendarModal()">⚙️ Change Year</button>
+            </div>
+          </div>
+          <div id="dashMilestonesContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem;">
+            <!-- Dynamically populated milestones -->
+          </div>
+        </div>
+
+        <!-- Scheduled Class Tests (CT) Table/List -->
+        <div class="dashboard-section-card">
+          <div class="dashboard-section-header">
+            <div class="dashboard-section-title">
+              <span>📝</span> Upcoming Class Tests (CT)
+              <span style="font-size:0.75rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.12); padding:2px 8px; border-radius:12px;">Class Hours Only</span>
+            </div>
+            <button class="btn btn-magic" style="font-size:0.82rem;" onclick="openAddCtModal()">➕ Schedule New CT</button>
+          </div>
+          <div id="dashCtListContainer">
+            <!-- Dynamically rendered CT cards -->
+          </div>
+        </div>
+
+        <!-- Official Exam Schedule & Rooms -->
+        <div class="dashboard-section-card">
+          <div class="dashboard-section-header">
+            <div class="dashboard-section-title">
+              <span>🏛️</span> Exam Routine & Room Numbers (Midterm / Final)
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-safe" style="font-size:0.82rem;" onclick="openExamPdfModal()">📄 Upload Exam PDF</button>
+              <button class="btn btn-outline" style="font-size:0.82rem;" onclick="openManualExamModal()">➕ Add Manually</button>
+            </div>
+          </div>
+          <div id="dashExamListContainer">
+            <!-- Dynamically rendered exam schedule cards -->
+          </div>
+        </div>
+      </main>
 
       <!-- VIEW 1: Weekly Timetable Grid -->
       <main id="viewGrid" class="timetable-wrapper">
@@ -3980,6 +4427,7 @@
           console.error('Failed to parse URL hash sync payload', err);
         }
       }
+
     }
 
     // Lossless In-Memory Receiver via window.postMessage
@@ -4021,6 +4469,10 @@
       document.getElementById('btnBackupModal').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
       document.getElementById('btnPrintBtn').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
       document.getElementById('btnExportCal').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
+      if (document.getElementById('btnDashboardToolbar')) document.getElementById('btnDashboardToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
+      if (document.getElementById('btnAcademicCal')) document.getElementById('btnAcademicCal').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
+      if (document.getElementById('btnExamPdfToolbar')) document.getElementById('btnExamPdfToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
+      if (document.getElementById('btnAddCtToolbar')) document.getElementById('btnAddCtToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
 
       const btnExitToolbar = document.getElementById('btnExitDemoToolbar');
       if (btnExitToolbar) btnExitToolbar.style.display = isDemoMode ? 'inline-flex' : 'none';
@@ -4045,6 +4497,8 @@
       renderCourseTable();
       renderAgenda();
       updateStatusTracker();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
     }
 
     function updateProfileHeader() {
@@ -4546,6 +5000,10 @@
           avatarDot.title = 'Campus: Break Time / No Active Class';
         }
       }
+
+      if (typeof updateLiveCountdowns === 'function') {
+        updateLiveCountdowns(ongoing, nextClass);
+      }
     }
 
     function timeDiffMinutes(t1, t2) {
@@ -4557,21 +5015,27 @@
     // Switch view tabs
     function switchView(view) {
       currentView = view;
+      const viewDash = document.getElementById('viewDashboard');
+      if (viewDash) viewDash.style.display = view === 'dashboard' ? 'flex' : 'none';
       document.getElementById('viewGrid').style.display = view === 'grid' ? 'block' : 'none';
       document.getElementById('viewTable').style.display = view === 'table' ? 'block' : 'none';
       document.getElementById('viewAgenda').style.display = view === 'agenda' ? 'flex' : 'none';
 
-      document.getElementById('tabBtnGrid').classList.toggle('active', view === 'grid');
-      document.getElementById('tabBtnTable').classList.toggle('active', view === 'table');
-      document.getElementById('tabBtnAgenda').classList.toggle('active', view === 'agenda');
+      document.getElementById('tabBtnDashboard')?.classList.toggle('active', view === 'dashboard');
+      document.getElementById('tabBtnGrid')?.classList.toggle('active', view === 'grid');
+      document.getElementById('tabBtnTable')?.classList.toggle('active', view === 'table');
+      document.getElementById('tabBtnAgenda')?.classList.toggle('active', view === 'agenda');
 
       // Sync mobile bottom nav buttons
+      document.getElementById('mNavDashboard')?.classList.toggle('active', view === 'dashboard');
       document.getElementById('mNavRoutine')?.classList.toggle('active', view === 'grid');
       document.getElementById('mNavCourses')?.classList.toggle('active', view === 'table');
       document.getElementById('mNavToday')?.classList.toggle('active', view === 'agenda');
 
       if (view === 'grid') {
         setTimeout(applyCurrentZoom, 20);
+      } else if (view === 'dashboard') {
+        renderDashboard();
       }
     }
 
@@ -5720,12 +6184,906 @@
     // Boot
     initStore();
     renderAll();
+
+    // ========================================================
+    // SEU ACADEMIC CALENDAR, EXAM PDF MATCHER & CT DASHBOARD
+    // ========================================================
+
+    if (typeof pdfjsLib !== 'undefined') {
+      try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = './libs/pdf.worker.min.js';
+      } catch (e) {
+        console.warn('PDF.js worker setup warning:', e);
+      }
+    }
+
+    const SEU_ACADEMIC_CALENDAR_2026 = {"year": 2026, "sourceUrl": "https://seu.edu.bd/academic-calendar-2026", "lastUpdated": "2026-11-23", "semesters": {"Summer - 2026": {"holidays": [{"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Aug 13", "startDate": "2026-08-13", "endDate": "2026-08-13", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Aug 15 - 22", "startDate": "2026-08-15", "endDate": "2026-08-22", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Oct 01", "startDate": "2026-10-01", "endDate": "2026-10-01", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "milestone"}, {"title": "Last date Self-Issuance of Admit Card for Final Examination", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Oct 04-11", "startDate": "2026-10-04", "endDate": "2026-10-11", "days": 8, "type": "exam"}, {"title": "Classes begin of Fall Semester 2026", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}], "totalHolidayDays": 4}, "Spring - 2026": {"holidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Feb 15", "startDate": "2026-02-15", "endDate": "2026-02-15", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit Card for Midterm Examination", "dateStr": "April 11", "startDate": "2026-04-11", "endDate": "2026-04-11", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "April 12 - 21", "startDate": "2026-04-12", "endDate": "2026-04-21", "days": 10, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "June 11", "startDate": "2026-06-11", "endDate": "2026-06-11", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "June 13 - 20", "startDate": "2026-06-13", "endDate": "2026-06-20", "days": 8, "type": "exam"}, {"title": "Classes begin of Summer Semester 2026", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}], "totalHolidayDays": 27}, "Fall - 2026": {"holidays": [{"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Dec 01", "startDate": "2026-12-01", "endDate": "2026-12-01", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Dec 01 - 08", "startDate": "2026-12-01", "endDate": "2026-12-08", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Jan 14, 2027", "startDate": "2027-01-14", "endDate": "2027-01-14", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Jan 16, 2027", "startDate": "2027-01-16", "endDate": "2027-01-16", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "Jan 17, 2027", "startDate": "2027-01-17", "endDate": "2027-01-17", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Jan 17 - 24, 2027", "startDate": "2027-01-17", "endDate": "2027-01-24", "days": 8, "type": "exam"}, {"title": "Classes begin of Spring 2027", "dateStr": "Feb 03 , 2027", "startDate": "2027-02-03", "endDate": "2027-02-03", "days": 1, "type": "milestone"}], "totalHolidayDays": 5}}, "allHolidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "totalYearHolidayDays": 36};
+
+    // 1. Calendar Manager
+    const CalendarManager = {
+      getCalendarData() {
+        try {
+          const stored = localStorage.getItem('seu_academic_calendar');
+          if (stored) return JSON.parse(stored);
+        } catch(e) {}
+        return SEU_ACADEMIC_CALENDAR_2026;
+      },
+      saveCalendarData(data) {
+        try {
+          localStorage.setItem('seu_academic_calendar', JSON.stringify(data));
+        } catch(e) {}
+      },
+      getNextOffDay(now = new Date()) {
+        const data = this.getCalendarData();
+        const holidays = data.allHolidays || [];
+        const todayISO = now.toISOString().split('T')[0];
+        
+        for (const h of holidays) {
+          if (h.endDate >= todayISO) {
+            const isOngoing = (todayISO >= h.startDate && todayISO <= h.endDate);
+            const targetDate = isOngoing ? new Date(h.endDate + 'T23:59:59') : new Date(h.startDate + 'T00:00:00');
+            const diffMs = Math.max(0, targetDate - now);
+            return {
+              holiday: h,
+              isOngoing,
+              diffMs,
+              countdown: formatCountdown(diffMs)
+            };
+          }
+        }
+        return null;
+      },
+      getActiveSemesterOffDays() {
+        const data = this.getCalendarData();
+        const semName = activeSemester ? activeSemester.name : (activeProfile ? activeProfile.activeSemester : 'Summer 2026');
+        const sClean = (semName || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (const key of Object.keys(data.semesters || {})) {
+          const kClean = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (sClean.includes(kClean) || kClean.includes(sClean)) {
+            return { name: key, ...data.semesters[key] };
+          }
+        }
+        const firstKey = Object.keys(data.semesters || {})[0];
+        return { name: firstKey, ...(data.semesters[firstKey] || { holidays: [], totalHolidayDays: 0, milestones: [] }) };
+      },
+      getFullYearOffDays() {
+        const data = this.getCalendarData();
+        return {
+          year: data.year || 2026,
+          totalHolidayDays: data.totalYearHolidayDays || 36,
+          holidays: data.allHolidays || []
+        };
+      }
+    };
+
+    // 2. Exam Routine Schedule Manager
+    const ExamManager = {
+      getExams() {
+        try {
+          const stored = localStorage.getItem('seu_exam_schedule');
+          if (stored) return JSON.parse(stored);
+        } catch(e) {}
+        return [];
+      },
+      saveExams(exams) {
+        try {
+          localStorage.setItem('seu_exam_schedule', JSON.stringify(exams));
+        } catch(e) {}
+        renderDashboard();
+        updateLiveCountdowns();
+      },
+      getNextExam(now = new Date()) {
+        const exams = this.getExams();
+        if (!exams.length) return null;
+        let nextExam = null;
+        let minDiff = Infinity;
+        
+        exams.forEach(ex => {
+          const time = ex.startTime || '10:00';
+          const examDt = new Date(`${ex.examDate}T${time}:00`);
+          const diff = examDt - now;
+          if (diff > 0 && diff < minDiff) {
+            minDiff = diff;
+            nextExam = { exam: ex, diffMs: diff, countdown: formatCountdown(diff) };
+          }
+        });
+        return nextExam;
+      },
+      addOrUpdateExam(ex) {
+        const exams = this.getExams();
+        const idx = exams.findIndex(e => e.id === ex.id);
+        if (idx >= 0) exams[idx] = ex;
+        else exams.push(ex);
+        this.saveExams(exams);
+      },
+      deleteExam(id) {
+        if (!confirm('Are you sure you want to remove this exam from schedule?')) return;
+        const exams = this.getExams().filter(e => e.id !== id);
+        this.saveExams(exams);
+      }
+    };
+
+    // 3. Class Test (CT) Schedule Manager
+    const CtManager = {
+      getCtList() {
+        try {
+          const stored = localStorage.getItem('seu_class_tests');
+          if (stored) return JSON.parse(stored);
+        } catch(e) {}
+        return [];
+      },
+      saveCtList(list) {
+        try {
+          localStorage.setItem('seu_class_tests', JSON.stringify(list));
+        } catch(e) {}
+        renderDashboard();
+        updateLiveCountdowns();
+      },
+      getNextCt(now = new Date()) {
+        const cts = this.getCtList();
+        if (!cts.length) return null;
+        let nextCt = null;
+        let minDiff = Infinity;
+        
+        cts.forEach(ct => {
+          const time = ct.startTime || '10:00';
+          const ctDt = new Date(`${ct.date}T${time}:00`);
+          const diff = ctDt - now;
+          if (diff > 0 && diff < minDiff) {
+            minDiff = diff;
+            nextCt = { ct, diffMs: diff, countdown: formatCountdown(diff) };
+          }
+        });
+        return nextCt;
+      },
+      addOrUpdateCt(ct) {
+        const list = this.getCtList();
+        const idx = list.findIndex(c => c.id === ct.id);
+        if (idx >= 0) list[idx] = ct;
+        else list.push(ct);
+        this.saveCtList(list);
+      },
+      deleteCt(id) {
+        if (!confirm('Are you sure you want to delete this scheduled CT?')) return;
+        const list = this.getCtList().filter(c => c.id !== id);
+        this.saveCtList(list);
+      }
+    };
+
+    // Countdown Helper
+    function formatCountdown(diffMs) {
+      if (diffMs <= 0) return { days: 0, hours: 0, mins: 0, secs: 0, text: '00d : 00h : 00m : 00s', short: 'Ongoing' };
+      const totalSecs = Math.floor(diffMs / 1000);
+      const days = Math.floor(totalSecs / 86400);
+      const hours = Math.floor((totalSecs % 86400) / 3600);
+      const mins = Math.floor((totalSecs % 3600) / 60);
+      const secs = totalSecs % 60;
+      
+      const dStr = String(days).padStart(2, '0');
+      const hStr = String(hours).padStart(2, '0');
+      const mStr = String(mins).padStart(2, '0');
+      const sStr = String(secs).padStart(2, '0');
+      
+      return {
+        days, hours, mins, secs,
+        text: `${dStr}d : ${hStr}h : ${mStr}m : ${sStr}s`,
+        short: days > 0 ? `${days}d ${hours}h` : (hours > 0 ? `${hours}h ${mins}m` : `${mins}m ${secs}s`)
+      };
+    }
+
+    // 4. Live Countdown Strip & Dashboard Live Updates
+    let cachedOngoingClass = null;
+    let cachedNextClass = null;
+
+    function updateLiveCountdowns(ongoing = cachedOngoingClass, nextClass = cachedNextClass) {
+      cachedOngoingClass = ongoing;
+      cachedNextClass = nextClass;
+      const now = new Date();
+
+      // --- Strip 1: Next Class ---
+      const stripClassEl = document.getElementById('stripNextClass');
+      const dashClassCountdown = document.getElementById('dashClassCountdown');
+      const dashClassInfo = document.getElementById('dashClassInfo');
+      const dashClassTag = document.getElementById('dashClassTag');
+
+      if (ongoing && ongoing.schedule) {
+        const endDt = new Date();
+        const [eh, em] = ongoing.schedule.endTime.split(':');
+        endDt.setHours(parseInt(eh), parseInt(em), 0, 0);
+        const remMs = Math.max(0, endDt - now);
+        const remMin = Math.ceil(remMs / 60000);
+
+        if (stripClassEl) stripClassEl.innerText = `${ongoing.course.code} (Room ${ongoing.schedule.room || 'TBA'}) • Ongoing (${remMin}m left)`;
+        if (dashClassCountdown) dashClassCountdown.innerText = formatCountdown(remMs).text;
+        if (dashClassInfo) dashClassInfo.innerHTML = `<strong>${ongoing.course.code} - ${ongoing.course.title || ''}</strong> is happening right now in <strong>Room ${ongoing.schedule.room || 'TBA'}</strong> (Ends ${ongoing.schedule.endTime})`;
+        if (dashClassTag) { dashClassTag.innerText = 'ONGOING CLASS'; dashClassTag.style.background = 'rgba(16,185,129,0.15)'; dashClassTag.style.color = '#10b981'; }
+      } else if (nextClass && nextClass.schedule) {
+        const startDt = new Date();
+        const [sh, sm] = nextClass.schedule.startTime.split(':');
+        startDt.setHours(parseInt(sh), parseInt(sm), 0, 0);
+        const remMs = Math.max(0, startDt - now);
+        const cd = formatCountdown(remMs);
+
+        if (stripClassEl) stripClassEl.innerText = `${nextClass.course.code} (Room ${nextClass.schedule.room || 'TBA'}) • in ${cd.short}`;
+        if (dashClassCountdown) dashClassCountdown.innerText = cd.text;
+        if (dashClassInfo) dashClassInfo.innerHTML = `<strong>${nextClass.course.code} - ${nextClass.course.title || ''}</strong> in <strong>Room ${nextClass.schedule.room || 'TBA'}</strong> at ${nextClass.schedule.startTime}`;
+        if (dashClassTag) { dashClassTag.innerText = 'TODAY UPCOMING'; dashClassTag.style.background = 'rgba(59,130,246,0.15)'; dashClassTag.style.color = 'var(--primary)'; }
+      } else {
+        if (stripClassEl) stripClassEl.innerText = 'No more classes today';
+        if (dashClassCountdown) dashClassCountdown.innerText = '-- : -- : --';
+        if (dashClassInfo) dashClassInfo.innerText = 'No more classes scheduled for today. Check weekly timetable for upcoming classes.';
+        if (dashClassTag) { dashClassTag.innerText = 'CLASS FREE'; dashClassTag.style.background = 'rgba(107,114,128,0.15)'; dashClassTag.style.color = 'var(--text-muted)'; }
+      }
+
+      // --- Strip 2: Next CT ---
+      const stripCtEl = document.getElementById('stripNextCt');
+      const dashCtCountdown = document.getElementById('dashCtCountdown');
+      const dashCtInfo = document.getElementById('dashCtInfo');
+      const nextCtObj = CtManager.getNextCt(now);
+
+      if (nextCtObj) {
+        const ct = nextCtObj.ct;
+        const cd = nextCtObj.countdown;
+        if (stripCtEl) stripCtEl.innerText = `${ct.courseCode} ${ct.ctTitle || 'CT'} (${ct.room || 'Class Room'}) • in ${cd.short}`;
+        if (dashCtCountdown) dashCtCountdown.innerText = cd.text;
+        if (dashCtInfo) dashCtInfo.innerHTML = `<strong>${ct.courseCode} (${ct.ctTitle || 'CT'})</strong> in <strong>Room ${ct.room || 'Class Room'}</strong> on ${ct.date} at ${ct.startTime || ''}. Topics: <em>${ct.syllabus || 'Regular syllabus'}</em>`;
+      } else {
+        if (stripCtEl) stripCtEl.innerText = 'No CT scheduled';
+        if (dashCtCountdown) dashCtCountdown.innerText = '-- : -- : --';
+        if (dashCtInfo) dashCtInfo.innerText = 'No upcoming class tests scheduled. Click + Add CT to schedule one during class hours.';
+      }
+
+      // --- Strip 3: Next Exam ---
+      const stripExamEl = document.getElementById('stripNextExam');
+      const dashExamCountdown = document.getElementById('dashExamCountdown');
+      const dashExamInfo = document.getElementById('dashExamInfo');
+      const nextExamObj = ExamManager.getNextExam(now);
+
+      if (nextExamObj) {
+        const ex = nextExamObj.exam;
+        const cd = nextExamObj.countdown;
+        if (stripExamEl) stripExamEl.innerText = `${ex.courseCode} (${ex.room || 'TBA'}) • in ${cd.short}`;
+        if (dashExamCountdown) dashExamCountdown.innerText = cd.text;
+        if (dashExamInfo) dashExamInfo.innerHTML = `<strong>${ex.courseCode} - ${ex.courseTitle || ''}</strong> (${ex.examType || 'Exam'}) in <strong>${(ex.room || 'TBA').startsWith('Room') ? ex.room : 'Room ' + (ex.room || 'TBA')}</strong> on ${ex.examDate} (${ex.startTime || ''} - ${ex.endTime || ''})`;
+      } else {
+        if (stripExamEl) stripExamEl.innerText = 'No exam routine loaded';
+        if (dashExamCountdown) dashExamCountdown.innerText = '-- : -- : --';
+        if (dashExamInfo) dashExamInfo.innerText = 'No exam routine detected yet. Upload SEU Exam Routine PDF to auto-detect courses & rooms.';
+      }
+
+      // --- Strip 4: Next Off-Day ---
+      const stripHolidayEl = document.getElementById('stripNextHoliday');
+      const dashHolidayCountdown = document.getElementById('dashHolidayCountdown');
+      const dashHolidayInfo = document.getElementById('dashHolidayInfo');
+      const nextHolidayObj = CalendarManager.getNextOffDay(now);
+
+      if (nextHolidayObj) {
+        const h = nextHolidayObj.holiday;
+        const cd = nextHolidayObj.countdown;
+        const prefix = nextHolidayObj.isOngoing ? 'Ongoing: ' : '';
+        if (stripHolidayEl) stripHolidayEl.innerText = `${prefix}${h.title.replace(/Holiday\s*\(/i, '').replace(/\)\s*\*?/i, '')} • in ${cd.short}`;
+        if (dashHolidayCountdown) dashHolidayCountdown.innerText = cd.text;
+        if (dashHolidayInfo) dashHolidayInfo.innerHTML = `<strong>${h.title}</strong> (${h.dateStr}) — <strong>${h.days} Day${h.days > 1 ? 's' : ''} Official University Off-Day</strong> (${h.semester})`;
+      } else {
+        if (stripHolidayEl) stripHolidayEl.innerText = 'No more holidays this year';
+        if (dashHolidayCountdown) dashHolidayCountdown.innerText = '-- : -- : --';
+        if (dashHolidayInfo) dashHolidayInfo.innerText = 'No remaining holidays recorded for this academic year.';
+      }
+    }
+
+    // 5. Dashboard Renderer
+    function renderDashboard() {
+      // Off-Day analytics
+      const semOff = CalendarManager.getActiveSemesterOffDays();
+      const semOffEl = document.getElementById('dashSemesterOffDays');
+      const semOffDesc = document.getElementById('dashSemesterOffDesc');
+      if (semOffEl) semOffEl.innerText = `${semOff.totalHolidayDays || 0} Days`;
+      if (semOffDesc) semOffDesc.innerText = `Active Semester Holidays (${semOff.name || activeProfile?.activeSemester || 'Active'})`;
+
+      const yearOff = CalendarManager.getFullYearOffDays();
+      const yearOffEl = document.getElementById('dashYearOffDays');
+      if (yearOffEl) yearOffEl.innerText = `${yearOff.totalHolidayDays || 36} Days`;
+
+      const courseCountEl = document.getElementById('dashEnrolledCoursesCount');
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      if (courseCountEl) courseCountEl.innerText = courses.length;
+
+      // Milestones
+      const milestonesContainer = document.getElementById('dashMilestonesContainer');
+      if (milestonesContainer) {
+        const milestones = semOff.milestones || [];
+        if (milestones.length === 0) {
+          milestonesContainer.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted); grid-column:1/-1;">No milestones data for this semester.</div>';
+        } else {
+          milestonesContainer.innerHTML = milestones.map(m => `
+            <div style="background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:0.75rem 0.9rem;">
+              <div style="font-size:0.75rem; font-weight:800; color:${m.type === 'exam' ? '#ef4444' : 'var(--primary)'}; text-transform:uppercase;">${m.dateStr}</div>
+              <div style="font-size:0.86rem; font-weight:700; color:var(--text-main); margin-top:2px;">${m.title}</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // CT List
+      const ctListContainer = document.getElementById('dashCtListContainer');
+      if (ctListContainer) {
+        const cts = CtManager.getCtList();
+        if (cts.length === 0) {
+          ctListContainer.innerHTML = `
+            <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.88rem; border:1px dashed var(--border-color); border-radius:12px;">
+              📝 No upcoming Class Tests scheduled. Click <strong>➕ Schedule New CT</strong> to add one during your regular class hours.
+            </div>
+          `;
+        } else {
+          ctListContainer.innerHTML = cts.map(ct => {
+            const ctDt = new Date(`${ct.date}T${ct.startTime || '10:00'}:00`);
+            const remMs = ctDt - new Date();
+            const cd = formatCountdown(remMs);
+            const isPassed = remMs < 0;
+            return `
+              <div class="item-card-row">
+                <div class="item-card-left">
+                  <span class="badge-code">${ct.courseCode}</span>
+                  <div>
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-main);">
+                      ${ct.ctTitle || 'Class Test'} • <span style="color:#8b5cf6;">Room ${ct.room || 'Class Room'}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                      📅 ${ct.date} (${ct.startTime || ''} - ${ct.endTime || ''}) ${ct.isMakeup ? '• <span style="color:#f59e0b; font-weight:700;">Makeup Slot</span>' : ''}
+                      ${ct.syllabus ? `• <em>${ct.syllabus}</em>` : ''}
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <span style="font-size:0.8rem; font-weight:800; font-family:monospace; padding:3px 8px; border-radius:8px; background:${isPassed ? 'rgba(107,114,128,0.15)' : 'rgba(139,92,246,0.15)'}; color:${isPassed ? 'var(--text-muted)' : '#8b5cf6'};">
+                    ${isPassed ? 'Completed' : cd.short}
+                  </span>
+                  <button class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px;" onclick="openAddCtModal('${ct.id}')">✏️ Edit</button>
+                  <button class="btn btn-danger" style="font-size:0.75rem; padding:3px 8px;" onclick="CtManager.deleteCt('${ct.id}')">✕</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // Exam List
+      const examListContainer = document.getElementById('dashExamListContainer');
+      if (examListContainer) {
+        const exams = ExamManager.getExams();
+        if (exams.length === 0) {
+          examListContainer.innerHTML = `
+            <div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.88rem; border:1px dashed var(--border-color); border-radius:12px;">
+              🏛️ No official exam schedule loaded yet. Click <strong>📄 Upload Exam PDF</strong> to automatically match your courses, exam dates, time slots, and room numbers!
+            </div>
+          `;
+        } else {
+          examListContainer.innerHTML = exams.map(ex => {
+            const exDt = new Date(`${ex.examDate}T${ex.startTime || '10:00'}:00`);
+            const remMs = exDt - new Date();
+            const cd = formatCountdown(remMs);
+            const isPassed = remMs < 0;
+            return `
+              <div class="item-card-row">
+                <div class="item-card-left">
+                  <span class="badge-code" style="background:rgba(239,68,68,0.12); color:#ef4444; border-color:rgba(239,68,68,0.25);">${ex.courseCode}</span>
+                  <div>
+                    <div style="font-weight:800; font-size:0.92rem; color:var(--text-main);">
+                      ${ex.courseTitle || ex.courseCode} • <span style="color:#ef4444; font-weight:800;">Room: ${ex.room || 'TBA'}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                      🏛️ ${ex.examType || 'Examination'} • 📅 ${ex.examDate} (${ex.startTime || ''} - ${ex.endTime || ''}) ${ex.section ? `• Sec: ${ex.section}` : ''}
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.6rem;">
+                  <span style="font-size:0.8rem; font-weight:800; font-family:monospace; padding:3px 8px; border-radius:8px; background:${isPassed ? 'rgba(107,114,128,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isPassed ? 'var(--text-muted)' : '#ef4444'};">
+                    ${isPassed ? 'Completed' : cd.short}
+                  </span>
+                  <button class="btn btn-outline" style="font-size:0.75rem; padding:3px 8px;" onclick="openManualExamModal('${ex.id}')">✏️ Edit</button>
+                  <button class="btn btn-danger" style="font-size:0.75rem; padding:3px 8px;" onclick="ExamManager.deleteExam('${ex.id}')">✕</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+    }
+
+    // 6. Exam Routine PDF Parser & Matcher
+    let extractedExamsBuffer = [];
+
+    function openExamPdfModal() {
+      extractedExamsBuffer = [];
+      const reviewSec = document.getElementById('pdfMatchedResultsSection');
+      if (reviewSec) reviewSec.style.display = 'none';
+      const statusEl = document.getElementById('pdfProcessingStatus');
+      if (statusEl) statusEl.style.display = 'none';
+      const saveBtn = document.getElementById('btnSaveExamPdfSchedule');
+      if (saveBtn) saveBtn.style.display = 'none';
+      openModal('modalExamPdf');
+    }
+
+    async function handleExamPdfUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('pdfProcessingStatus');
+      const statusMsg = document.getElementById('pdfStatusMsg');
+      if (statusEl) statusEl.style.display = 'flex';
+      if (statusMsg) statusMsg.innerText = `Reading "${file.name}" via PDF.js...`;
+
+      try {
+        if (typeof pdfjsLib === 'undefined') {
+          throw new Error('PDF.js library is not loaded. Please use the text copy-paste option below.');
+        }
+
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
+
+        let fullPdfText = '';
+        for (let p = 1; p <= pdf.numPages; p++) {
+          if (statusMsg) statusMsg.innerText = `Extracting text from page ${p} of ${pdf.numPages}...`;
+          const page = await pdf.getPage(p);
+          const textContent = await page.getTextContent();
+          const pageStrings = textContent.items.map(it => it.str);
+          fullPdfText += '\n' + pageStrings.join(' ');
+        }
+
+        if (statusMsg) statusMsg.innerText = 'Matching courses and room numbers with your routine...';
+        matchExamRoutineText(fullPdfText);
+
+      } catch (err) {
+        console.error('PDF parsing error:', err);
+        alert('Could not parse PDF automatically: ' + err.message + '\nPlease copy and paste the routine text in the fallback box below.');
+      } finally {
+        if (statusEl) statusEl.style.display = 'none';
+      }
+    }
+
+    function processExamTextFallback() {
+      const text = document.getElementById('examTextFallbackInput')?.value;
+      if (!text || !text.trim()) {
+        alert('Please paste the exam routine text first.');
+        return;
+      }
+      matchExamRoutineText(text);
+    }
+
+    function matchExamRoutineText(text) {
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      if (!courses.length) {
+        alert('No registered courses found in active semester. Please import or add courses first!');
+        return;
+      }
+
+      const isMidterm = /mid\s*term|midterm/i.test(text);
+      const isFinal = /final/i.test(text);
+      const defaultExamType = isMidterm ? 'Midterm' : (isFinal ? 'Final' : 'Examination');
+
+      const lines = text.split(/[\r\n]+/);
+      let curDate = '';
+      let curSlot = '10:00 AM - 12:00 PM';
+
+      const dateRegex = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s*\d{4}?)/i;
+      const timeRegex = /(\d{1,2}:\d{2}\s*(?:AM|PM)\s*[\-\–to]+\s*\d{1,2}:\d{2}\s*(?:AM|PM))/i;
+      const roomRegex = /(?:Room|PC|Building|Lab|Audi)[\s\-\:#]*([A-Za-z0-9\-]+)/i;
+
+      const matched = [];
+
+      lines.forEach(line => {
+        const l = line.trim();
+        if (!l) return;
+
+        const dMatch = l.match(dateRegex);
+        if (dMatch && (l.toLowerCase().includes('date') || l.toLowerCase().includes('day') || dMatch[0].length >= 8)) {
+          curDate = normalizeDateToIso(dMatch[0]);
+        }
+
+        const tMatch = l.match(timeRegex);
+        if (tMatch) {
+          curSlot = tMatch[0];
+        }
+
+        // Check each course
+        courses.forEach(c => {
+          // Normalize code e.g. EEE442 -> EEE\s*442
+          const prefix = c.code.replace(/[^A-Za-z]/g, '');
+          const num = c.code.replace(/[^0-9]/g, '');
+          const pattern = new RegExp('\\b' + prefix + '\\s*' + num + '\\b', 'i');
+
+          if (pattern.test(l)) {
+            const rMatch = l.match(roomRegex);
+            let room = rMatch ? rMatch[0].replace(/^Room\s*[:#-]?\s*/i, 'Room ').trim() : 'Room 402, PC';
+            room = room.replace(/^[:#-]\s*/, '').trim();
+
+            // Extract slot times
+            let [st, et] = ['10:00', '12:00'];
+            const slotTimes = curSlot.match(/(\d{1,2}:\d{2}\s*(?:AM|PM))/gi);
+            if (slotTimes && slotTimes.length >= 2) {
+              st = convertTo24H(slotTimes[0]);
+              et = convertTo24H(slotTimes[1]);
+            }
+
+            matched.push({
+              id: 'exam_' + c.code.toLowerCase() + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              courseCode: c.code,
+              courseTitle: c.title || c.code,
+              examType: defaultExamType,
+              examDate: curDate || new Date().toISOString().split('T')[0],
+              startTime: st,
+              endTime: et,
+              timeSlot: curSlot,
+              room: room,
+              section: c.section || '1'
+            });
+          }
+        });
+      });
+
+      // Deduplicate by courseCode
+      const uniqueMatched = [];
+      const seen = new Set();
+      matched.forEach(m => {
+        if (!seen.has(m.courseCode)) {
+          seen.add(m.courseCode);
+          uniqueMatched.push(m);
+        }
+      });
+
+      extractedExamsBuffer = uniqueMatched;
+      renderPdfReviewTable(uniqueMatched);
+    }
+
+    function normalizeDateToIso(dStr) {
+      try {
+        if (!dStr) return new Date().toISOString().split('T')[0];
+        // Priority for Bangladesh SEU standard DD/MM/YYYY or DD-MM-YYYY
+        const parts = dStr.trim().split(/[\/\-\.]/);
+        if (parts.length === 3 && parts.every(p => /^\d+$/.test(p.trim()))) {
+          let day = parseInt(parts[0], 10);
+          let mon = parseInt(parts[1], 10);
+          let yr = parseInt(parts[2], 10);
+          if (yr < 100) yr += 2000;
+          if (day > 0 && day <= 31 && mon > 0 && mon <= 12) {
+            return `${yr}-${String(mon).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          }
+        }
+        const d = new Date(dStr);
+        if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
+      } catch(e) {}
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function convertTo24H(timeStr) {
+      if (!timeStr) return '10:00';
+      const m = timeStr.trim().match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+      if (!m) return '10:00';
+      let h = parseInt(m[1]);
+      const min = m[2];
+      const meridiem = (m[3] || 'AM').toUpperCase();
+      if (meridiem === 'PM' && h < 12) h += 12;
+      if (meridiem === 'AM' && h === 12) h = 0;
+      return `${String(h).padStart(2, '0')}:${min}`;
+    }
+
+    function renderPdfReviewTable(matched) {
+      const reviewSec = document.getElementById('pdfMatchedResultsSection');
+      const tableBody = document.getElementById('pdfReviewTableBody');
+      const badge = document.getElementById('matchedCountBadge');
+      const saveBtn = document.getElementById('btnSaveExamPdfSchedule');
+
+      if (!reviewSec || !tableBody) return;
+
+      if (matched.length === 0) {
+        reviewSec.style.display = 'block';
+        tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:1rem; color:var(--text-muted);">No matching courses found in the text. Check if course codes match your registered courses.</td></tr>';
+        if (badge) badge.innerText = '0 Matched';
+        if (saveBtn) saveBtn.style.display = 'none';
+        return;
+      }
+
+      reviewSec.style.display = 'block';
+      if (badge) badge.innerText = `${matched.length} Course${matched.length > 1 ? 's' : ''} Matched`;
+      if (saveBtn) saveBtn.style.display = 'inline-flex';
+
+      tableBody.innerHTML = matched.map((m, idx) => `
+        <tr>
+          <td><strong style="color:var(--primary);">${m.courseCode}</strong><br><small style="color:var(--text-muted);">${m.courseTitle}</small></td>
+          <td>
+            <select style="padding:3px 6px; border-radius:6px; font-size:0.8rem; background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color);" onchange="extractedExamsBuffer[${idx}].examType = this.value">
+              <option value="Midterm" ${m.examType === 'Midterm' ? 'selected' : ''}>Midterm</option>
+              <option value="Final" ${m.examType === 'Final' ? 'selected' : ''}>Final</option>
+            </select>
+          </td>
+          <td><input type="date" value="${m.examDate}" style="padding:3px 6px; border-radius:6px; font-size:0.8rem; background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color);" onchange="extractedExamsBuffer[${idx}].examDate = this.value"></td>
+          <td><span style="font-size:0.8rem; font-weight:700;">${m.startTime} - ${m.endTime}</span></td>
+          <td><input type="text" value="${m.room}" style="width:110px; padding:3px 6px; border-radius:6px; font-size:0.8rem; background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color);" onchange="extractedExamsBuffer[${idx}].room = this.value"></td>
+          <td><button class="btn btn-danger" style="font-size:0.72rem; padding:2px 6px;" onclick="removePdfBufferItem(${idx})">✕</button></td>
+        </tr>
+      `).join('');
+    }
+
+    function removePdfBufferItem(idx) {
+      extractedExamsBuffer.splice(idx, 1);
+      renderPdfReviewTable(extractedExamsBuffer);
+    }
+
+    function saveExtractedExamSchedule() {
+      if (!extractedExamsBuffer.length) {
+        alert('No exams to save.');
+        return;
+      }
+      const existing = ExamManager.getExams();
+      // Replace existing with same courseCode and examType or merge
+      const merged = [...existing];
+      extractedExamsBuffer.forEach(newEx => {
+        const idx = merged.findIndex(e => e.courseCode === newEx.courseCode && e.examType === newEx.examType);
+        if (idx >= 0) merged[idx] = newEx;
+        else merged.push(newEx);
+      });
+
+      ExamManager.saveExams(merged);
+      closeModal('modalExamPdf');
+      alert(`🎉 Successfully saved ${extractedExamsBuffer.length} exam slots with room numbers to your schedule!`);
+    }
+
+    // 7. Manual Exam Modal
+    function openManualExamModal(editId = null) {
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      const courseSelect = document.getElementById('manualExamCourse');
+      if (courseSelect) {
+        courseSelect.innerHTML = courses.map(c => `
+          <option value="${c.code}">${c.code} - ${c.title || c.code}</option>
+        `).join('');
+      }
+
+      document.getElementById('manualExamEditId').value = editId || '';
+      if (editId) {
+        const exams = ExamManager.getExams();
+        const ex = exams.find(e => e.id === editId);
+        if (ex) {
+          if (courseSelect) courseSelect.value = ex.courseCode;
+          document.getElementById('manualExamType').value = ex.examType || 'Midterm';
+          document.getElementById('manualExamDate').value = ex.examDate || '';
+          document.getElementById('manualExamStart').value = ex.startTime || '10:00';
+          document.getElementById('manualExamEnd').value = ex.endTime || '12:00';
+          document.getElementById('manualExamRoom').value = ex.room || '';
+        }
+      } else {
+        document.getElementById('manualExamDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('manualExamRoom').value = 'PC-402';
+      }
+      openModal('modalManualExam');
+    }
+
+    function saveManualExam() {
+      const editId = document.getElementById('manualExamEditId').value;
+      const courseCode = document.getElementById('manualExamCourse').value;
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      const cObj = courses.find(c => c.code === courseCode);
+
+      const examObj = {
+        id: editId || ('exam_' + courseCode.toLowerCase() + '_' + Date.now()),
+        courseCode: courseCode,
+        courseTitle: cObj ? (cObj.title || cObj.code) : courseCode,
+        examType: document.getElementById('manualExamType').value,
+        examDate: document.getElementById('manualExamDate').value,
+        startTime: document.getElementById('manualExamStart').value,
+        endTime: document.getElementById('manualExamEnd').value,
+        room: document.getElementById('manualExamRoom').value || 'TBA',
+        section: cObj ? (cObj.section || '1') : '1'
+      };
+
+      ExamManager.addOrUpdateExam(examObj);
+      closeModal('modalManualExam');
+    }
+
+    // 8. Class Test (CT) Modal Logic (Strict Class-Time Constraint)
+    function openAddCtModal(editId = null) {
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      if (!courses.length) {
+        alert('Please import or add registered courses first!');
+        return;
+      }
+
+      const sel = document.getElementById('ctCourseSelect');
+      if (sel) {
+        sel.innerHTML = courses.map(c => `
+          <option value="${c.code}">${c.code} - ${c.title || c.code}</option>
+        `).join('');
+      }
+
+      document.getElementById('ctEditId').value = editId || '';
+      document.getElementById('ctMakeupToggle').checked = false;
+      toggleCtMakeupSlot(false);
+
+      if (editId) {
+        const ctList = CtManager.getCtList();
+        const ct = ctList.find(c => c.id === editId);
+        if (ct) {
+          if (sel) sel.value = ct.courseCode;
+          document.getElementById('ctTitleInput').value = ct.ctTitle || 'CT-1';
+          document.getElementById('ctDateInput').value = ct.date || '';
+          document.getElementById('ctStartTime').value = ct.startTime || '10:00';
+          document.getElementById('ctEndTime').value = ct.endTime || '11:20';
+          document.getElementById('ctRoomInput').value = ct.room || '';
+          document.getElementById('ctSyllabusInput').value = ct.syllabus || '';
+          if (ct.isMakeup) {
+            document.getElementById('ctMakeupToggle').checked = true;
+            toggleCtMakeupSlot(true);
+          }
+          handleCtCourseChange(ct.courseCode, false);
+        }
+      } else {
+        const firstCode = courses[0].code;
+        handleCtCourseChange(firstCode, true);
+        document.getElementById('ctTitleInput').value = 'CT-1';
+        document.getElementById('ctSyllabusInput').value = '';
+      }
+
+      openModal('modalAddCt');
+    }
+
+    function handleCtCourseChange(courseCode, prefillNextDate = true) {
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+      const course = courses.find(c => c.code === courseCode);
+      const slotBox = document.getElementById('ctSlotOptionsList');
+
+      if (!course || !course.schedules || !course.schedules.length) {
+        if (slotBox) slotBox.innerHTML = '<span style="color:var(--text-muted);">No regular class slots recorded for this course. You can check Makeup Slot to enter custom time & room.</span>';
+        toggleCtMakeupSlot(true);
+        document.getElementById('ctMakeupToggle').checked = true;
+        return;
+      }
+
+      const dayFullNames = { 'SUN': 'Sunday', 'MON': 'Monday', 'TUE': 'Tuesday', 'WED': 'Wednesday', 'THU': 'Thursday', 'FRI': 'Friday', 'SAT': 'Saturday' };
+      const dayNums = { 'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6 };
+
+      slotBox.innerHTML = course.schedules.map((s, idx) => `
+        <div style="margin-top:3px; display:flex; align-items:center; justify-content:space-between;">
+          <span><strong>${dayFullNames[s.day] || s.day}:</strong> ${s.startTime} - ${s.endTime} (Room ${s.room || 'TBA'})</span>
+          <button type="button" class="btn btn-outline" style="font-size:0.7rem; padding:2px 6px;" onclick="applyCtClassSlot('${s.day}', '${s.startTime}', '${s.endTime}', '${s.room || ''}')">Use Slot</button>
+        </div>
+      `).join('');
+
+      // Auto-apply first slot by default
+      const s0 = course.schedules[0];
+      applyCtClassSlot(s0.day, s0.startTime, s0.endTime, s0.room || 'Class Room', prefillNextDate);
+    }
+
+    function applyCtClassSlot(dayKey, startTime, endTime, room, prefillDate = true) {
+      document.getElementById('ctStartTime').value = startTime;
+      document.getElementById('ctEndTime').value = endTime;
+      document.getElementById('ctRoomInput').value = room;
+
+      if (prefillDate) {
+        const dayNums = { 'SUN': 0, 'MON': 1, 'TUE': 2, 'WED': 3, 'THU': 4, 'FRI': 5, 'SAT': 6 };
+        const targetDayNum = dayNums[dayKey] ?? 0;
+        const now = new Date();
+        const nextDt = new Date();
+        let daysUntil = (targetDayNum - now.getDay() + 7) % 7;
+        if (daysUntil === 0) daysUntil = 7; // next week
+        nextDt.setDate(now.getDate() + daysUntil);
+        document.getElementById('ctDateInput').value = nextDt.toISOString().split('T')[0];
+      }
+    }
+
+    function toggleCtMakeupSlot(isMakeup) {
+      document.getElementById('ctStartTime').disabled = !isMakeup;
+      document.getElementById('ctEndTime').disabled = !isMakeup;
+      document.getElementById('ctRoomInput').disabled = !isMakeup;
+    }
+
+    function saveClassTest() {
+      const editId = document.getElementById('ctEditId').value;
+      const courseCode = document.getElementById('ctCourseSelect').value;
+      const ctTitle = document.getElementById('ctTitleInput').value.trim() || 'CT';
+      const date = document.getElementById('ctDateInput').value;
+      const startTime = document.getElementById('ctStartTime').value;
+      const endTime = document.getElementById('ctEndTime').value;
+      const room = document.getElementById('ctRoomInput').value.trim() || 'Class Room';
+      const syllabus = document.getElementById('ctSyllabusInput').value.trim();
+      const isMakeup = document.getElementById('ctMakeupToggle').checked;
+
+      if (!date) {
+        alert('Please choose a date for the Class Test.');
+        return;
+      }
+
+      const ctObj = {
+        id: editId || ('ct_' + courseCode.toLowerCase() + '_' + Date.now()),
+        courseCode,
+        ctTitle,
+        date,
+        startTime,
+        endTime,
+        room,
+        syllabus,
+        isMakeup
+      };
+
+      CtManager.addOrUpdateCt(ctObj);
+      closeModal('modalAddCt');
+    }
+
+    // 9. Academic Calendar Modal & Switcher
+    function openAcademicCalendarModal() {
+      const calData = CalendarManager.getCalendarData();
+      const year = calData.year || 2026;
+      const url = `https://seu.edu.bd/academic-calendar-${year}`;
+
+      document.getElementById('calActiveYearLabel').innerText = year;
+      document.getElementById('calYearInput').value = year;
+      const linkTag = document.getElementById('calOfficialLinkTag');
+      if (linkTag) { linkTag.href = url; linkTag.innerText = url; }
+      const webBtn = document.getElementById('calOpenWebBtn');
+      if (webBtn) webBtn.href = url;
+
+      const semOff = CalendarManager.getActiveSemesterOffDays();
+      document.getElementById('calModalSemesterDays').innerText = `${semOff.totalHolidayDays || 0} Days`;
+      document.getElementById('calModalSemesterName').innerText = semOff.name || 'Active Semester';
+
+      const yearOff = CalendarManager.getFullYearOffDays();
+      document.getElementById('calModalYearDays').innerText = `${yearOff.totalHolidayDays || 36} Days`;
+
+      const nextOff = CalendarManager.getNextOffDay();
+      if (nextOff) {
+        document.getElementById('calModalNextCountdown').innerText = nextOff.countdown.short;
+        document.getElementById('calModalNextName').innerText = nextOff.holiday.title.replace(/Holiday\s*\(/i, '').replace(/\)\s*\*?/i, '');
+      } else {
+        document.getElementById('calModalNextCountdown').innerText = '--';
+        document.getElementById('calModalNextName').innerText = 'No more holidays';
+      }
+
+      // Populate table
+      const tbody = document.getElementById('calHolidaysTableBody');
+      if (tbody) {
+        tbody.innerHTML = (calData.allHolidays || []).map(h => `
+          <tr>
+            <td><strong style="color:var(--primary); font-family:monospace;">${h.dateStr}</strong></td>
+            <td><span style="font-weight:800; font-size:0.8rem; background:rgba(16,185,129,0.15); color:#10b981; padding:2px 7px; border-radius:8px;">${h.days} Day${h.days > 1 ? 's' : ''}</span></td>
+            <td><strong>${h.title}</strong></td>
+            <td><span style="font-size:0.78rem; color:var(--text-muted);">${h.semester}</span></td>
+          </tr>
+        `).join('');
+      }
+
+      openModal('modalAcademicCalendar');
+    }
+
+    function switchAcademicCalendarYear() {
+      const yearVal = parseInt(document.getElementById('calYearInput')?.value) || 2026;
+      const newUrl = `https://seu.edu.bd/academic-calendar-${yearVal}`;
+      const calData = CalendarManager.getCalendarData();
+      calData.year = yearVal;
+      calData.sourceUrl = newUrl;
+      CalendarManager.saveCalendarData(calData);
+
+      document.getElementById('calActiveYearLabel').innerText = yearVal;
+      const linkTag = document.getElementById('calOfficialLinkTag');
+      if (linkTag) { linkTag.href = newUrl; linkTag.innerText = newUrl; }
+      const webBtn = document.getElementById('calOpenWebBtn');
+      if (webBtn) webBtn.href = newUrl;
+      const calSourceLink = document.getElementById('calSourceLink');
+      if (calSourceLink) { calSourceLink.href = newUrl; calSourceLink.innerText = `seu.edu.bd/academic-calendar-${yearVal}`; }
+
+      alert(`📅 Switched to Academic Calendar ${yearVal}!\nOfficial URL: ${newUrl}`);
+    }
+
+
     initRoutineZoom();
     initPinchToZoom();
     setInterval(updateStatusTracker, 1000);
   </script>
   <!-- Mobile Sticky Bottom Navigation Bar (Visible on mobile/tablets) -->
   <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile Navigation">
+        <button class="mobile-nav-btn" id="mNavDashboard" onclick="mobileSwitchView('dashboard')">
+      <span class="m-nav-icon">📊</span>
+      <span class="m-nav-label">ড্যাশবোর্ড</span>
+    </button>
     <button class="mobile-nav-btn active" id="mNavRoutine" onclick="mobileSwitchView('grid')">
       <span class="m-nav-icon">🗓️</span>
       <span class="m-nav-label">রুটিন</span>
@@ -5747,6 +7105,291 @@
       <span class="m-nav-label">কীভাবে চলে?</span>
     </button>
   </nav>
+
+
+    <!-- ========================================================
+         MODAL: EXAM ROUTINE PDF AUTO-MATCHER
+         ======================================================== -->
+    <div class="modal-backdrop" id="modalExamPdf">
+      <div class="modal" style="max-width: 780px;">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.5rem;">📄</span>
+            <div>
+              <h3 style="margin:0;">SEU Exam Routine PDF Auto-Matcher</h3>
+              <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">Midterm / Final পরীক্ষার অফিসিয়াল PDF আপলোড করুন। স্বয়ংক্রিয়ভাবে আপনার কোর্স ও রুম শনাক্ত হবে।</p>
+            </div>
+          </div>
+          <button class="modal-close" onclick="closeModal('modalExamPdf')">&times;</button>
+        </div>
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:1.1rem;">
+          <!-- Dropzone -->
+          <div class="pdf-dropzone" id="pdfDropzone" onclick="document.getElementById('pdfFileInput').click()">
+            <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;" onchange="handleExamPdfUpload(event)">
+            <div style="font-size:2.4rem; margin-bottom:0.5rem;">📥</div>
+            <div style="font-weight:800; font-size:1.05rem; color:var(--text-main);">Click to Choose Exam Routine PDF or Drag & Drop here</div>
+            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.35rem;">Supports Southeast University Controller of Examinations (COE) official Midterm & Final routine PDFs</div>
+          </div>
+
+          <!-- Extraction Status -->
+          <div id="pdfProcessingStatus" style="display:none; padding:0.75rem 1rem; border-radius:10px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); font-size:0.88rem; align-items:center; gap:0.6rem;">
+            <span class="status-dot pulsing"></span>
+            <span id="pdfStatusMsg">Parsing PDF document client-side...</span>
+          </div>
+
+          <!-- Matched Results Review Table -->
+          <div id="pdfMatchedResultsSection" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <h4 style="margin:0; font-size:0.95rem; font-weight:800; color:var(--text-main);">Detected Exams for Registered Courses:</h4>
+              <span id="matchedCountBadge" style="font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:12px; background:rgba(16,185,129,0.15); color:var(--accent-green);">0 Matched</span>
+            </div>
+            <div class="table-responsive" style="max-height:280px; overflow-y:auto; border:1px solid var(--border-color); border-radius:12px;">
+              <table class="exam-review-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Exam Type</th>
+                    <th>Date</th>
+                    <th>Time Slot</th>
+                    <th>Room</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="pdfReviewTableBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Text Fallback Tab Toggle -->
+          <details style="font-size:0.82rem; color:var(--text-muted); border:1px solid var(--border-color); border-radius:10px; padding:0.6rem 0.85rem;">
+            <summary style="cursor:pointer; font-weight:700; color:var(--primary);">📋 PDF ফাইল নেই? লেখা কপি করে পেস্ট করতে চান? (Click here)</summary>
+            <div style="margin-top:0.6rem; display:flex; flex-direction:column; gap:0.5rem;">
+              <textarea id="examTextFallbackInput" rows="4" placeholder="রুটিনের লেখা কপি করে এখানে পেস্ট করুন (যেমন: EEE 442 15/08/2026 10:00 AM - 12:00 PM Room PC-402)..." style="width:100%; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); padding:0.5rem; font-family:monospace;"></textarea>
+              <button class="btn btn-outline" style="align-self:flex-start; font-size:0.8rem;" onclick="processExamTextFallback()">🔍 Parse Pasted Text</button>
+            </div>
+          </details>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn btn-outline" onclick="closeModal('modalExamPdf')">Cancel</button>
+          <button class="btn btn-safe" id="btnSaveExamPdfSchedule" onclick="saveExtractedExamSchedule()" style="display:none;">💾 Save to Exam Schedule</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MODAL: ADD / EDIT CLASS TEST (CT) (CLASS-TIME CONSTRAINT)
+         ======================================================== -->
+    <div class="modal-backdrop" id="modalAddCt">
+      <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="font-size:1.4rem;">📝</span>
+            <div>
+              <h3 style="margin:0;" id="ctModalTitle">Schedule Class Test (CT)</h3>
+              <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">নিয়ম অনুযায়ী CT সবসময় নির্ধারিত ক্লাসের সময়েই অনুষ্ঠিত হয়।</p>
+            </div>
+          </div>
+          <button class="modal-close" onclick="closeModal('modalAddCt')">&times;</button>
+        </div>
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:1rem;">
+          <input type="hidden" id="ctEditId" value="">
+          
+          <!-- Course Selector -->
+          <div class="form-group">
+            <label for="ctCourseSelect" style="font-weight:700; font-size:0.85rem;">Select Course:</label>
+            <select id="ctCourseSelect" class="form-control" onchange="handleCtCourseChange(this.value)" style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <!-- Course Schedule Slots Info -->
+          <div id="ctSlotInfoBox" style="background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); border-radius:10px; padding:0.65rem 0.85rem; font-size:0.82rem; color:var(--text-main);">
+            <div style="font-weight:700; color:var(--primary); margin-bottom:2px;">📅 Regular Class Slots:</div>
+            <div id="ctSlotOptionsList">Select a course to view scheduled times & rooms.</div>
+          </div>
+
+          <!-- CT Date & Slot Matcher -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label for="ctDateInput" style="font-weight:700; font-size:0.85rem;">CT Date:</label>
+              <input type="date" id="ctDateInput" class="form-control" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+            <div class="form-group">
+              <label for="ctTitleInput" style="font-weight:700; font-size:0.85rem;">CT Title / Type:</label>
+              <input type="text" id="ctTitleInput" class="form-control" placeholder="e.g. CT-1, CT-2, Quiz" value="CT-1" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+          </div>
+
+          <!-- Auto-Locked Time & Room -->
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label for="ctStartTime" style="font-weight:700; font-size:0.82rem;">Start Time:</label>
+              <input type="time" id="ctStartTime" class="form-control" disabled style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-surface); color:var(--text-main); font-weight:700;">
+            </div>
+            <div class="form-group">
+              <label for="ctEndTime" style="font-weight:700; font-size:0.82rem;">End Time:</label>
+              <input type="time" id="ctEndTime" class="form-control" disabled style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-surface); color:var(--text-main); font-weight:700;">
+            </div>
+            <div class="form-group">
+              <label for="ctRoomInput" style="font-weight:700; font-size:0.82rem;">Room Number:</label>
+              <input type="text" id="ctRoomInput" class="form-control" disabled placeholder="e.g. PC-402" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-surface); color:var(--text-main); font-weight:700;">
+            </div>
+          </div>
+
+          <!-- Special Makeup Slot Toggle -->
+          <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.82rem; color:var(--text-muted); cursor:pointer;">
+            <input type="checkbox" id="ctMakeupToggle" onchange="toggleCtMakeupSlot(this.checked)" style="width:16px; height:16px; cursor:pointer;">
+            <label for="ctMakeupToggle" style="cursor:pointer; font-weight:600;">শিক্ষক কি অন্য কোনো বিশেষ সময়ে মেকআপ CT নিচ্ছেন? (Unlock custom time & room)</label>
+          </div>
+
+          <!-- Syllabus / Topics -->
+          <div class="form-group">
+            <label for="ctSyllabusInput" style="font-weight:700; font-size:0.85rem;">Syllabus / Topics / Notes:</label>
+            <textarea id="ctSyllabusInput" rows="3" placeholder="e.g. Chapter 1: Diode circuits, Chapter 2: Rectifiers..." style="width:100%; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); padding:0.55rem; font-size:0.86rem;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn btn-outline" onclick="closeModal('modalAddCt')">Cancel</button>
+          <button class="btn btn-magic" onclick="saveClassTest()">💾 Save Class Test</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MODAL: ACADEMIC CALENDAR & DYNAMIC ANNUAL EXTENSIBILITY
+         ======================================================== -->
+    <div class="modal-backdrop" id="modalAcademicCalendar">
+      <div class="modal" style="max-width: 760px;">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.5rem;">📅</span>
+            <div>
+              <h3 style="margin:0;">Southeast University Academic Calendar</h3>
+              <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">অফিসিয়াল একাডেমিক ক্যালেন্ডার ও বার্ষিক ছুটির হিসাব।</p>
+            </div>
+          </div>
+          <button class="modal-close" onclick="closeModal('modalAcademicCalendar')">&times;</button>
+        </div>
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:1.1rem;">
+          <!-- Dynamic Year Switcher Row -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:rgba(59,130,246,0.08); padding:0.75rem 1rem; border-radius:12px; border:1px solid rgba(59,130,246,0.25);">
+            <div>
+              <div style="font-weight:800; font-size:0.9rem; color:var(--text-main);">Academic Year: <span id="calActiveYearLabel" style="color:var(--primary);">2026</span></div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">
+                Official Link: <a href="https://seu.edu.bd/academic-calendar-2026" id="calOfficialLinkTag" target="_blank" style="color:var(--primary); font-weight:700;">https://seu.edu.bd/academic-calendar-2026</a>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <input type="number" id="calYearInput" value="2026" min="2024" max="2035" style="width:80px; padding:0.4rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700; text-align:center;">
+              <button class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 0.8rem;" onclick="switchAcademicCalendarYear()">Switch Year</button>
+            </div>
+          </div>
+
+          <!-- Analytics Summary Row -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem;">
+            <div style="background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:0.75rem; text-align:center;">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">This Semester Off-Days</div>
+              <div style="font-size:1.5rem; font-weight:900; color:#10b981; margin:4px 0;" id="calModalSemesterDays">--</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);" id="calModalSemesterName">Active Semester</div>
+            </div>
+            <div style="background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:0.75rem; text-align:center;">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Full Year Off-Days</div>
+              <div style="font-size:1.5rem; font-weight:900; color:var(--primary); margin:4px 0;" id="calModalYearDays">36 Days</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">16 Official Holiday Periods</div>
+            </div>
+            <div style="background:var(--bg-main); border:1px solid var(--border-color); border-radius:12px; padding:0.75rem; text-align:center;">
+              <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Next Off-Day In</div>
+              <div style="font-size:1.5rem; font-weight:900; color:#f59e0b; margin:4px 0;" id="calModalNextCountdown">--</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);" id="calModalNextName">Upcoming Holiday</div>
+            </div>
+          </div>
+
+          <!-- All Holidays List Table -->
+          <div>
+            <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; font-weight:800; color:var(--text-main);">Official University Holidays & Off-Days:</h4>
+            <div class="table-responsive" style="max-height:300px; overflow-y:auto; border:1px solid var(--border-color); border-radius:12px;">
+              <table class="exam-review-table">
+                <thead>
+                  <tr>
+                    <th>Date Range</th>
+                    <th>Days</th>
+                    <th>Holiday / Event Name</th>
+                    <th>Semester</th>
+                  </tr>
+                </thead>
+                <tbody id="calHolidaysTableBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <a href="https://seu.edu.bd/academic-calendar-2026" target="_blank" class="btn btn-outline" id="calOpenWebBtn" style="font-size:0.8rem;">🌐 Open SEU Calendar Web</a>
+          <button class="btn btn-primary" onclick="closeModal('modalAcademicCalendar')">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         MODAL: MANUAL EXAM ENTRY
+         ======================================================== -->
+    <div class="modal-backdrop" id="modalManualExam">
+      <div class="modal" style="max-width: 520px;">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="font-size:1.4rem;">🏛️</span>
+            <div>
+              <h3 style="margin:0;">Add / Edit Exam Slot Manually</h3>
+              <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">নির্ধারিত পরীক্ষার তারিখ, টাইম ও রুম ইনপুট দিন।</p>
+            </div>
+          </div>
+          <button class="modal-close" onclick="closeModal('modalManualExam')">&times;</button>
+        </div>
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:1rem;">
+          <input type="hidden" id="manualExamEditId" value="">
+          <div class="form-group">
+            <label for="manualExamCourse" style="font-weight:700; font-size:0.85rem;">Course:</label>
+            <select id="manualExamCourse" class="form-control" style="width:100%; padding:0.6rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main); font-weight:700;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label for="manualExamType" style="font-weight:700; font-size:0.85rem;">Exam Type:</label>
+              <select id="manualExamType" class="form-control" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+                <option value="Midterm">Midterm Examination</option>
+                <option value="Final">Final Examination</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="manualExamDate" style="font-weight:700; font-size:0.85rem;">Exam Date:</label>
+              <input type="date" id="manualExamDate" class="form-control" style="width:100%; padding:0.55rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
+            <div class="form-group">
+              <label for="manualExamStart" style="font-weight:700; font-size:0.82rem;">Start Time:</label>
+              <input type="time" id="manualExamStart" value="10:00" class="form-control" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+            <div class="form-group">
+              <label for="manualExamEnd" style="font-weight:700; font-size:0.82rem;">End Time:</label>
+              <input type="time" id="manualExamEnd" value="12:00" class="form-control" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+            <div class="form-group">
+              <label for="manualExamRoom" style="font-weight:700; font-size:0.82rem;">Room Number:</label>
+              <input type="text" id="manualExamRoom" placeholder="e.g. PC-402" class="form-control" style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-main); color:var(--text-main);">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn btn-outline" onclick="closeModal('modalManualExam')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveManualExam()">💾 Save Exam Slot</button>
+        </div>
+      </div>
+    </div>
 
 </body>
 </html>
