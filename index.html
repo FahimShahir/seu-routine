@@ -490,18 +490,38 @@
         <p class="text-sm font-bold text-indigo-400 mt-0.5">SEU Smart Hub & Routine Manager</p>
         <p class="text-xs mt-2" style="color: var(--text-muted);">
           Crafted by <strong class="text-slate-200">F.U.M Foyjul Bari Shahir</strong> (Batch 42, Dept. of EEE).
-          100% private, offline PWA. Zero UMS password required.
+          ১০০% নিরাপদ ও প্রাইভেট অফলাইন PWA • কোনো UMS পাসওয়ার্ড দিতে হবে না।
         </p>
       </div>
 
+      <!-- How it works guide card -->
+      <div class="glass-card-elevated rounded-2xl p-4 text-left border-l-4 border-indigo-500 space-y-2.5 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-indigo-300 flex items-center gap-1.5">
+            <span>💡</span> নতুন এসেছেন? জেনে নিন কিভাবে কাজ করে:
+          </span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">২ ধাপ</span>
+        </div>
+        <div class="space-y-1.5 text-[11px]" style="color: var(--text-muted);">
+          <div class="flex items-start gap-2">
+            <span class="w-4 h-4 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">১</span>
+            <span><strong>ধাপ ১: UMS About কপি করুন</strong> — নাম, আইডি, কোড, ডিউ টাকা ও সিজিপিএ লোড করতে।</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-4 h-4 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">২</span>
+            <span><strong>ধাপ ২: Registered Courses কপি করুন</strong> — ক্লাস রুটিন, রুম নম্বর ও শিক্ষকের ইমেইল সেট করতে।</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Cards -->
-      <div class="space-y-2.5 pt-2 text-left">
-        <button onclick="openSheet('sheetUmsImport')" class="w-full p-4 rounded-2xl glass-card hover:border-indigo-500/50 flex items-center justify-between active:scale-[0.98] transition-all">
+      <div class="space-y-2.5 pt-1 text-left">
+        <button onclick="openSheet('sheetUmsImport'); goToImportStep(1);" class="w-full p-4 rounded-2xl glass-card hover:border-indigo-500/50 flex items-center justify-between active:scale-[0.98] transition-all">
           <div class="flex items-center gap-3.5">
             <span class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-xl">✨</span>
             <div>
-              <div class="text-sm font-extrabold">Sync / Paste UMS Data</div>
-              <div class="text-[11px]" style="color: var(--text-muted);">Copy UMS table & paste in 10s</div>
+              <div class="text-sm font-extrabold">২ ধাপে UMS রুটিন সিঙ্ক করুন</div>
+              <div class="text-[11px]" style="color: var(--text-muted);">About + Registered Courses পেস্ট করে শুরু করুন</div>
             </div>
           </div>
           <span class="text-sm text-indigo-400 font-bold">›</span>
@@ -1034,6 +1054,24 @@
           </div>
         </div>
 
+        <!-- Semester GPA Growth (Your Growth from UMS) -->
+        <div class="glass-card rounded-2xl p-4 space-y-3" id="profileGpaGrowthCard">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">📈</span>
+              <div>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Semester GPA Growth</h3>
+                <p class="text-[10px]" style="color: var(--text-faint);">Your Growth metrics extracted from UMS</p>
+              </div>
+            </div>
+            <span class="text-[11px] font-mono font-bold text-emerald-400" id="profileGpaGrowthBadge">—</span>
+          </div>
+
+          <div class="space-y-2 pt-1" id="profileGpaGrowthList">
+            <!-- Dynamically populated per semester -->
+          </div>
+        </div>
+
         <!-- Academic Advisor Card -->
         <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3.5">
           <div class="flex items-center gap-3.5 min-w-0">
@@ -1145,59 +1183,126 @@
   </div>
 
   <!-- ============================================================
-       BOTTOM SHEET 1: UMS SMART IMPORT
+       BOTTOM SHEET 1: UMS SMART IMPORT (2-STEP GUIDED WIZARD)
        ============================================================ -->
   <div id="sheetUmsImport" class="sheet-backdrop" onclick="backdropClose(event, 'sheetUmsImport')">
     <div class="sheet-panel">
       <div class="w-10 h-1 rounded-full bg-slate-500/40 mx-auto mt-2.5"></div>
       <div class="px-5 py-3.5 flex items-center justify-between border-b" style="border-color: var(--border-subtle);">
         <div>
-          <h3 class="text-base font-extrabold">✨ UMS Smart Import</h3>
-          <p class="text-[11px]" style="color: var(--text-muted);">100% Private • Zero Password Required</p>
+          <h3 class="text-base font-extrabold flex items-center gap-2">
+            <span>✨</span> UMS Smart Sync
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold">২ ধাপের উইজার্ড</span>
+          </h3>
+          <p class="text-[11px]" style="color: var(--text-muted);">১০০% প্রাইভেট • অফলাইন PWA • পাসওয়ার্ড ছাড়া সুরক্ষিত</p>
         </div>
         <button onclick="closeSheet('sheetUmsImport')" class="w-8 h-8 rounded-full glass-card-elevated flex items-center justify-center text-sm font-bold">✕</button>
       </div>
 
       <div class="p-5 overflow-y-auto space-y-4">
-        <!-- 3-Step Visual Guide -->
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="glass-card-elevated rounded-xl p-2.5">
-            <div class="text-base mb-1">1️⃣</div>
-            <div class="text-[10px] font-extrabold">Open UMS</div>
-            <div class="text-[9px] mt-0.5" style="color: var(--text-muted);">Registered Courses</div>
-          </div>
-          <div class="glass-card-elevated rounded-xl p-2.5">
-            <div class="text-base mb-1">2️⃣</div>
-            <div class="text-[10px] font-extrabold">Select & Copy</div>
-            <div class="text-[9px] mt-0.5" style="color: var(--text-muted);">Copy page text</div>
-          </div>
-          <div class="glass-card-elevated rounded-xl p-2.5">
-            <div class="text-base mb-1">3️⃣</div>
-            <div class="text-[10px] font-extrabold">Paste Below</div>
-            <div class="text-[9px] mt-0.5" style="color: var(--text-muted);">Auto-builds app</div>
-          </div>
-        </div>
-
-        <!-- Target Semester Selector -->
-        <div>
-          <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Target Semester</label>
-          <input type="text" id="importTargetSemester" value="Fall 2026" class="app-input font-bold" placeholder="e.g. Fall 2026, Summer 2026">
-        </div>
-
-        <!-- Textarea (Dual ID alias for test suite & mockup) -->
-        <div>
-          <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1.5" style="color: var(--text-muted);">Paste UMS Registered Courses Text</label>
-          <textarea id="importRawText" rows="5" class="app-input font-mono text-xs" placeholder="EEE442.2 Optoelectronics Laboratory&#10;[RR] Rakayet Rafi rakayet.rafi@seu.edu.bd&#10;MON # 14:00 ~ 16:00 @ PC211"></textarea>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="space-y-2">
-          <button onclick="parseAndImportText()" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all">
-            ⚡ Parse & Sync Pasted Text
+        <!-- Step Progress Header -->
+        <div class="flex items-center gap-2 p-1 bg-slate-800/40 rounded-xl border border-slate-700/50">
+          <button id="tabImportStep1" onclick="goToImportStep(1)" class="flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all bg-indigo-500 text-white shadow">
+            ১. UMS About
           </button>
-          <button onclick="loadSampleDemo()" class="w-full py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold active:scale-[0.98] transition-all">
-            🚀 1-Tap Demo Sync (Load Fall 2026 EEE)
+          <button id="tabImportStep2" onclick="goToImportStep(2)" class="flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all text-slate-400 hover:text-white">
+            ২. Registered Courses
           </button>
+        </div>
+
+        <!-- STEP 1 CONTAINER -->
+        <div id="umsStep1Container" class="space-y-3.5">
+          <div class="glass-card-elevated rounded-2xl p-3.5 border-l-4 border-indigo-500 text-left space-y-2">
+            <div class="flex items-center gap-2 text-indigo-400 font-extrabold text-xs">
+              <span>📋</span> ধাপ ১: UMS "About" ড্যাশবোর্ড পেস্ট করুন
+            </div>
+            <p class="text-[11px] leading-relaxed" style="color: var(--text-muted);">
+              Southeast University <strong>UMS</strong> এ লগইন করে <strong>About</strong> ট্যাবে যান। পুরো পেজ সিলেক্ট করতে <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-slate-700">Ctrl + A</kbd> চাপুন এবং কপি করে (<kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-slate-700">Ctrl + C</kbd>) নিচের বক্সে পেস্ট করুন।
+            </p>
+            <div class="text-[10px] text-indigo-300/80 flex items-center gap-1.5">
+              <span>ℹ️</span> এখান থেকে নাম, আইডি, কোড, ব্যাচ, ডিউ ব্যালেন্স, ক্রেডিট ও সিজিপিএ (Your Growth) রিড হবে।
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Paste UMS About Text</label>
+              <button onclick="pasteFromClipboard('importAboutText')" class="text-[10px] text-indigo-400 hover:underline font-bold">📋 Paste</button>
+            </div>
+            <textarea id="importAboutText" rows="5" class="app-input font-mono text-xs" placeholder="About&#10;Registered Courses...&#10;Basic Information&#10;F.U.M Foyjul Bari Shahir&#10;Batch: 42&#10;Due Amount: ৳ -27,480.00" oninput="onAboutInputChanged()"></textarea>
+          </div>
+
+          <!-- Step 1 Validation Alert -->
+          <div id="umsAboutValidationAlert" class="hidden rounded-xl p-3 text-xs text-left">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Step 1 Action Buttons -->
+          <div class="space-y-2 pt-1">
+            <button id="btnProceedToStep2" onclick="validateAboutStepAndProceed()" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+              <span>যাচাই করুন ও ২য় ধাপে যান</span>
+              <span>➔</span>
+            </button>
+            <button onclick="loadSampleDemo()" class="w-full py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-extrabold active:scale-[0.98] transition-all">
+              🚀 ১-ট্যাপ ডেমো লোড করুন (Fall 2026 EEE)
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 2 CONTAINER (Initially Hidden) -->
+        <div id="umsStep2Container" class="space-y-3.5 hidden">
+          <!-- Detected Student Identity Badge -->
+          <div id="umsStep2StudentBadge" class="glass-card-elevated rounded-xl p-2.5 flex items-center justify-between text-left border border-emerald-500/30 bg-emerald-500/5">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-sm font-extrabold">✓</span>
+              <div class="min-w-0">
+                <div class="text-xs font-extrabold text-white truncate" id="step2StudentName">Student Profile</div>
+                <div class="text-[10px] text-emerald-400" id="step2StudentMeta">Verified from About</div>
+              </div>
+            </div>
+            <button onclick="goToImportStep(1)" class="text-[10px] text-slate-400 hover:text-white underline font-bold shrink-0">Edit</button>
+          </div>
+
+          <div class="glass-card-elevated rounded-2xl p-3.5 border-l-4 border-cyan-500 text-left space-y-2">
+            <div class="flex items-center gap-2 text-cyan-400 font-extrabold text-xs">
+              <span>📚</span> ধাপ ২: UMS "Registered Courses" পেস্ট করুন
+            </div>
+            <p class="text-[11px] leading-relaxed" style="color: var(--text-muted);">
+              এবার UMS এ <strong>Registered Courses</strong> ট্যাবে যান। পুরো পেজ সিলেক্ট করে কপি করুন (<kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-slate-700">Ctrl + A</kbd> & <kbd class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] font-mono border border-slate-700">Ctrl + C</kbd>) এবং নিচের বক্সে পেস্ট করুন।
+            </p>
+            <div class="text-[10px] text-cyan-300/80 flex items-center gap-1.5">
+              <span>ℹ️</span> কোর্স কোড, সেকশন, টাইটেল, শিক্ষকের নাম, অফিশিয়াল ইমেইল এবং রুম নম্বর যুক্ত হবে।
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Target Semester</label>
+            <input type="text" id="importTargetSemester" value="Fall 2026" class="app-input font-bold" placeholder="e.g. Fall 2026, Summer 2026">
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Paste UMS Registered Courses Text</label>
+              <button onclick="pasteFromClipboard('importRawText')" class="text-[10px] text-indigo-400 hover:underline font-bold">📋 Paste</button>
+            </div>
+            <!-- NOTE: id="importRawText" is preserved here for 100% test compatibility -->
+            <textarea id="importRawText" rows="5" class="app-input font-mono text-xs" placeholder="EEE442.2 Optoelectronics Laboratory&#10;[RR] Rakayet Rafi rakayet.rafi@seu.edu.bd&#10;MON # 14:00 ~ 16:00 @ PC211"></textarea>
+          </div>
+
+          <!-- Step 2 Validation Alert -->
+          <div id="umsRegValidationAlert" class="hidden rounded-xl p-3 text-xs text-left">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button onclick="goToImportStep(1)" class="py-2.5 rounded-xl glass-card text-slate-300 text-xs font-bold active:scale-[0.98] transition-all">
+              ⬅️ আগের ধাপ
+            </button>
+            <button onclick="completeTwoStepImport()" class="py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all">
+              🚀 কমপ্লিট করুন ও রুটিন দেখুন
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -3147,6 +3252,341 @@
       return parsedCourses;
     }
 
+    // ------------------------------------------------------------
+    // 13.5. TWO-STEP UMS INGESTION WIZARD & PARSERS
+    // ------------------------------------------------------------
+    let currentImportStep = 1;
+    let stagedAboutProfile = null;
+
+    function goToImportStep(step) {
+      currentImportStep = step;
+      const s1Cont = document.getElementById('umsStep1Container');
+      const s2Cont = document.getElementById('umsStep2Container');
+      const t1 = document.getElementById('tabImportStep1');
+      const t2 = document.getElementById('tabImportStep2');
+
+      if (step === 1) {
+        if (s1Cont) s1Cont.classList.remove('hidden');
+        if (s2Cont) s2Cont.classList.add('hidden');
+        if (t1) {
+          t1.className = 'flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all bg-indigo-500 text-white shadow';
+        }
+        if (t2) {
+          t2.className = 'flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all text-slate-400 hover:text-white';
+        }
+      } else {
+        if (s1Cont) s1Cont.classList.add('hidden');
+        if (s2Cont) s2Cont.classList.remove('hidden');
+        if (t2) {
+          t2.className = 'flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all bg-cyan-500 text-white shadow';
+        }
+        if (t1) {
+          t1.className = 'flex-1 py-1.5 rounded-lg text-xs font-extrabold text-center transition-all text-slate-400 hover:text-white';
+        }
+      }
+    }
+
+    async function pasteFromClipboard(elementId) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const text = await navigator.clipboard.readText();
+          const el = document.getElementById(elementId);
+          if (el) {
+            el.value = text;
+            if (elementId === 'importAboutText') onAboutInputChanged();
+            showToast('📋 ক্লিপবোর্ড থেকে পেস্ট করা হয়েছে!');
+          }
+        } else {
+          showToast('বক্সে ক্লিক করে Ctrl+V চেপে পেস্ট করুন');
+        }
+      } catch (err) {
+        showToast('বক্সে ক্লিক করে Ctrl+V চেপে পেস্ট করুন');
+      }
+    }
+
+    function parseUmsAbout(text) {
+      if (!text || typeof text !== 'string') return null;
+
+      let name = null;
+      const nameMatch1 = text.match(/Basic\s*Information\s*([A-Za-z\.\s]{3,50}?)\s*(?:Batch|Code|ID|View|Program)/i);
+      if (nameMatch1) name = nameMatch1[1].trim();
+      if (!name) {
+        const nameMatch2 = text.match(/(?:Name|Student\s*Name)\s*[:]?\s*([A-Za-z\.\s]{3,50})/i);
+        if (nameMatch2) name = nameMatch2[1].trim();
+      }
+
+      let studentId = null;
+      const idMatch = text.match(/(?:Student\s*ID|ID)\s*[:#]?\s*(\d{10,18})/i);
+      if (idMatch) studentId = idMatch[1];
+
+      let studentCode = null;
+      const codeMatch = text.match(/(?:Student\s*Code|Code)\s*[:#]?\s*(\d{10,18})/i);
+      if (codeMatch) studentCode = codeMatch[1];
+
+      let batch = null;
+      const batchMatch = text.match(/Batch\s*[:#]?\s*(\d{1,4})/i);
+      if (batchMatch) batch = batchMatch[1];
+
+      let program = null;
+      const progMatch = text.match(/Program\s*([A-Za-z0-9\.\s&]{3,40}?)\s*(?:Starting|Code|ID|Last|Batch)/i) ||
+                        text.match(/BSc\s*in\s*EEE|BSc\s*in\s*CSE|BSc\s*in\s*Textile|BBA|MBA|Pharmacy/i);
+      if (progMatch) program = (progMatch[1] || progMatch[0]).trim();
+
+      let startingSemester = null;
+      const startSemMatch = text.match(/Starting\s*Semester\s*([A-Za-z0-9\s]{4,25}?)\s*(?:Last|Adviser|Faculty)/i);
+      if (startSemMatch) startingSemester = startSemMatch[1].trim();
+
+      let lastSemester = null;
+      const lastSemMatch = text.match(/Last\s*Semester\s*([A-Za-z0-9\s]{4,25}?)\s*(?:Adviser|Faculty|Your\s*Growth)/i);
+      if (lastSemMatch) lastSemester = lastSemMatch[1].trim();
+
+      let dueAmount = null;
+      const dueMatch = text.match(/৳\s*([-\d,\.]+)\s*(?:Due\s*Amount)?/i) ||
+                       text.match(/Due\s*Amount[\s\S]*?৳\s*([-\d,\.]+)/i);
+      if (dueMatch) dueAmount = '৳ ' + (dueMatch[1] || dueMatch[2]).trim();
+
+      let creditsCompleted = null;
+      let creditsAttempted = null;
+      const crCompMatch = text.match(/(\d+(?:\.\d+)?)\s*Credits?\s*Completed/i) ||
+                          text.match(/Credits?\s*Completed[\s\S]*?(\d+(?:\.\d+)?)/i);
+      if (crCompMatch) creditsCompleted = crCompMatch[1];
+
+      const crAttMatch = text.match(/Attempted\s*:\s*(\d+(?:\.\d+)?)/i);
+      if (crAttMatch) creditsAttempted = crAttMatch[1];
+
+      let advisor = null;
+      const advMatch1 = text.match(/(?:Advisor|Adviser)\s*[:#]\s*([^\r\n]+)/i);
+      if (advMatch1) {
+        advisor = {
+          name: advMatch1[1].trim(),
+          designation: 'Coordinator & Professor • Dept. of ' + (program || 'EEE')
+        };
+      } else {
+        const advMatch2 = text.match(/Adviser[\s\S]*?(?:Faculty\s*|image\s*)?\n*\s*([A-Za-z\.\s]{4,45})\s*(?:Coordinator|Professor|Lecturer|Assistant|Associate|Department)/i);
+        if (advMatch2) {
+          advisor = {
+            name: advMatch2[1].replace(/(Card|cover|image|Faculty)/gi, '').trim(),
+            designation: 'Coordinator & Professor • Dept. of ' + (program || 'EEE')
+          };
+        }
+      }
+
+      const gpaHistory = [];
+      const growthIdx = text.indexOf('Your Growth');
+      if (growthIdx !== -1) {
+        const growthPart = text.slice(growthIdx, growthIdx + 600);
+        const gpaRegex = /([0-4]\.\d{1,2})\s*(Spring|Summer|Fall)\s*(\d{4})/gi;
+        let gm;
+        while ((gm = gpaRegex.exec(growthPart)) !== null) {
+          gpaHistory.push({
+            term: gm[2] + ' ' + gm[3],
+            shortTerm: gm[2].slice(0, 3) + " '" + gm[3].slice(2),
+            gpa: parseFloat(gm[1])
+          });
+        }
+      }
+
+      return {
+        name,
+        studentId,
+        studentCode,
+        batch,
+        program,
+        startingSemester,
+        lastSemester,
+        dueAmount,
+        creditsCompleted,
+        creditsAttempted,
+        advisor,
+        gpaHistory
+      };
+    }
+
+    function validateUmsAbout(info) {
+      const missing = [];
+      if (!info) return { isValid: false, isComplete: false, missing: ['সম্পূর্ণ তথ্য missing (Empty text)'] };
+      if (!info.name) missing.push('শিক্ষার্থীর নাম (Student Name)');
+      if (!info.studentId && !info.studentCode) missing.push('স্টুডেন্ট আইডি / কোড (Student ID / Code)');
+      if (!info.dueAmount) missing.push('ডিউ টাকা (Due Amount)');
+      if (!info.creditsCompleted) missing.push('কমপ্লিট ক্রেডিট (Credits Completed)');
+
+      return {
+        isValid: Boolean(info.name && (info.studentId || info.studentCode)),
+        isComplete: missing.length === 0,
+        missing
+      };
+    }
+
+    function onAboutInputChanged() {
+      const el = document.getElementById('importAboutText');
+      const alertEl = document.getElementById('umsAboutValidationAlert');
+      if (!el || !alertEl) return;
+      const text = el.value.trim();
+      if (!text) {
+        alertEl.className = 'hidden';
+        alertEl.innerHTML = '';
+        return;
+      }
+
+      const parsed = parseUmsAbout(text);
+      const val = validateUmsAbout(parsed);
+
+      if (!val.isValid) {
+        alertEl.className = 'rounded-xl p-3 text-xs text-left bg-amber-500/15 border border-amber-500/40 text-amber-300 block space-y-1';
+        alertEl.innerHTML = `
+          <div class="font-bold flex items-center gap-1.5 text-amber-200">
+            <span>⚠️</span> মনে হচ্ছে UMS About পেইজের পুরো লেখা আসেনি!
+          </div>
+          <div class="text-[11px] text-amber-200/90 leading-relaxed">
+            UMS-এ গিয়ে <strong>About</strong> ট্যাবে যান এবং পুরো পেইজটি সিলেক্ট করে (<strong>Ctrl + A</strong>) সম্পূর্ণ লেখাটি সুন্দরভাবে কপি করে পেস্ট করুন।
+          </div>
+          <div class="text-[10px] text-amber-400 font-mono mt-0.5">
+            মিসিং ফিল্ড: ${val.missing.join(', ')}
+          </div>
+        `;
+      } else {
+        alertEl.className = 'rounded-xl p-3 text-xs text-left bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 block space-y-1';
+        const dues = parsed.dueAmount || '৳ 0';
+        const cr = parsed.creditsCompleted ? `${parsed.creditsCompleted} Cr Completed` : '';
+        const gpaCount = parsed.gpaHistory ? parsed.gpaHistory.length : 0;
+        alertEl.innerHTML = `
+          <div class="font-extrabold flex items-center gap-1.5 text-emerald-200">
+            <span>✅</span> প্রোফাইল সনাক্ত হয়েছে: ${parsed.name || 'Student'}
+          </div>
+          <div class="text-[11px] text-emerald-300/90">
+            ID: ${parsed.studentId || parsed.studentCode || '—'} • ${parsed.program || 'SEU'} (Batch ${parsed.batch || '—'})
+          </div>
+          <div class="text-[10px] text-emerald-400 font-mono">
+            বাকি টাকা: ${dues} • ${cr} • ${gpaCount} টি সেমিস্টার জিপিএ পাওয়া গেছে
+          </div>
+        `;
+      }
+    }
+
+    function validateAboutStepAndProceed() {
+      const aboutText = (document.getElementById('importAboutText') ? document.getElementById('importAboutText').value : '').trim();
+      if (!aboutText) {
+        showToast('অনুগ্রহ করে UMS About পেজ থেকে কপি করে পেস্ট করুন!');
+        return;
+      }
+
+      const parsedAbout = parseUmsAbout(aboutText);
+      const val = validateUmsAbout(parsedAbout);
+      const alertEl = document.getElementById('umsAboutValidationAlert');
+
+      if (!val.isValid) {
+        if (alertEl) {
+          alertEl.className = 'rounded-xl p-3 text-xs text-left bg-rose-500/15 border border-rose-500/40 text-rose-300 block space-y-1.5';
+          alertEl.innerHTML = `
+            <div class="font-extrabold text-sm text-rose-200">⚠️ মনে হচ্ছে পুরো UMS About পেজ কপি করা হয়নি!</div>
+            <div class="text-[11px] text-rose-300/90 leading-relaxed">
+              UMS-এ গিয়ে <strong>About</strong> ট্যাবে যান এবং কিবোর্ডে <strong>Ctrl + A</strong> চেপে সম্পূর্ণ লেখাটি সিলেক্ট করে কপি করুন।
+            </div>
+            <div class="text-[10px] text-rose-400 font-mono mt-1">
+              মিসিং ফিল্ড: ${val.missing.join(', ')}
+            </div>
+          `;
+        }
+        showToast('⚠️ UMS About পেইজের পুরো লেখাটি আসেনি! সম্পূর্ণ কপি করে পেস্ট করুন।');
+        return;
+      }
+
+      stagedAboutProfile = parsedAbout;
+
+      const s2Name = document.getElementById('step2StudentName');
+      const s2Meta = document.getElementById('step2StudentMeta');
+      if (s2Name) s2Name.textContent = parsedAbout.name || 'Verified Student';
+      if (s2Meta) {
+        const dues = parsedAbout.dueAmount || '৳ 0';
+        const cr = parsedAbout.creditsCompleted ? `${parsedAbout.creditsCompleted} Cr` : '';
+        s2Meta.textContent = `ID: ${parsedAbout.studentId || parsedAbout.studentCode} • Due: ${dues} • ${cr}`;
+      }
+
+      // If aboutText also happened to contain registered courses, pre-fill step 2!
+      const coursesInAbout = parseUmsText(aboutText);
+      if (coursesInAbout.length > 0) {
+        const rawEl = document.getElementById('importRawText');
+        if (rawEl && !rawEl.value.trim()) {
+          rawEl.value = aboutText;
+        }
+      }
+
+      goToImportStep(2);
+      showToast('✅ প্রোফাইল ভেরিফাইড! এবার Registered Courses পেস্ট করুন।');
+    }
+
+    function completeTwoStepImport() {
+      const rawTextEl = document.getElementById('importRawText');
+      const text = rawTextEl ? rawTextEl.value.trim() : '';
+      if (!text) {
+        showToast('অনুগ্রহ করে UMS Registered Courses লেখা পেস্ট করুন!');
+        return;
+      }
+
+      const parsedCourses = parseUmsText(text);
+      if (!parsedCourses.length) {
+        showToast('কোনো কোর্স ডিটেক্ট হয়নি! দয়া করে Registered Courses পেজের লেখা পেস্ট করুন।');
+        return;
+      }
+
+      const targetSemEl = document.getElementById('importTargetSemester');
+      const semName = targetSemEl ? targetSemEl.value.trim() || 'Fall 2026' : 'Fall 2026';
+
+      let aboutData = stagedAboutProfile || parseUmsAbout(text);
+      if (!aboutData) {
+        aboutData = {
+          name: 'F.U.M Foyjul Bari Shahir',
+          studentId: '0232330005131002',
+          studentCode: '2023200500002',
+          program: 'BSc in EEE',
+          batch: '42',
+          advisor: { name: 'Dr. Nur Hosain Md. Ariful Azim', designation: 'Coordinator & Professor • Dept. of EEE' }
+        };
+      }
+
+      isDemoMode = false;
+
+      const studentId = aboutData.studentId || aboutData.studentCode || '0232330005131002';
+      const profileObj = {
+        id: 'prof-' + studentId,
+        name: aboutData.name || 'Student Name',
+        studentId: studentId,
+        code: aboutData.studentCode || '—',
+        program: aboutData.program || 'BSc in EEE',
+        batch: aboutData.batch || '42',
+        startingSemester: aboutData.startingSemester || 'Fall 2023',
+        lastSemester: aboutData.lastSemester || 'Summer 2026',
+        dueAmount: aboutData.dueAmount || '৳ 0',
+        creditsCompleted: aboutData.creditsCompleted || null,
+        creditsAttempted: aboutData.creditsAttempted || null,
+        gpaHistory: aboutData.gpaHistory || [],
+        cgpa: (aboutData.gpaHistory && aboutData.gpaHistory.length > 0) ? String(aboutData.gpaHistory[0].gpa) : null,
+        activeSemester: semName,
+        advisor: aboutData.advisor || { name: 'Dr. Nur Hosain Md. Ariful Azim', designation: 'Coordinator & Professor • Dept. of EEE' },
+        semesters: {}
+      };
+
+      profileObj.semesters[semName] = {
+        name: semName,
+        courses: parsedCourses
+      };
+
+      appData = {
+        university: { name: 'Southeast University', shortName: 'SEU' },
+        activeProfileId: profileObj.id,
+        profiles: [profileObj]
+      };
+
+      activeProfile = profileObj;
+      activeSemester = profileObj.semesters[semName];
+
+      saveStore();
+      closeSheet('sheetUmsImport');
+      switchTab('home');
+      renderAll();
+      showToast(`🎉 রুটিন সফলভাবে সিঙ্ক হয়েছে! ${parsedCourses.length} টি কোর্স লোড হয়েছে।`);
+    }
+
     function parseAndImportText() {
       const rawTextEl = document.getElementById('importRawText') || document.getElementById('umsImportTextarea');
       const text = rawTextEl ? rawTextEl.value.trim() : '';
@@ -3164,12 +3604,13 @@
       const targetSemEl = document.getElementById('importTargetSemester');
       const semName = targetSemEl ? targetSemEl.value.trim() || 'Fall 2026' : 'Fall 2026';
 
-      // Parse student header metadata if present
-      let studentName = 'F.U.M Foyjul Bari Shahir';
-      let studentId = '0232330005131002';
-      let studentCode = '2023200500002';
-      let program = 'BSc in EEE';
-      let batch = '42';
+      let aboutData = stagedAboutProfile || parseUmsAbout(text);
+
+      let studentName = (aboutData && aboutData.name) || 'F.U.M Foyjul Bari Shahir';
+      let studentId = (aboutData && aboutData.studentId) || '0232330005131002';
+      let studentCode = (aboutData && aboutData.studentCode) || '2023200500002';
+      let program = (aboutData && aboutData.program) || 'BSc in EEE';
+      let batch = (aboutData && aboutData.batch) || '42';
 
       const idMatch = text.match(/(?:Student\s*ID|ID)\s*[:#]?\s*(\d{10,18})/i);
       if (idMatch) studentId = idMatch[1];
@@ -3187,8 +3628,15 @@
         code: studentCode,
         program: program,
         batch: batch,
+        startingSemester: (aboutData && aboutData.startingSemester) || 'Fall 2023',
+        lastSemester: (aboutData && aboutData.lastSemester) || 'Summer 2026',
+        dueAmount: (aboutData && aboutData.dueAmount) || '৳ 0',
+        creditsCompleted: (aboutData && aboutData.creditsCompleted) || null,
+        creditsAttempted: (aboutData && aboutData.creditsAttempted) || null,
+        gpaHistory: (aboutData && aboutData.gpaHistory) || [],
+        cgpa: (aboutData && aboutData.gpaHistory && aboutData.gpaHistory.length > 0) ? String(aboutData.gpaHistory[0].gpa) : null,
         activeSemester: semName,
-        advisor: { name: 'Dr. Nur Hosain Md. Ariful Azim', designation: 'Coordinator & Professor, Dept. of EEE' },
+        advisor: (aboutData && aboutData.advisor) || { name: 'Dr. Nur Hosain Md. Ariful Azim', designation: 'Coordinator & Professor • Dept. of EEE' },
         semesters: {}
       };
 
@@ -3363,8 +3811,8 @@
 
       const cgpa = activeProfile && activeProfile.cgpa ? activeProfile.cgpa : (isDemoMode ? '3.65' : null);
       const crComp = activeProfile && activeProfile.creditsCompleted ? activeProfile.creditsCompleted : (isDemoMode ? '114' : null);
-      const crTot = activeProfile && activeProfile.creditsTotal ? activeProfile.creditsTotal : (isDemoMode ? '123' : null);
-      const due = activeProfile && activeProfile.dueAmount !== undefined && activeProfile.dueAmount !== null ? activeProfile.dueAmount : (isDemoMode ? '৳ -27,480' : null);
+      const crTot = activeProfile && (activeProfile.creditsAttempted || activeProfile.creditsTotal) ? (activeProfile.creditsAttempted || activeProfile.creditsTotal) : (isDemoMode ? '123' : null);
+      const due = activeProfile && activeProfile.dueAmount !== undefined && activeProfile.dueAmount !== null ? activeProfile.dueAmount : (isDemoMode ? '৳ -27,480.00' : null);
 
       if (cgpaEl) cgpaEl.textContent = cgpa ? cgpa : '—';
       if (crCompEl) crCompEl.textContent = crComp ? `${crComp} Cr` : '—';
@@ -3378,6 +3826,84 @@
         }
       }
       if (dueHint) dueHint.textContent = dueHidden ? 'Tap to show' : 'Tap to hide';
+
+      // Render Semester GPA Growth (Your Growth from UMS)
+      const gpaListEl = document.getElementById('profileGpaGrowthList');
+      const gpaBadgeEl = document.getElementById('profileGpaGrowthBadge');
+      const gpaHistory = (activeProfile && activeProfile.gpaHistory && activeProfile.gpaHistory.length > 0)
+        ? activeProfile.gpaHistory
+        : (isDemoMode ? [
+            { term: 'Summer 2026', shortTerm: "Sum '26", gpa: 1.19 },
+            { term: 'Spring 2026', shortTerm: "Spr '26", gpa: 2.93 },
+            { term: 'Fall 2025', shortTerm: "Fal '25", gpa: 2.77 },
+            { term: 'Summer 2025', shortTerm: "Sum '25", gpa: 2.73 }
+          ] : []);
+
+      if (gpaBadgeEl) {
+        if (gpaHistory.length > 0) {
+          const latest = gpaHistory[0];
+          gpaBadgeEl.textContent = `Latest: ${latest.gpa.toFixed(2)}`;
+        } else {
+          gpaBadgeEl.textContent = '—';
+        }
+      }
+
+      if (gpaListEl) {
+        if (!gpaHistory.length) {
+          gpaListEl.innerHTML = `
+            <div class="text-center py-4 text-xs" style="color: var(--text-muted);">
+              <div>📊 কোনো সেমিস্টার জিপিএ রেকর্ড পাওয়া যায়নি</div>
+              <div class="text-[10px] mt-1" style="color: var(--text-faint);">UMS About পেজ ইমপোর্ট করলে আপনার সেমিস্টার হিস্ট্রি এখানে দেখা যাবে।</div>
+            </div>
+          `;
+        } else {
+          let html = '';
+          gpaHistory.forEach((item, idx) => {
+            const pct = Math.min(100, Math.max(12, (item.gpa / 4.0) * 100));
+            let colorClass = 'from-emerald-500 to-teal-400';
+            let textClass = 'text-emerald-400';
+            if (item.gpa < 2.5) {
+              colorClass = 'from-rose-500 to-amber-500';
+              textClass = 'text-rose-400';
+            } else if (item.gpa < 3.0) {
+              colorClass = 'from-amber-500 to-yellow-400';
+              textClass = 'text-amber-400';
+            } else if (item.gpa < 3.5) {
+              colorClass = 'from-cyan-500 to-blue-400';
+              textClass = 'text-cyan-400';
+            }
+
+            let trendHtml = '';
+            if (idx < gpaHistory.length - 1) {
+              const prev = gpaHistory[idx + 1].gpa;
+              const diff = (item.gpa - prev).toFixed(2);
+              if (item.gpa > prev) {
+                trendHtml = `<span class="text-[10px] text-emerald-400 font-bold">▲ +${diff}</span>`;
+              } else if (item.gpa < prev) {
+                trendHtml = `<span class="text-[10px] text-rose-400 font-bold">▼ ${diff}</span>`;
+              } else {
+                trendHtml = `<span class="text-[10px] text-slate-400 font-bold">─ 0.00</span>`;
+              }
+            }
+
+            html += `
+              <div class="p-2.5 rounded-xl glass-card-elevated space-y-1.5">
+                <div class="flex items-center justify-between text-xs">
+                  <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-white">${item.term}</span>
+                    ${trendHtml}
+                  </div>
+                  <span class="font-mono font-extrabold ${textClass}">${item.gpa.toFixed(2)} <span class="text-[10px] text-slate-400 font-normal">/ 4.00</span></span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-slate-800/80 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r ${colorClass} transition-all duration-500" style="width: ${pct}%;"></div>
+                </div>
+              </div>
+            `;
+          });
+          gpaListEl.innerHTML = html;
+        }
+      }
     }
 
     function renderAdvisorCard() {
@@ -3669,6 +4195,13 @@
     window.saveAcademicRecordsFromSheet = saveAcademicRecordsFromSheet;
     window.populateEditAcademicSheet = populateEditAcademicSheet;
     window.toggleDueMask = toggleDueMask;
+    window.goToImportStep = goToImportStep;
+    window.validateAboutStepAndProceed = validateAboutStepAndProceed;
+    window.completeTwoStepImport = completeTwoStepImport;
+    window.onAboutInputChanged = onAboutInputChanged;
+    window.pasteFromClipboard = pasteFromClipboard;
+    window.parseUmsAbout = parseUmsAbout;
+    window.validateUmsAbout = validateUmsAbout;
 
     // Boot immediately
     initStore();

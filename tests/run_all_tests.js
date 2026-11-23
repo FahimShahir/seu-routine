@@ -15,6 +15,7 @@ require('./tier1_features/persistence.test');
 require('./tier1_features/calendar_permanence.test');
 require('./tier1_features/next_class_countdown.test');
 require('./tier1_features/next_off_day.test');
+require('./tier1_features/two_step_ums_wizard.test');
 
 // Tier 2: Boundary & Corner Cases
 require('./tier2_boundaries/boundaries.test');
