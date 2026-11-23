@@ -1,4 +1,4 @@
-const CACHE_NAME = 'seu-routine-cache-v26';
+const CACHE_NAME = 'seu-routine-cache-v27';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

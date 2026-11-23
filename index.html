@@ -967,65 +967,86 @@
           </div>
         </div>
 
-        <!-- Academic Progress Stats -->
+        <!-- Academic Workload Stats (100% Real from Routine) -->
         <div class="grid grid-cols-3 gap-2.5">
           <div class="glass-card rounded-2xl p-3 text-center">
-            <div class="font-mono text-xl font-extrabold text-indigo-400" id="statCreditsCompleted">114</div>
-            <div class="text-[10px] font-bold uppercase mt-0.5" style="color: var(--text-muted);">Cr Completed</div>
-            <div class="text-[10px]" style="color: var(--text-faint);">of 123 Att.</div>
+            <div class="font-mono text-xl font-extrabold text-amber-400" id="statCourseCount">0</div>
+            <div class="text-[10px] font-bold uppercase mt-0.5" style="color: var(--text-muted);">Registered</div>
+            <div class="text-[10px]" id="statTheoryLabBreakdown" style="color: var(--text-faint);">0 Th • 0 Lab</div>
           </div>
           <div class="glass-card rounded-2xl p-3 text-center">
-            <div class="font-mono text-xl font-extrabold text-amber-400" id="statCourseCount">6</div>
-            <div class="text-[10px] font-bold uppercase mt-0.5" style="color: var(--text-muted);">Registered</div>
-            <div class="text-[10px]" id="studentCreditsTag" style="color: var(--text-faint);">15.0 Credits</div>
+            <div class="font-mono text-xl font-extrabold text-indigo-400" id="studentCreditsTag">0.0</div>
+            <div class="text-[10px] font-bold uppercase mt-0.5" style="color: var(--text-muted);">Semester Cr</div>
+            <div class="text-[10px]" id="statSemesterTag" style="color: var(--text-faint);">Fall 2026</div>
           </div>
-          <div class="glass-card rounded-2xl p-3 text-center cursor-pointer" onclick="toggleDueMask()" title="Tap to show/hide balance">
-            <div id="profileDueVal" class="font-mono text-sm font-extrabold text-rose-400 mt-1">৳ -27,480</div>
-            <div class="text-[10px] font-bold uppercase mt-1" style="color: var(--text-muted);">Due Amount</div>
-            <div class="text-[9px] text-indigo-400 font-semibold" id="dueMaskHint">Tap to hide</div>
+          <div class="glass-card rounded-2xl p-3 text-center">
+            <div class="font-mono text-xl font-extrabold text-cyan-400" id="statWeeklyHours">0.0h</div>
+            <div class="text-[10px] font-bold uppercase mt-0.5" style="color: var(--text-muted);">Weekly Load</div>
+            <div class="text-[10px]" id="statActiveDays" style="color: var(--text-faint);">0 Class Days</div>
           </div>
         </div>
 
-        <!-- Semester GPA Growth (UMS About) -->
+        <!-- Weekly Schedule Load & Class Distribution -->
         <div class="glass-card rounded-2xl p-4">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">📈 Semester GPA Growth</h3>
-            <span class="text-[11px] font-mono font-bold text-indigo-400">4 Terms</span>
+            <div>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">📊 Weekly Class Distribution</h3>
+              <p class="text-[10px]" style="color: var(--text-faint);">Daily class time & routine intensity</p>
+            </div>
+            <span class="text-[11px] font-mono font-bold text-indigo-400" id="profileWeeklyHoursTag">0.0 hrs / wk</span>
           </div>
-          <div class="grid grid-cols-4 gap-2 items-end h-24 pt-2">
-            <div class="flex flex-col items-center gap-1 h-full justify-end">
-              <span class="font-mono text-[11px] font-extrabold">2.73</span>
-              <div class="w-full rounded-t-lg bg-indigo-500/40 border border-indigo-400/30" style="height: 68%;"></div>
-              <span class="text-[9px] font-bold" style="color: var(--text-muted);">Sum '25</span>
+          <div class="grid grid-cols-5 gap-2 items-end h-28 pt-2" id="profileWeeklyScheduleBars">
+            <!-- Dynamically populated per day -->
+          </div>
+        </div>
+
+        <!-- Personal Academic Records & Ledger (Optional & Private) -->
+        <div class="glass-card rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🎓</span>
+              <div>
+                <h3 class="text-xs font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Academic Records & Ledger</h3>
+                <p class="text-[10px]" style="color: var(--text-faint);">Personal student metrics (Optional & Private)</p>
+              </div>
             </div>
-            <div class="flex flex-col items-center gap-1 h-full justify-end">
-              <span class="font-mono text-[11px] font-extrabold">2.77</span>
-              <div class="w-full rounded-t-lg bg-indigo-500/55 border border-indigo-400/40" style="height: 70%;"></div>
-              <span class="text-[9px] font-bold" style="color: var(--text-muted);">Fall '25</span>
+            <button onclick="openSheet('sheetEditAcademicRecords')" class="px-2.5 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-400 text-[11px] font-extrabold transition-colors">
+              ✏️ Edit
+            </button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div class="p-2.5 rounded-xl glass-card-elevated">
+              <div class="text-[10px] font-bold uppercase" style="color: var(--text-muted);">CGPA</div>
+              <div class="font-mono text-sm font-extrabold text-emerald-400 mt-1" id="profileCgpaVal">—</div>
+              <div class="text-[9px]" style="color: var(--text-faint);">Cumulative</div>
             </div>
-            <div class="flex flex-col items-center gap-1 h-full justify-end">
-              <span class="font-mono text-[11px] font-extrabold text-emerald-400">2.93</span>
-              <div class="w-full rounded-t-lg bg-emerald-500/60 border border-emerald-400/50" style="height: 78%;"></div>
-              <span class="text-[9px] font-bold" style="color: var(--text-muted);">Spr '26</span>
+            <div class="p-2.5 rounded-xl glass-card-elevated">
+              <div class="text-[10px] font-bold uppercase" style="color: var(--text-muted);">Cr Completed</div>
+              <div class="font-mono text-sm font-extrabold text-indigo-400 mt-1" id="profileCreditsCompletedVal">—</div>
+              <div class="text-[9px]" style="color: var(--text-faint);" id="statCreditsCompleted">Degree Progress</div>
             </div>
-            <div class="flex flex-col items-center gap-1 h-full justify-end">
-              <span class="font-mono text-[11px] font-extrabold text-amber-400">1.19</span>
-              <div class="w-full rounded-t-lg bg-amber-500/50 border border-amber-400/40" style="height: 32%;"></div>
-              <span class="text-[9px] font-bold" style="color: var(--text-muted);">Sum '26</span>
+            <div class="p-2.5 rounded-xl glass-card-elevated cursor-pointer" onclick="toggleDueMask()" title="Tap to show/hide balance">
+              <div class="text-[10px] font-bold uppercase" style="color: var(--text-muted);">Due / Balance</div>
+              <div class="font-mono text-xs font-extrabold text-rose-400 mt-1 truncate" id="profileDueVal">৳ 0</div>
+              <div class="text-[9px] text-indigo-400 font-semibold" id="dueMaskHint">Tap to hide</div>
             </div>
           </div>
         </div>
 
         <!-- Academic Advisor Card -->
-        <div class="glass-card rounded-2xl p-4 flex items-center gap-3.5">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-sm shrink-0 shadow">
-            NA
+        <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-3.5">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-sm shrink-0 shadow" id="profileAdvisorInitials">
+              AA
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Academic Adviser</div>
+              <div class="text-sm font-extrabold truncate mt-0.5" id="profileAdvisorName">Dr. Nur Hosain Md. Ariful Azim</div>
+              <div class="text-[11px] truncate" id="profileAdvisorRole" style="color: var(--text-muted);">Coordinator & Professor • Dept. of EEE</div>
+            </div>
           </div>
-          <div class="min-w-0 flex-1">
-            <div class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Academic Adviser</div>
-            <div class="text-sm font-extrabold truncate mt-0.5" id="profileAdvisorName">Dr. Nur Hosain Md. Ariful Azim</div>
-            <div class="text-[11px] truncate" style="color: var(--text-muted);">Coordinator & Professor • Dept. of EEE</div>
-          </div>
+          <button onclick="openSheet('sheetEditAcademicRecords')" class="text-xs text-indigo-400 hover:text-indigo-300 shrink-0 p-1" title="Edit Advisor">✏️</button>
         </div>
 
         <!-- Quick Settings & Data Actions -->
@@ -1300,6 +1321,62 @@
         <button onclick="processExamTextFallback()" class="w-full py-3 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all">
           🔍 Match & Add to Exam Planner
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       BOTTOM SHEET 4: EDIT ACADEMIC RECORDS & LEDGER
+       ============================================================ -->
+  <div id="sheetEditAcademicRecords" class="sheet-backdrop" onclick="backdropClose(event, 'sheetEditAcademicRecords')">
+    <div class="sheet-panel">
+      <div class="w-10 h-1 rounded-full bg-slate-500/40 mx-auto mt-2.5"></div>
+      <div class="px-5 py-3.5 flex items-center justify-between border-b" style="border-color: var(--border-subtle);">
+        <div>
+          <h3 class="text-base font-extrabold">🎓 Academic Records & Dues</h3>
+          <p class="text-[11px]" style="color: var(--text-muted);">Set your own personal CGPA, credits, & balance</p>
+        </div>
+        <button onclick="closeSheet('sheetEditAcademicRecords')" class="w-8 h-8 rounded-full glass-card-elevated flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div class="space-y-1">
+          <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Cumulative CGPA</label>
+          <input type="number" step="0.01" min="0" max="4" id="editProfileCgpa" class="app-input font-mono text-sm" placeholder="e.g. 3.75">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Credits Completed</label>
+            <input type="number" step="0.5" id="editProfileCrCompleted" class="app-input font-mono text-sm" placeholder="e.g. 85">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Total Degree Cr</label>
+            <input type="number" step="0.5" id="editProfileCrTotal" class="app-input font-mono text-sm" placeholder="e.g. 140">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Due Amount / Balance</label>
+          <input type="text" id="editProfileDue" class="app-input font-mono text-sm" placeholder="e.g. ৳ 0 or ৳ 15,200">
+          <p class="text-[10px]" style="color: var(--text-faint);">100% private to your device. Never shared or uploaded.</p>
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Academic Advisor Name</label>
+          <input type="text" id="editProfileAdvisorName" class="app-input text-sm" placeholder="Advisor Name">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-[11px] font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Advisor Designation & Dept</label>
+          <input type="text" id="editProfileAdvisorRole" class="app-input text-sm" placeholder="e.g. Assistant Professor, Dept. of CSE">
+        </div>
+
+        <div class="pt-2">
+          <button onclick="saveAcademicRecordsFromSheet()" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all">
+            💾 Save Academic Records
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -2732,6 +2809,7 @@
     // 12. BOTTOM SHEETS & MODAL LOGIC
     // ------------------------------------------------------------
     function openSheet(id) {
+      if (id === 'sheetEditAcademicRecords') populateEditAcademicSheet();
       const el = document.getElementById(id);
       if (el) el.classList.add('open');
     }
@@ -3167,8 +3245,10 @@
       const semTitle = activeSemester ? (activeSemester.name || activeProfile.activeSemester) : (activeProfile.activeSemester || 'Fall 2026');
       if (elSemTag) elSemTag.textContent = semTitle;
       if (elSemPill) elSemPill.textContent = semTitle;
+      const statSemTag = document.getElementById('statSemesterTag');
+      if (statSemTag) statSemTag.textContent = semTitle;
 
-      const initials = (sName || 'FB').split(' ').map(n => n[0]).slice(0, 2).join('');
+      const initials = (sName || 'FB').split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('');
       const avatarInit = document.getElementById('headerAvatarInitials');
       const profInit = document.getElementById('profileAvatarInitials');
       if (avatarInit) avatarInit.textContent = initials;
@@ -3176,15 +3256,189 @@
 
       const courses = activeSemester ? (activeSemester.courses || []) : [];
       let totalCr = 0;
-      courses.forEach(c => { totalCr += parseFloat(c.credits || 0); });
-      const elCrTag = document.getElementById('studentCreditsTag');
-      if (elCrTag) elCrTag.textContent = `${totalCr.toFixed(1)} Credits`;
+      let theoryCount = 0;
+      let labCount = 0;
+      let totalMinutes = 0;
+      const dayMinutes = { SUN: 0, MON: 0, TUE: 0, WED: 0, THU: 0, FRI: 0, SAT: 0 };
+      const dayCounts = { SUN: 0, MON: 0, TUE: 0, WED: 0, THU: 0, FRI: 0, SAT: 0 };
 
+      courses.forEach(c => {
+        const cr = parseFloat(c.credits || 0);
+        totalCr += cr;
+        const isLab = (c.type || '').toLowerCase().includes('lab') || (c.title || '').toLowerCase().includes('lab') || cr <= 1.5;
+        if (isLab) labCount++; else theoryCount++;
+
+        (c.schedules || []).forEach(s => {
+          if (dayMinutes[s.day] !== undefined) {
+            const startMin = parseTimeToMinutes(s.startTime || s.start);
+            const endMin = parseTimeToMinutes(s.endTime || s.end);
+            const dur = Math.max(0, endMin - startMin);
+            dayMinutes[s.day] += dur;
+            dayCounts[s.day]++;
+            totalMinutes += dur;
+          }
+        });
+      });
+
+      const activeDaysCount = Object.keys(dayCounts).filter(d => dayCounts[d] > 0).length;
+      const weeklyHours = (totalMinutes / 60).toFixed(1);
+
+      // Dynamic Workload Cards
       const elCourseCount = document.getElementById('statCourseCount');
       if (elCourseCount) elCourseCount.textContent = courses.length;
 
+      const elThLab = document.getElementById('statTheoryLabBreakdown');
+      if (elThLab) elThLab.textContent = `${theoryCount} Th • ${labCount} Lab`;
+
+      const elCrTag = document.getElementById('studentCreditsTag');
+      if (elCrTag) elCrTag.textContent = `${totalCr.toFixed(1)} Credits`;
+
+      const elWeeklyHours = document.getElementById('statWeeklyHours');
+      if (elWeeklyHours) elWeeklyHours.textContent = `${weeklyHours}h`;
+
+      const elActiveDays = document.getElementById('statActiveDays');
+      if (elActiveDays) elActiveDays.textContent = `${activeDaysCount} Class Days`;
+
+      // Render Dynamic Weekly Schedule Distribution Bar Chart
+      renderWeeklyDistributionChart(dayMinutes, dayCounts, totalMinutes);
+
+      // Optional Academic Stats (CGPA, Completed Credits, Due Amount)
+      renderPersonalAcademicStats();
+
+      // Advisor Card
+      renderAdvisorCard();
+
       const exitBtn = document.getElementById('profileExitDemoBtn');
       if (exitBtn) exitBtn.style.display = isDemoMode ? 'flex' : 'none';
+    }
+
+    function renderWeeklyDistributionChart(dayMinutes, dayCounts, totalMinutes) {
+      const container = document.getElementById('profileWeeklyScheduleBars');
+      const hoursTag = document.getElementById('profileWeeklyHoursTag');
+      if (hoursTag) hoursTag.textContent = `${(totalMinutes / 60).toFixed(1)} hrs / wk`;
+      if (!container) return;
+
+      const now = new Date();
+      const todayKey = DAY_KEYS[now.getDay()];
+      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU'];
+      if (dayCounts.FRI > 0) days.push('FRI');
+      if (dayCounts.SAT > 0) days.push('SAT');
+
+      let maxMin = 1;
+      days.forEach(d => { if (dayMinutes[d] > maxMin) maxMin = dayMinutes[d]; });
+
+      let html = '';
+      days.forEach(d => {
+        const mins = dayMinutes[d] || 0;
+        const count = dayCounts[d] || 0;
+        const isToday = d === todayKey;
+        const pct = mins > 0 ? Math.max(18, Math.round((mins / maxMin) * 100)) : 6;
+        const hrsStr = mins > 0 ? `${(mins / 60).toFixed(1)}h` : 'Free';
+        const barColor = isToday
+          ? 'bg-gradient-to-t from-cyan-500 to-indigo-500 border border-cyan-400 shadow-sm shadow-cyan-500/20'
+          : mins > 0
+            ? 'bg-gradient-to-t from-indigo-500/40 to-indigo-400/80 border border-indigo-400/30'
+            : 'bg-slate-700/20 border border-slate-700/30';
+
+        html += `
+          <div class="flex flex-col items-center gap-1.5 h-full justify-end group">
+            <span class="font-mono text-[10px] font-extrabold ${isToday ? 'text-cyan-400' : 'text-slate-300'}">${hrsStr}</span>
+            <div class="w-full rounded-t-xl transition-all duration-300 ${barColor}" style="height: ${pct}%;"></div>
+            <div class="text-center">
+              <span class="text-[10px] font-bold ${isToday ? 'text-cyan-400' : 'text-slate-400'}">${d}</span>
+              ${count > 0 ? `<div class="text-[8px] text-slate-500 font-semibold">${count} cls</div>` : '<div class="text-[8px] text-emerald-400/70 font-semibold">Off</div>'}
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderPersonalAcademicStats() {
+      const cgpaEl = document.getElementById('profileCgpaVal');
+      const crCompEl = document.getElementById('profileCreditsCompletedVal');
+      const statCrComp = document.getElementById('statCreditsCompleted');
+      const dueEl = document.getElementById('profileDueVal');
+      const dueHint = document.getElementById('dueMaskHint');
+
+      const cgpa = activeProfile && activeProfile.cgpa ? activeProfile.cgpa : (isDemoMode ? '3.65' : null);
+      const crComp = activeProfile && activeProfile.creditsCompleted ? activeProfile.creditsCompleted : (isDemoMode ? '114' : null);
+      const crTot = activeProfile && activeProfile.creditsTotal ? activeProfile.creditsTotal : (isDemoMode ? '123' : null);
+      const due = activeProfile && activeProfile.dueAmount !== undefined && activeProfile.dueAmount !== null ? activeProfile.dueAmount : (isDemoMode ? '৳ -27,480' : null);
+
+      if (cgpaEl) cgpaEl.textContent = cgpa ? cgpa : '—';
+      if (crCompEl) crCompEl.textContent = crComp ? `${crComp} Cr` : '—';
+      if (statCrComp) statCrComp.textContent = crComp ? `${crComp} of ${crTot || '140'} Att.` : 'Degree Progress';
+
+      if (dueEl) {
+        if (dueHidden) {
+          dueEl.textContent = '৳ ••••••';
+        } else {
+          dueEl.textContent = due ? due : '৳ 0';
+        }
+      }
+      if (dueHint) dueHint.textContent = dueHidden ? 'Tap to show' : 'Tap to hide';
+    }
+
+    function renderAdvisorCard() {
+      const advNameEl = document.getElementById('profileAdvisorName');
+      const advRoleEl = document.getElementById('profileAdvisorRole');
+      const advInitEl = document.getElementById('profileAdvisorInitials');
+
+      let adv = activeProfile && activeProfile.advisor ? activeProfile.advisor : null;
+      let name = adv && adv.name ? adv.name : (isDemoMode ? 'Dr. Nur Hosain Md. Ariful Azim' : 'Academic Advisor');
+      let role = adv && (adv.designation || adv.department)
+        ? `${adv.designation || 'Advisor'} • ${adv.department || (activeProfile ? activeProfile.program : 'SEU')}`
+        : (isDemoMode ? 'Coordinator & Professor • Dept. of EEE' : `Faculty Advisor • ${activeProfile ? activeProfile.program : 'SEU'}`);
+
+      if (advNameEl) advNameEl.textContent = name;
+      if (advRoleEl) advRoleEl.textContent = role;
+      if (advInitEl) {
+        const inits = name.split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('');
+        advInitEl.textContent = inits || 'AA';
+      }
+    }
+
+    function populateEditAcademicSheet() {
+      if (!activeProfile) return;
+      const cgpaInput = document.getElementById('editProfileCgpa');
+      const crCompInput = document.getElementById('editProfileCrCompleted');
+      const crTotInput = document.getElementById('editProfileCrTotal');
+      const dueInput = document.getElementById('editProfileDue');
+      const advNameInput = document.getElementById('editProfileAdvisorName');
+      const advRoleInput = document.getElementById('editProfileAdvisorRole');
+
+      if (cgpaInput) cgpaInput.value = activeProfile.cgpa || '';
+      if (crCompInput) crCompInput.value = activeProfile.creditsCompleted || '';
+      if (crTotInput) crTotInput.value = activeProfile.creditsTotal || '';
+      if (dueInput) dueInput.value = activeProfile.dueAmount || '';
+      if (advNameInput) advNameInput.value = (activeProfile.advisor ? activeProfile.advisor.name : '') || '';
+      if (advRoleInput) advRoleInput.value = (activeProfile.advisor ? (activeProfile.advisor.designation || activeProfile.advisor.department) : '') || '';
+    }
+
+    function saveAcademicRecordsFromSheet() {
+      if (!activeProfile) return;
+      const cgpa = document.getElementById('editProfileCgpa').value.trim();
+      const crComp = document.getElementById('editProfileCrCompleted').value.trim();
+      const crTot = document.getElementById('editProfileCrTotal').value.trim();
+      const due = document.getElementById('editProfileDue').value.trim();
+      const advName = document.getElementById('editProfileAdvisorName').value.trim();
+      const advRole = document.getElementById('editProfileAdvisorRole').value.trim();
+
+      if (cgpa) activeProfile.cgpa = cgpa;
+      if (crComp) activeProfile.creditsCompleted = crComp;
+      if (crTot) activeProfile.creditsTotal = crTot;
+      if (due) activeProfile.dueAmount = due.startsWith('৳') ? due : `৳ ${due}`;
+      if (advName) {
+        if (!activeProfile.advisor) activeProfile.advisor = {};
+        activeProfile.advisor.name = advName;
+        if (advRole) activeProfile.advisor.designation = advRole;
+      }
+
+      saveStore();
+      closeSheet('sheetEditAcademicRecords');
+      updateProfileHeader();
+      showToast('✅ Academic records updated successfully!');
     }
 
     function renderAll() {
@@ -3283,10 +3537,7 @@
 
     function toggleDueMask() {
       dueHidden = !dueHidden;
-      const valEl = document.getElementById('profileDueVal');
-      const hintEl = document.getElementById('dueMaskHint');
-      if (valEl) valEl.textContent = dueHidden ? '৳ ••••••' : (activeProfile.dueAmount || '৳ -27,480');
-      if (hintEl) hintEl.textContent = dueHidden ? 'Tap to show' : 'Tap to hide';
+      renderPersonalAcademicStats();
     }
 
     function copyToClipboard(text, label) {
@@ -3415,6 +3666,9 @@
     window.closeModal = closeModal;
     window.openSheet = openSheet;
     window.closeSheet = closeSheet;
+    window.saveAcademicRecordsFromSheet = saveAcademicRecordsFromSheet;
+    window.populateEditAcademicSheet = populateEditAcademicSheet;
+    window.toggleDueMask = toggleDueMask;
 
     // Boot immediately
     initStore();
