@@ -1,0 +1,37 @@
+{
+  "university": {
+    "name": "Southeast University",
+    "shortName": "SEU",
+    "campus": "Permanent Campus",
+    "portal": "https://ums.seu.edu.bd",
+    "portalName": "University Management System (UMS)"
+  },
+  "activeProfileId": "prof-empty",
+  "profiles": [
+    {
+      "id": "prof-empty",
+      "name": "New Student",
+      "studentId": "0000000000000000",
+      "code": "0000000000000",
+      "program": "BSc in EEE",
+      "department": "Department of Electrical & Electronic Engineering",
+      "batch": "42",
+      "avatar": "",
+      "advisor": {
+        "name": ""
+      },
+      "activeSemester": "Fall 2026",
+      "semesters": {
+        "Fall 2026": {
+          "semesterId": "fall-2026",
+          "name": "Fall 2026",
+          "year": 2026,
+          "term": "Fall",
+          "isCurrent": true,
+          "registeredCreditsTotal": 0.0,
+          "courses": []
+        }
+      }
+    }
+  ]
+}

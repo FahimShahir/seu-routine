@@ -1,0 +1,37 @@
+Basic Information
+F.U.M Foyjul Bari Shahir
+ID: 0232330005131002
+Code: 2023200500002
+Batch: 42
+Program: BSc in EEE
+Advisor: Dr. Nur Hosain Md. Ariful Azim
+Active Semester: Fall 2026
+
+Course: EEE447.1 Nano Electronic Devices
+[MRT] Ruchira Tabassum
+ruchira.tabassum@seu.edu.bd
+SUN 10:00 - 11:20 @ PC422
+WED 10:00 - 11:20 @ PC413
+
+Course: EEE410.1 Green Power & Energy
+[PJD] Puja Das
+puja.das@seu.edu.bd
+SUN 13:30 - 14:50 @ PC422
+WED 13:30 - 14:50 @ PC417
+
+Course: EEE442.2 Optoelectronics Lab
+[RR] Rakayet Rafi
+rakayet.rafi@seu.edu.bd
+MON 14:00 - 16:00 @ PC211
+
+Course: EEE401.1 VLSI I
+[SMR] S. M. Razibur Rahman
+sm.raziburrahman@seu.edu.bd
+MON 16:30 - 17:50 @ PC422
+WED 16:30 - 17:50 @ PC417
+
+Course: EEE441.2 Optoelectronics
+[RR] Rakayet Rafi
+rakayet.rafi@seu.edu.bd
+TUE 08:30 - 09:50 @ PC408
+THU 08:30 - 09:50 @ PC422

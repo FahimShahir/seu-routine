@@ -1,0 +1,11 @@
+CSE101.1
+Computer Fundamentals
+[ABC] Md. Test Faculty
+test.faculty@seu.edu.bd
+FRI 8:30 - 9:50 @ PC101
+
+CSE102.1
+Structured Programming
+[DEF] Dr. Another Faculty
+another.faculty@seu.edu.bd
+SAT 8:30 - 9:50 @ PC102

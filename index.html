@@ -2795,6 +2795,15 @@
           <button class="btn btn-outline" onclick="startBlankRoutine()">➕ Blank Timetable</button>
         </div>
 
+        <div class="onboard-card" style="border: 2px solid var(--primary);">
+          <div>
+            <div class="onboard-card-icon">📅</div>
+            <h2>Academic Calendar 2026</h2>
+            <p>Check official SEU holidays, semester start dates, Midterm, and Final examination schedules for Tri-Semester and Bi-Semester programs.</p>
+          </div>
+          <button class="btn btn-outline" onclick="openAcademicCalendarModal()">📅 View Academic Calendar</button>
+        </div>
+
         <!-- Comprehensive In-App Feature Guide Card -->
         <div class="onboard-card guide-feature-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08)); border: 1.5px solid rgba(6,182,212,0.35);">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
@@ -2981,10 +2990,10 @@
           <div class="dashboard-card card-holiday">
             <div class="dashboard-card-header">
               <span class="card-badge-title">🏖️ Next University Holiday</span>
-              <span class="card-tag" id="dashHolidayTag" style="background:rgba(16,185,129,0.15); color:#10b981;">Academic Cal</span>
+              <span class="card-tag" id="dashHolidayTag" style="background:rgba(16,185,129,0.15); color:#10b981;"><span id="dashOffDayTag">Academic Cal</span></span>
             </div>
-            <div class="dashboard-timer-display" id="dashHolidayCountdown">-- : -- : --</div>
-            <div class="card-target-info" id="dashHolidayInfo">Calculating off-days...</div>
+            <div class="dashboard-timer-display" id="dashHolidayCountdown"><span id="dashOffDayCountdown">-- : -- : --</span></div>
+            <div class="card-target-info" id="dashHolidayInfo"><span id="dashOffDayInfo">Calculating off-days...</span></div>
             <div class="dashboard-card-actions">
               <button class="btn btn-outline" style="font-size:0.78rem; padding:4px 10px;" onclick="openAcademicCalendarModal()">📅 Full Calendar</button>
             </div>
@@ -3105,7 +3114,7 @@
             </button>
           </div>
         </div>
-        <table class="grid-table">
+        <table class="grid-table" id="timetableGrid">
           <thead>
             <tr>
               <th style="width: 95px;">Day</th>
@@ -3125,7 +3134,7 @@
 
       <!-- VIEW 2: Course & Faculty Table -->
       <section id="viewTable" class="data-table-wrapper" style="display: none;">
-        <table class="data-table">
+        <table class="data-table" id="tableCoursesBody">
           <thead>
             <tr>
               <th>Course</th>
@@ -4021,6 +4030,11 @@
         activeSemester = null;
       }
 
+      // Unconditionally initialize Academic Calendar system
+      if (typeof CalendarManager !== 'undefined' && CalendarManager.initSystem) {
+        CalendarManager.initSystem();
+      }
+
       // Check URL Hash for 1-Click Sync payload
       handleUrlHashSync();
     }
@@ -4056,7 +4070,11 @@
     }
 
     function saveStore() {
-      if (isDemoMode) return;
+      if (isDemoMode) {
+        // Transition user modifications out of demo mode to real persisted routine
+        isDemoMode = false;
+        realAppDataBackup = null;
+      }
       try {
         if (appData) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
@@ -4196,7 +4214,7 @@
       document.getElementById('btnPrintBtn').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
       document.getElementById('btnExportCal').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
       if (document.getElementById('btnDashboardToolbar')) document.getElementById('btnDashboardToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
-      if (document.getElementById('btnAcademicCal')) document.getElementById('btnAcademicCal').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
+      if (document.getElementById('btnAcademicCal')) document.getElementById('btnAcademicCal').style.display = 'inline-flex';
       if (document.getElementById('btnExamPdfToolbar')) document.getElementById('btnExamPdfToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
       if (document.getElementById('btnAddCtToolbar')) document.getElementById('btnAddCtToolbar').style.display = hasActiveRoutine ? 'inline-flex' : 'none';
 
@@ -4205,6 +4223,11 @@
 
       const demoBanner = document.getElementById('demoModeBanner');
       if (demoBanner) demoBanner.style.display = isDemoMode ? 'flex' : 'none';
+
+      // Always initialize CalendarManager across all states
+      if (typeof CalendarManager !== 'undefined' && CalendarManager.initSystem) {
+        CalendarManager.initSystem();
+      }
 
       if (!hasActiveRoutine) {
         onboardingHub.style.display = 'flex';
@@ -4330,6 +4353,16 @@
       ];
 
       const courses = activeSemester ? (activeSemester.courses || []) : [];
+      let hasFri = false;
+      let hasSat = false;
+      courses.forEach(c => {
+        (c.schedules || []).forEach(s => {
+          if (s.day === 'FRI') hasFri = true;
+          if (s.day === 'SAT') hasSat = true;
+        });
+      });
+      if (hasFri) days.push({ key: 'FRI', name: 'Friday' });
+      if (hasSat) days.push({ key: 'SAT', name: 'Saturday' });
       const dayKeys = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
       const todayKey = dayKeys[new Date().getDay()];
 
@@ -4364,13 +4397,23 @@
             if (!course.schedules) continue;
             for (const sched of course.schedules) {
               if (sched.day === day.key) {
+                const sStartMin = parseTimeToMinutes(sched.startTime);
+                const sEndMin = parseTimeToMinutes(sched.endTime);
+                const colStartMin = parseTimeToMinutes(col.start);
+                const colEndMin = parseTimeToMinutes(col.end);
+
+                let isMatch = false;
                 if (col.isAfternoonSlot) {
-                  if ((sched.startTime >= '13:30' && sched.startTime <= '14:00')) {
-                    matchedCourse = course;
-                    matchedSchedule = sched;
-                    break;
-                  }
+                  isMatch = (sStartMin >= parseTimeToMinutes('13:30') && sStartMin <= parseTimeToMinutes('14:30'));
                 } else if (sched.startTime === col.start) {
+                  isMatch = true;
+                } else if (sStartMin >= colStartMin && sStartMin < colEndMin) {
+                  isMatch = true;
+                } else if (sStartMin < colStartMin && sEndMin > colStartMin && !col.isLunch) {
+                  isMatch = true;
+                }
+
+                if (isMatch) {
                   matchedCourse = course;
                   matchedSchedule = sched;
                   break;
@@ -4462,10 +4505,15 @@
     // Course Table
     function renderCourseTable() {
       const tbody = document.getElementById('courseTableBody');
+      if (!tbody) return;
       tbody.innerHTML = '';
 
+      const searchInput = document.getElementById('courseSearch');
+      if (searchInput && typeof searchInput.value === 'string') {
+        searchQuery = searchInput.value;
+      }
+      const q = (searchQuery || '').toLowerCase().trim();
       const courses = activeSemester ? (activeSemester.courses || []) : [];
-      const q = searchQuery.toLowerCase().trim();
 
       const filtered = courses.filter(c => {
         if (!q) return true;
@@ -4481,7 +4529,8 @@
         return;
       }
 
-      filtered.forEach((c, cIdx) => {
+      filtered.forEach((c) => {
+        const realIdx = activeSemester ? activeSemester.courses.indexOf(c) : -1;
         const tr = document.createElement('tr');
 
         const fac = c.faculty || {};
@@ -4501,7 +4550,7 @@
               <span class="day-pill">${s.day}</span>
               <span>${formatTimeRange(s.startTime, s.endTime)}</span>
               <strong style="color:var(--accent-amber);">@ ${s.room}</strong>
-              <button class="btn btn-outline" style="padding: 1px 4px; font-size: 0.65rem;" onclick="openEditSlotModal(${cIdx}, ${sIdx})" title="Edit slot">✏️</button>
+              <button class="btn btn-outline" style="padding: 1px 4px; font-size: 0.65rem;" onclick="openEditSlotModal(${realIdx}, ${sIdx})" title="Edit slot">✏️</button>
             </div>
           `).join('');
         } else {
@@ -4530,8 +4579,8 @@
           </td>
           <td>
             <div style="display:flex; gap:0.35rem;">
-              <button class="btn btn-outline" style="padding: 4px 7px;" onclick="openAddSlotToCourseModal(${cIdx})" title="Add another slot">➕</button>
-              <button class="btn btn-outline" style="padding: 4px 7px;" onclick="deleteCourse(${cIdx})" title="Delete course">🗑️</button>
+              <button class="btn btn-outline" style="padding: 4px 7px;" onclick="openAddSlotToCourseModal(${realIdx})" title="Add another slot">➕</button>
+              <button class="btn btn-outline" style="padding: 4px 7px;" onclick="deleteCourse(${realIdx})" title="Delete course">🗑️</button>
             </div>
           </td>
         `;
@@ -4554,6 +4603,16 @@
       ];
 
       const courses = activeSemester ? (activeSemester.courses || []) : [];
+      let hasFri = false;
+      let hasSat = false;
+      courses.forEach(c => {
+        (c.schedules || []).forEach(s => {
+          if (s.day === 'FRI') hasFri = true;
+          if (s.day === 'SAT') hasSat = true;
+        });
+      });
+      if (hasFri) dayNames.push({ key: 'FRI', full: 'Friday' });
+      if (hasSat) dayNames.push({ key: 'SAT', full: 'Saturday' });
 
       dayNames.forEach(d => {
         const slotsForDay = [];
@@ -4613,6 +4672,105 @@
       });
     }
 
+    // Time normalization and schedule evaluation helpers
+    function parseTimeToMinutes(tStr) {
+      if (!tStr) return 0;
+      const [h, m] = tStr.split(':').map(Number);
+      return (h || 0) * 60 + (m || 0);
+    }
+
+    function formatDateISO(d) {
+      if (!d) return '';
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function timeDiffMinutes(t1, t2) {
+      return parseTimeToMinutes(t2) - parseTimeToMinutes(t1);
+    }
+
+    function evaluateScheduleStatus(now = new Date()) {
+      const dayKeys = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const nowDayIdx = now.getDay();
+      const curMinutes = now.getHours() * 60 + now.getMinutes();
+      const courses = activeSemester ? (activeSemester.courses || []) : [];
+
+      let ongoing = null;
+      let nextClass = null;
+
+      // 1. Check Today for ongoing class or upcoming class later today
+      const todayKey = dayKeys[nowDayIdx];
+      const todaySchedules = [];
+      courses.forEach(c => {
+        (c.schedules || []).forEach(s => {
+          if (s.day === todayKey) {
+            todaySchedules.push({ course: c, schedule: s });
+          }
+        });
+      });
+
+      todaySchedules.forEach(item => {
+        const startMin = parseTimeToMinutes(item.schedule.startTime);
+        const endMin = parseTimeToMinutes(item.schedule.endTime);
+        if (curMinutes >= startMin && curMinutes < endMin) {
+          const endDt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(endMin / 60), endMin % 60, 0, 0);
+          ongoing = { ...item, endDt, remMs: Math.max(0, endDt - now) };
+        } else if (startMin > curMinutes) {
+          const startDt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Math.floor(startMin / 60), startMin % 60, 0, 0);
+          const diffMs = Math.max(0, startDt - now);
+          if (!nextClass || diffMs < nextClass.diffMs) {
+            nextClass = {
+              ...item,
+              targetDate: startDt,
+              diffMs,
+              diffMinutes: Math.round(diffMs / 60000),
+              daysAhead: 0,
+              dayName: 'Today'
+            };
+          }
+        }
+      });
+
+      // 2. If no upcoming class later today, look ahead across days 1..7
+      if (!nextClass && courses.length > 0) {
+        for (let offset = 1; offset <= 7; offset++) {
+          const checkDayIdx = (nowDayIdx + offset) % 7;
+          const checkDayKey = dayKeys[checkDayIdx];
+          const dayClasses = [];
+
+          courses.forEach(c => {
+            (c.schedules || []).forEach(s => {
+              if (s.day === checkDayKey) {
+                dayClasses.push({ course: c, schedule: s });
+              }
+            });
+          });
+
+          if (dayClasses.length > 0) {
+            dayClasses.sort((a, b) => parseTimeToMinutes(a.schedule.startTime) - parseTimeToMinutes(b.schedule.startTime));
+            const earliest = dayClasses[0];
+            const startMin = parseTimeToMinutes(earliest.schedule.startTime);
+            const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, Math.floor(startMin / 60), startMin % 60, 0, 0);
+            const diffMs = Math.max(0, targetDate - now);
+            nextClass = {
+              ...earliest,
+              targetDate,
+              diffMs,
+              diffMinutes: Math.round(diffMs / 60000),
+              daysAhead: offset,
+              dayName: dayNames[checkDayIdx]
+            };
+            break;
+          }
+        }
+      }
+
+      return { ongoing, nextClass };
+    }
+
     // Real-Time Clock & Next Class Tracker
     function updateStatusTracker() {
       const now = new Date();
@@ -4634,41 +4792,17 @@
       const dateEl = document.getElementById('liveDateDisplay');
       if (dateEl) dateEl.innerText = dateStr;
 
-      // Find Ongoing or Upcoming Class
-      const curH = String(now.getHours()).padStart(2, '0');
-      const curM = String(now.getMinutes()).padStart(2, '0');
-      const curTime = `${curH}:${curM}`;
-
-      const courses = activeSemester ? (activeSemester.courses || []) : [];
-      let ongoing = null;
-      let nextClass = null;
-      let minDiff = Infinity;
-
-      courses.forEach(c => {
-        if (!c.schedules) return;
-        c.schedules.forEach(s => {
-          if (s.day === currentDayKey) {
-            if (curTime >= s.startTime && curTime < s.endTime) {
-              ongoing = { course: c, schedule: s };
-            } else if (s.startTime > curTime) {
-              const diff = timeDiffMinutes(curTime, s.startTime);
-              if (diff < minDiff) {
-                minDiff = diff;
-                nextClass = { course: c, schedule: s, diffMinutes: diff };
-              }
-            }
-          }
-        });
-      });
+      // Find Ongoing or Upcoming Class via evaluateScheduleStatus
+      const { ongoing, nextClass } = evaluateScheduleStatus(now);
 
       const statusEl = document.getElementById('liveClassStatus');
       const pillWrap = document.getElementById('statusPillWrap');
       if (statusEl) {
         if (ongoing) {
           if (pillWrap) pillWrap.className = 'status-pill-wrap pill-ongoing';
-          const remainingMins = timeDiffMinutes(curTime, ongoing.schedule.endTime);
+          const remainingMins = Math.ceil(ongoing.remMs / 60000);
           const nextTeaser = nextClass 
-            ? `<div class="sub-next-teaser">➡️ Next: <strong>${nextClass.course.codeWithSec || nextClass.course.code}</strong> in <strong>${nextClass.schedule.room}</strong> at ${formatTime(nextClass.schedule.startTime)}</div>` 
+            ? `<div class="sub-next-teaser">➡️ Next: <strong>${nextClass.course.codeWithSec || nextClass.course.code}</strong> ${nextClass.daysAhead === 0 ? '' : 'on <strong>' + nextClass.schedule.day + '</strong> '}in <strong>${nextClass.schedule.room || 'TBA'}</strong> at ${formatTime(nextClass.schedule.startTime)}</div>` 
             : '';
           statusEl.innerHTML = `
             <div class="live-status-content">
@@ -4686,16 +4820,22 @@
           if (pillWrap) pillWrap.className = 'status-pill-wrap pill-upcoming';
           const h = Math.floor(nextClass.diffMinutes / 60);
           const m = nextClass.diffMinutes % 60;
-          const startsIn = h > 0 ? `${h}h ${m}m` : `${m}m`;
+          const startsIn = nextClass.daysAhead === 0
+            ? (h > 0 ? `${h}h ${m}m` : `${m}m`)
+            : (nextClass.daysAhead === 1 ? `Tomorrow (${h}h ${m}m)` : `${nextClass.dayName} (${Math.floor(nextClass.diffMinutes / 1440)}d ${Math.floor((nextClass.diffMinutes % 1440) / 60)}h)`);
+          const timeTitle = nextClass.daysAhead === 0
+            ? `${nextClass.course.title || ''} (${formatTime(nextClass.schedule.startTime)} - ${formatTime(nextClass.schedule.endTime)})`
+            : `${nextClass.course.title || ''} (${nextClass.dayName} ${formatTime(nextClass.schedule.startTime)} - ${formatTime(nextClass.schedule.endTime)})`;
+          const statusTagText = nextClass.daysAhead === 0 ? '🟡 TODAY UPCOMING' : `🟡 UPCOMING (${nextClass.schedule.day})`;
           statusEl.innerHTML = `
             <div class="live-status-content">
               <div class="status-headline">
-                <span class="status-state-tag tag-upcoming">🟡 UPCOMING</span>
+                <span class="status-state-tag tag-upcoming">${statusTagText}</span>
                 <strong>${nextClass.course.codeWithSec || nextClass.course.code}</strong>
                 <span class="room-pill-live">📍 ${nextClass.schedule.room || 'TBA'}</span>
                 <span class="time-countdown-badge">⏳ Starts in ${startsIn}</span>
               </div>
-              <div class="status-course-title">${nextClass.course.title || ''} (${formatTime(nextClass.schedule.startTime)} - ${formatTime(nextClass.schedule.endTime)})</div>
+              <div class="status-course-title">${timeTitle}</div>
             </div>
           `;
         } else {
@@ -4733,12 +4873,6 @@
       if (typeof updateLiveCountdowns === 'function') {
         updateLiveCountdowns(ongoing, nextClass);
       }
-    }
-
-    function timeDiffMinutes(t1, t2) {
-      const [h1, m1] = t1.split(':').map(Number);
-      const [h2, m2] = t2.split(':').map(Number);
-      return (h2 * 60 + m2) - (h1 * 60 + m1);
     }
 
     // Switch view tabs
@@ -5013,12 +5147,29 @@
         saveStore();
         showToast("✅ Real routine restored!");
       } else {
-        appData = null;
-        activeProfile = null;
-        activeSemester = null;
-        realAppDataBackup = null;
-        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-        showToast("👋 Exited Demo Mode. Back to Onboarding!");
+        // Inspect localStorage before purging; never delete if valid user routine exists
+        let storedData = null;
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) storedData = JSON.parse(raw);
+        } catch (e) {}
+
+        if (storedData && hasCourses(storedData)) {
+          appData = storedData;
+          const profId = appData.activeProfileId || appData.profiles[0].id;
+          activeProfile = appData.profiles.find(p => p.id === profId) || appData.profiles[0];
+          const semName = activeProfile.activeSemester || Object.keys(activeProfile.semesters)[0] || 'Fall 2026';
+          activeSemester = activeProfile.semesters[semName] || Object.values(activeProfile.semesters)[0];
+          realAppDataBackup = null;
+          showToast("✅ Real routine restored from storage!");
+        } else {
+          appData = null;
+          activeProfile = null;
+          activeSemester = null;
+          realAppDataBackup = null;
+          try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+          showToast("👋 Exited Demo Mode. Back to Onboarding!");
+        }
       }
       renderAll();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5066,43 +5217,111 @@
     function parseUmsText(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
       const parsedCourses = [];
-      const courseLineRegex = /^[ \t]*(?:Course\s*:\s*)?([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)(?:[\s\.\:\-]+(.*))?$/i;
-      
+      const courseCodeRegex = /(?:Course\s*:\s*)?([A-Z]{3,5}\s*\d{3,4}(?:\.\d+)?)/i;
+
+      function padTime(t) {
+        if (!t) return t;
+        const [h, m] = t.split(':');
+        return String(h).padStart(2, '0') + ':' + m;
+      }
+
       let curCourse = null;
+
+      function extractSchedulesFromStr(str, targetCourse) {
+        const schedRegex = /(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/gi;
+        let sm;
+        while ((sm = schedRegex.exec(str)) !== null) {
+          targetCourse.schedules.push({
+            day: sm[1].toUpperCase(),
+            startTime: padTime(sm[2]),
+            endTime: padTime(sm[3]),
+            room: (sm[4] || 'TBA').toUpperCase(),
+            campus: 'Permanent Campus (PC)'
+          });
+        }
+      }
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        const match = line.match(courseLineRegex);
 
-        if (match && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC') && 
+        // Check if line represents a course entry
+        const codeMatch = line.match(courseCodeRegex);
+        const startsWithCode = codeMatch && line.toLowerCase().indexOf(codeMatch[0].toLowerCase()) === 0;
+
+        if (startsWithCode && !line.startsWith('PC') && !line.startsWith('ROOM') && !line.startsWith('SEC') && 
             !/^(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(line)) {
+          
           if (curCourse) parsedCourses.push(curCourse);
 
-          const rawCode = match[1].replace(/\s+/g, '').toUpperCase();
+          const rawCode = codeMatch[1].replace(/\s+/g, '').toUpperCase();
           const parts = rawCode.split('.');
           const code = parts[0];
           const sec = parts[1] || '1';
-          let sameLineTitle = (match[2] || '').trim();
-          if (sameLineTitle && (sameLineTitle.startsWith('[') || sameLineTitle.includes('@'))) {
-            sameLineTitle = '';
-          }
 
           curCourse = {
             codeWithSec: rawCode,
             code: code,
             section: sec,
-            title: sameLineTitle,
+            title: '',
             credits: 3.0,
             type: 'Theory',
             faculty: { initials: '', name: '', email: '', avatar: '' },
             schedules: []
           };
+
+          // Remainder of line after course code
+          const remainder = line.substring(codeMatch[0].length).trim();
+
+          // Check if line is tab-separated row
+          if (line.includes('\t')) {
+            const tabCols = line.split('\t').map(c => c.trim()).filter(Boolean);
+            if (tabCols.length >= 2) {
+              curCourse.title = tabCols[1];
+            }
+            for (let cIdx = 1; cIdx < tabCols.length; cIdx++) {
+              const col = tabCols[cIdx];
+              const facM = col.match(/\[([A-Z]{2,5})\]\s*([^@\t\n<]+)/i);
+              if (facM) {
+                curCourse.faculty.initials = facM[1].toUpperCase();
+                curCourse.faculty.name = facM[2].trim();
+              }
+              const emM = col.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
+              if (emM) {
+                curCourse.faculty.email = emM[1].trim();
+              }
+              extractSchedulesFromStr(col, curCourse);
+            }
+            continue;
+          }
+
+          // Non-tab single line or multiline with same-line info
+          if (remainder) {
+            extractSchedulesFromStr(remainder, curCourse);
+            const facM = remainder.match(/\[([A-Z]{2,5})\]\s*([^@\t\n<]+)/i);
+            if (facM) {
+              curCourse.faculty.initials = facM[1].toUpperCase();
+              curCourse.faculty.name = facM[2].trim();
+            }
+            const emM = remainder.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
+            if (emM) {
+              curCourse.faculty.email = emM[1].trim();
+            }
+            const cleanTitle = remainder
+              .replace(/\[([A-Z]{2,5})\]\s*[^@\t\n<]+/gi, '')
+              .replace(/[\w\.-]+@[\w\.-]+\.\w+/gi, '')
+              .replace(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*\d{1,2}:\d{2}\s*[-~–]\s*\d{1,2}:\d{2}(?:\s*@\s*[A-Za-z0-9\-]+)?/gi, '')
+              .replace(/[\t,]+/g, ' ')
+              .trim();
+            if (cleanTitle) {
+              curCourse.title = cleanTitle;
+            }
+          }
           continue;
         }
 
         if (!curCourse) continue;
 
-        // Faculty Initials & Name
+        // Faculty Initials & Name in multiline format
         const facMatch = line.match(/\[([A-Z]{2,5})\]\s*([^@\n<]+)/i);
         if (facMatch) {
           curCourse.faculty.initials = facMatch[1].toUpperCase();
@@ -5110,23 +5329,16 @@
           continue;
         }
 
-        // Faculty Email
+        // Faculty Email in multiline format
         const emailMatch = line.match(/([\w\.-]+@[\w\.-]+\.\w+)/i);
         if (emailMatch) {
           curCourse.faculty.email = emailMatch[1].trim();
           continue;
         }
 
-        // Schedule
-        const schedMatch = line.match(/(SUN|MON|TUE|WED|THU|FRI|SAT)\s*#?\s*(\d{1,2}:\d{2})\s*[-~–]\s*(\d{1,2}:\d{2})(?:\s*@\s*([A-Za-z0-9\-]+))?/i);
-        if (schedMatch) {
-          curCourse.schedules.push({
-            day: schedMatch[1].toUpperCase(),
-            startTime: schedMatch[2],
-            endTime: schedMatch[3],
-            room: (schedMatch[4] || 'TBA').toUpperCase(),
-            campus: 'Permanent Campus (PC)'
-          });
+        // Schedules in multiline format
+        if (/(SUN|MON|TUE|WED|THU|FRI|SAT)/i.test(line)) {
+          extractSchedulesFromStr(line, curCourse);
           continue;
         }
 
@@ -5147,10 +5359,10 @@
             c.faculty.name = c.faculty.name.substring(0, c.faculty.name.length - u.length).trim();
           }
         }
-        c.faculty.name = c.faculty.name.replace(/[\s\.\,\-]+$/, '').trim();
+        c.faculty.name = (c.faculty.name || '').replace(/[\s\.\,\-]+$/, '').trim();
         
-        const tLow = c.title.toLowerCase();
-        const cUpp = c.code.toUpperCase();
+        const tLow = (c.title || '').toLowerCase();
+        const cUpp = (c.code || '').toUpperCase();
         let isL = tLow.includes('lab') || tLow.includes('sessional') || tLow.includes('practical') || 
                   tLow.includes('project') || tLow.includes('thesis') || cUpp.includes('LAB') || cUpp.endsWith('L');
 
@@ -5169,17 +5381,29 @@
         c.credits = (isL && !tLow.includes('project') && !tLow.includes('thesis')) ? 1.5 : 3.0;
 
         // Auto-heal avatar
-        c.faculty.avatar = getFacultyAvatar(c.faculty);
+        if (typeof getFacultyAvatar === 'function') {
+          c.faculty.avatar = getFacultyAvatar(c.faculty);
+        }
       });
 
       return parsedCourses;
     }
 
     function parseAndImportText() {
+      isDemoMode = false;
+      realAppDataBackup = null;
+
       const text = document.getElementById('importRawText').value.trim();
       if (!text) {
         alert('Please paste course text or JSON from Southeast University UMS.');
         return;
+      }
+
+      // If in demo mode before, reset appData so demo data doesn't pollute user profile
+      if (appData && appData.activeProfileId === 'demo-profile') {
+        appData = null;
+        activeProfile = null;
+        activeSemester = null;
       }
 
       // 1-Tap Clipboard JSON Backup with full profile and images
@@ -5202,24 +5426,29 @@
         if (!name || typeof name !== 'string') return false;
         const t = name.trim().toLowerCase();
         if (t.length < 3 || t.length > 60) return false;
-        const bad = ['hey', 'buddy', 'welcome', 'rockstar', 'dashboard', 'information', 'student', 'adviser', 'faculty', 'coordinator', 'professor', 'today', 'opportunities', 'batch', 'program'];
-        return !bad.some(w => t.includes(w));
+        const bad = ['hey', 'buddy', 'welcome', 'rockstar', 'dashboard', 'information', 'student', 'adviser', 'faculty', 'coordinator', 'professor', 'today', 'opportunities', 'batch', 'program', 'code', 'id:'];
+        if (bad.some(w => t.includes(w))) return false;
+        if (/^(code|id|batch)\s*:/i.test(name.trim())) return false;
+        return true;
       }
 
       // Extract student header details from pasted text if available (from About or Registered Courses)
       let parsedName = '';
-      const batchIdx = text.indexOf('Batch:');
-      if (batchIdx !== -1) {
-        const pre = text.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n');
-        const cand = pre[pre.length - 1].trim();
-        if (isValidStudentName(cand)) {
-          parsedName = cand;
-        }
+      const nameMatch = text.match(/Basic Information\s*\n\s*([^\n]+)/i);
+      if (nameMatch && isValidStudentName(nameMatch[1])) {
+        parsedName = nameMatch[1].trim();
       }
       if (!parsedName) {
-        const nameMatch = text.match(/Basic Information\s*\n\s*([^\n]+)/i);
-        if (nameMatch && isValidStudentName(nameMatch[1])) {
-          parsedName = nameMatch[1].trim();
+        const batchIdx = text.indexOf('Batch:');
+        if (batchIdx !== -1) {
+          const pre = text.substring(Math.max(0, batchIdx - 200), batchIdx).trim().split('\n');
+          for (let pi = pre.length - 1; pi >= 0; pi--) {
+            const cand = pre[pi].trim();
+            if (cand && isValidStudentName(cand)) {
+              parsedName = cand;
+              break;
+            }
+          }
         }
       }
 
@@ -5522,6 +5751,7 @@
             isDemoMode = false;
             realAppDataBackup = null;
             appData = imported;
+            saveStore();
             initStore();
             closeModal('modalBackup');
             renderAll();
@@ -5867,10 +6097,6 @@
       });
     }
 
-    // Boot
-    initStore();
-    renderAll();
-
     // ========================================================
     // SEU ACADEMIC CALENDAR, EXAM PDF MATCHER & CT DASHBOARD
     // ========================================================
@@ -5883,18 +6109,24 @@
       }
     }
 
-    const SEU_ACADEMIC_CALENDAR_MASTER = {"year": 2026, "sourceUrl": "https://seu.edu.bd/academic-calendar-2026", "lastUpdated": "2026-11-23", "systems": {"triSemester": {"label": "Tri-Semester (Undergraduate: EEE, CSE, BBA, Textile, etc.)", "semesters": {"Summer - 2026": {"holidays": [{"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Aug 13", "startDate": "2026-08-13", "endDate": "2026-08-13", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Aug 15 - 22", "startDate": "2026-08-15", "endDate": "2026-08-22", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Oct 01", "startDate": "2026-10-01", "endDate": "2026-10-01", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "milestone"}, {"title": "Last date Self-Issuance of Admit Card for Final Examination", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Oct 04-11", "startDate": "2026-10-04", "endDate": "2026-10-11", "days": 8, "type": "exam"}, {"title": "Classes begin of Fall Semester 2026", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}], "totalHolidayDays": 4}, "Spring - 2026": {"holidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Feb 15", "startDate": "2026-02-15", "endDate": "2026-02-15", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit Card for Midterm Examination", "dateStr": "April 11", "startDate": "2026-04-11", "endDate": "2026-04-11", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "April 12 - 21", "startDate": "2026-04-12", "endDate": "2026-04-21", "days": 10, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "June 11", "startDate": "2026-06-11", "endDate": "2026-06-11", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "June 13 - 20", "startDate": "2026-06-13", "endDate": "2026-06-20", "days": 8, "type": "exam"}, {"title": "Classes begin of Summer Semester 2026", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}], "totalHolidayDays": 27}, "Fall - 2026": {"holidays": [{"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Dec 01", "startDate": "2026-12-01", "endDate": "2026-12-01", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Dec 01 - 08", "startDate": "2026-12-01", "endDate": "2026-12-08", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Jan 14, 2027", "startDate": "2027-01-14", "endDate": "2027-01-14", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Jan 16, 2027", "startDate": "2027-01-16", "endDate": "2027-01-16", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "Jan 17, 2027", "startDate": "2027-01-17", "endDate": "2027-01-17", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Jan 17 - 24, 2027", "startDate": "2027-01-17", "endDate": "2027-01-24", "days": 8, "type": "exam"}, {"title": "Classes begin of Spring 2027", "dateStr": "Feb 03 , 2027", "startDate": "2027-02-03", "endDate": "2027-02-03", "days": 1, "type": "milestone"}], "totalHolidayDays": 5}}, "allHolidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "totalYearHolidayDays": 36}, "biSemester": {"label": "Bi-Semester (Pharmacy & Masters Programs)", "semesters": {"Bi Semester Fall - 2026": {"holidays": [{"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Christmas Day)*", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Fall - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Aug 16", "startDate": "2026-08-16", "endDate": "2026-08-16", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Oct 24", "startDate": "2026-10-24", "endDate": "2026-10-24", "days": 1, "type": "exam"}, {"title": "Midterm Examination", "dateStr": "Oct 25 - Nov 07", "startDate": "2026-10-25", "endDate": "2026-11-07", "days": 14, "type": "exam"}, {"title": "Last Date of Classes", "dateStr": "Jan 06", "startDate": "2026-01-06", "endDate": "2026-01-06", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "Jan 11", "startDate": "2026-01-11", "endDate": "2026-01-11", "days": 1, "type": "exam"}, {"title": "Final Examination", "dateStr": "Jan 10 - 27", "startDate": "2026-01-10", "endDate": "2026-01-27", "days": 18, "type": "exam"}, {"title": "Classes begin of Spring Semester 2027", "dateStr": "Feb 14", "startDate": "2026-02-14", "endDate": "2026-02-14", "days": 1, "type": "milestone"}], "totalHolidayDays": 18}, "Bi Semester Spring - 2026": {"holidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday(Ashura)*", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "July Mass Uprising Day/July Gono Obbhutthan Dibos", "dateStr": "August 05", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Bi Semester Spring - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Feb 15", "startDate": "2026-02-15", "endDate": "2026-02-15", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "May 02", "startDate": "2026-05-02", "endDate": "2026-05-02", "days": 1, "type": "exam"}, {"title": "Midterm Examination", "dateStr": "May 03-16", "startDate": "2026-05-03", "endDate": "2026-05-16", "days": 14, "type": "exam"}, {"title": "Last date of classes", "dateStr": "July 18", "startDate": "2026-07-18", "endDate": "2026-07-18", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Final Examination", "dateStr": "July 18", "startDate": "2026-07-18", "endDate": "2026-07-18", "days": 1, "type": "exam"}, {"title": "Final Examination", "dateStr": "July 19 - August 1", "startDate": "2026-07-19", "endDate": "2026-08-01", "days": 14, "type": "exam"}, {"title": "Classes begin of fall 2026", "dateStr": "August 16", "startDate": "2026-08-16", "endDate": "2026-08-16", "days": 1, "type": "milestone"}], "totalHolidayDays": 29}}, "allHolidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Ashura)*", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "July Mass Uprising Day/July Gono Obbhutthan Dibos", "dateStr": "August 05", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Christmas Day)*", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Bi Semester Fall - 2026"}], "totalYearHolidayDays": 36}}};
+    var SEU_ACADEMIC_CALENDAR_MASTER = {"year": 2026, "sourceUrl": "https://seu.edu.bd/academic-calendar-2026", "lastUpdated": "2026-11-23", "systems": {"triSemester": {"label": "Tri-Semester (Undergraduate: EEE, CSE, BBA, Textile, etc.)", "semesters": {"Summer - 2026": {"holidays": [{"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Aug 13", "startDate": "2026-08-13", "endDate": "2026-08-13", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Aug 15 - 22", "startDate": "2026-08-15", "endDate": "2026-08-22", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Oct 01", "startDate": "2026-10-01", "endDate": "2026-10-01", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "milestone"}, {"title": "Last date Self-Issuance of Admit Card for Final Examination", "dateStr": "Oct 03", "startDate": "2026-10-03", "endDate": "2026-10-03", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Oct 04-11", "startDate": "2026-10-04", "endDate": "2026-10-11", "days": 8, "type": "exam"}, {"title": "Classes begin of Fall Semester 2026", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}], "totalHolidayDays": 4}, "Spring - 2026": {"holidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Feb 15", "startDate": "2026-02-15", "endDate": "2026-02-15", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit Card for Midterm Examination", "dateStr": "April 11", "startDate": "2026-04-11", "endDate": "2026-04-11", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "April 12 - 21", "startDate": "2026-04-12", "endDate": "2026-04-21", "days": 10, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "June 11", "startDate": "2026-06-11", "endDate": "2026-06-11", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "June 12", "startDate": "2026-06-12", "endDate": "2026-06-12", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "June 13 - 20", "startDate": "2026-06-13", "endDate": "2026-06-20", "days": 8, "type": "exam"}, {"title": "Classes begin of Summer Semester 2026", "dateStr": "June 30", "startDate": "2026-06-30", "endDate": "2026-06-30", "days": 1, "type": "milestone"}], "totalHolidayDays": 27}, "Fall - 2026": {"holidays": [{"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Oct 25", "startDate": "2026-10-25", "endDate": "2026-10-25", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Dec 01", "startDate": "2026-12-01", "endDate": "2026-12-01", "days": 1, "type": "exam"}, {"title": "Midterm Examination (8 Days)", "dateStr": "Dec 01 - 08", "startDate": "2026-12-01", "endDate": "2026-12-08", "days": 8, "type": "exam"}, {"title": "Last Date of Classes (UG-Regular)", "dateStr": "Jan 14, 2027", "startDate": "2027-01-14", "endDate": "2027-01-14", "days": 1, "type": "milestone"}, {"title": "Last Date of Classes (UG-Diploma & Master's)", "dateStr": "Jan 16, 2027", "startDate": "2027-01-16", "endDate": "2027-01-16", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "Jan 17, 2027", "startDate": "2027-01-17", "endDate": "2027-01-17", "days": 1, "type": "exam"}, {"title": "Final Examination (8 Days)", "dateStr": "Jan 17 - 24, 2027", "startDate": "2027-01-17", "endDate": "2027-01-24", "days": 8, "type": "exam"}, {"title": "Classes begin of Spring 2027", "dateStr": "Feb 03 , 2027", "startDate": "2027-02-03", "endDate": "2027-02-03", "days": 1, "type": "milestone"}], "totalHolidayDays": 5}}, "allHolidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Spring - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Summer - 2026"}, {"title": "July Mass Upraising Day/July Gono-obbhutthan Dibos", "dateStr": "Aug 5", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Summer - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Fall - 2026"}, {"title": "Holiday (National Revolution and Solidarity Day)", "dateStr": "Nov 07", "startDate": "2026-11-07", "endDate": "2026-11-07", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Fall - 2026"}, {"title": "Holiday (Christmas Day)", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Fall - 2026"}], "totalYearHolidayDays": 36}, "biSemester": {"label": "Bi-Semester (Pharmacy & Masters Programs)", "semesters": {"Bi Semester Fall - 2026": {"holidays": [{"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Christmas Day)*", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Fall - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Aug 16", "startDate": "2026-08-16", "endDate": "2026-08-16", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "Oct 24", "startDate": "2026-10-24", "endDate": "2026-10-24", "days": 1, "type": "exam"}, {"title": "Midterm Examination", "dateStr": "Oct 25 - Nov 07", "startDate": "2026-10-25", "endDate": "2026-11-07", "days": 14, "type": "exam"}, {"title": "Last Date of Classes", "dateStr": "Jan 06", "startDate": "2026-01-06", "endDate": "2026-01-06", "days": 1, "type": "milestone"}, {"title": "Last date of Self-issuance of Admit card for Final Examination", "dateStr": "Jan 11", "startDate": "2026-01-11", "endDate": "2026-01-11", "days": 1, "type": "exam"}, {"title": "Final Examination", "dateStr": "Jan 10 - 27", "startDate": "2026-01-10", "endDate": "2026-01-27", "days": 18, "type": "exam"}, {"title": "Classes begin of Spring Semester 2027", "dateStr": "Feb 14", "startDate": "2026-02-14", "endDate": "2026-02-14", "days": 1, "type": "milestone"}], "totalHolidayDays": 18}, "Bi Semester Spring - 2026": {"holidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday(Ashura)*", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "July Mass Uprising Day/July Gono Obbhutthan Dibos", "dateStr": "August 05", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Bi Semester Spring - 2026"}], "milestones": [{"title": "Classes begin", "dateStr": "Feb 15", "startDate": "2026-02-15", "endDate": "2026-02-15", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Midterm Examination", "dateStr": "May 02", "startDate": "2026-05-02", "endDate": "2026-05-02", "days": 1, "type": "exam"}, {"title": "Midterm Examination", "dateStr": "May 03-16", "startDate": "2026-05-03", "endDate": "2026-05-16", "days": 14, "type": "exam"}, {"title": "Last date of classes", "dateStr": "July 18", "startDate": "2026-07-18", "endDate": "2026-07-18", "days": 1, "type": "milestone"}, {"title": "Last date of Self-Issuance of Admit Card for Final Examination", "dateStr": "July 18", "startDate": "2026-07-18", "endDate": "2026-07-18", "days": 1, "type": "exam"}, {"title": "Final Examination", "dateStr": "July 19 - August 1", "startDate": "2026-07-19", "endDate": "2026-08-01", "days": 14, "type": "exam"}, {"title": "Classes begin of fall 2026", "dateStr": "August 16", "startDate": "2026-08-16", "endDate": "2026-08-16", "days": 1, "type": "milestone"}], "totalHolidayDays": 29}}, "allHolidays": [{"title": "Holiday (Sharaswati Puja) *", "dateStr": "Jan 23", "startDate": "2026-01-23", "endDate": "2026-01-23", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shab-e-Barat) *", "dateStr": "Feb 04", "startDate": "2026-02-04", "endDate": "2026-02-04", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Shaheed Dibash & International Mother Language Day)", "dateStr": "Feb 21", "startDate": "2026-02-21", "endDate": "2026-02-21", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*", "dateStr": "March 16 - 25", "startDate": "2026-03-16", "endDate": "2026-03-25", "days": 10, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Independence Day)", "dateStr": "March 26", "startDate": "2026-03-26", "endDate": "2026-03-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Bangla Nababorsho) *", "dateStr": "April 14", "startDate": "2026-04-14", "endDate": "2026-04-14", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (May Day & Buddha Purnima)*", "dateStr": "May 01", "startDate": "2026-05-01", "endDate": "2026-05-01", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-Ul-Azha) *", "dateStr": "May 22 - June 01", "startDate": "2026-05-22", "endDate": "2026-06-01", "days": 11, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Ashura) *", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Ashura)*", "dateStr": "June 26", "startDate": "2026-06-26", "endDate": "2026-06-26", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "July Mass Uprising Day/July Gono Obbhutthan Dibos", "dateStr": "August 05", "startDate": "2026-08-05", "endDate": "2026-08-05", "days": 1, "semester": "Bi Semester Spring - 2026"}, {"title": "Holiday (Eid-e-Miladun-Nabi) *", "dateStr": "Aug 26", "startDate": "2026-08-26", "endDate": "2026-08-26", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Janmashtami) *", "dateStr": "Sept 04", "startDate": "2026-09-04", "endDate": "2026-09-04", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Durga puja)*", "dateStr": "Oct 20 -21", "startDate": "2026-10-20", "endDate": "2026-10-21", "days": 2, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday (Victory Day)", "dateStr": "Dec 16", "startDate": "2026-12-16", "endDate": "2026-12-16", "days": 1, "semester": "Bi Semester Fall - 2026"}, {"title": "Holiday(Christmas Day)*", "dateStr": "Dec 25", "startDate": "2026-12-25", "endDate": "2026-12-25", "days": 1, "semester": "Bi Semester Fall - 2026"}], "totalYearHolidayDays": 36}}};
 
     // 1. Calendar Manager with Dual-System (Tri & Bi) and Auto-Detection
-    const CalendarManager = {
+    var CalendarManager = {
       currentSystem: 'triSemester', // 'triSemester' or 'biSemester'
 
       initSystem() {
-        const prog = (activeProfile && activeProfile.program ? activeProfile.program : '').toLowerCase();
-        if (prog.includes('pharmacy') || prog.includes('pharma') || prog.includes('masters') || prog.includes('mba') || prog.includes('llm') || prog.includes('bi-semester')) {
-          this.currentSystem = 'biSemester';
+        let savedSys = null;
+        try { savedSys = localStorage.getItem('seu_calendar_system'); } catch(e) {}
+        if (savedSys === 'triSemester' || savedSys === 'biSemester') {
+          this.currentSystem = savedSys;
         } else {
-          this.currentSystem = 'triSemester';
+          const prog = (activeProfile && activeProfile.program ? activeProfile.program : '').toLowerCase();
+          if (prog.includes('pharmacy') || prog.includes('pharma') || prog.includes('masters') || prog.includes('mba') || prog.includes('llm') || prog.includes('bi-semester')) {
+            this.currentSystem = 'biSemester';
+          } else {
+            this.currentSystem = 'triSemester';
+          }
         }
         this.syncSystemButtons();
       },
@@ -5902,11 +6134,16 @@
       setSystem(systemKey) {
         if (systemKey === 'triSemester' || systemKey === 'biSemester') {
           this.currentSystem = systemKey;
+          try { localStorage.setItem('seu_calendar_system', systemKey); } catch(e) {}
           this.syncSystemButtons();
           renderDashboard();
           renderCalendarModal();
           updateLiveCountdowns();
         }
+      },
+
+      switchCalendarSystem(systemKey) {
+        this.setSystem(systemKey);
       },
 
       syncSystemButtons() {
@@ -5942,22 +6179,191 @@
       getNextOffDay(now = new Date()) {
         const sys = this.getActiveSystemData();
         const holidays = sys.allHolidays || [];
-        const todayISO = now.toISOString().split('T')[0];
-        
+        const dayKeys = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const nowDayIdx = now.getDay();
+        const y = now.getFullYear();
+        const m = now.getMonth();
+        const d = now.getDate();
+        const todayISO = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const courses = activeSemester ? (activeSemester.courses || []) : [];
+
+        // Check Factor 1: Official University Holidays (is today ongoing holiday?)
+        let ongoingHoliday = null;
         for (const h of holidays) {
-          if (h.endDate >= todayISO) {
-            const isOngoing = (todayISO >= h.startDate && todayISO <= h.endDate);
-            const targetDate = isOngoing ? new Date(h.endDate + 'T23:59:59') : new Date(h.startDate + 'T00:00:00');
-            const diffMs = Math.max(0, targetDate - now);
-            return {
-              holiday: h,
-              isOngoing,
-              diffMs,
-              countdown: formatCountdown(diffMs)
-            };
+          if (todayISO >= h.startDate && todayISO <= h.endDate) {
+            ongoingHoliday = h;
+            break;
           }
         }
-        return null;
+
+        // Check Factor 2: Regular Weekly Off-Day (Friday)
+        const isTodayFriday = (nowDayIdx === 5);
+
+        // Check Factor 3: Routine-Specific Off-Day (0 scheduled classes today)
+        let isTodayRoutineOff = false;
+        if (courses.length > 0) {
+          const todayKey = dayKeys[nowDayIdx];
+          const todayClassCount = courses.reduce((acc, c) => {
+            return acc + (c.schedules || []).filter(s => s.day === todayKey).length;
+          }, 0);
+          if (todayClassCount === 0) {
+            isTodayRoutineOff = true;
+          }
+        }
+
+        // If today is an off-day (ongoing)
+        if (ongoingHoliday || isTodayFriday || isTodayRoutineOff) {
+          const targetDate = ongoingHoliday 
+            ? new Date(ongoingHoliday.endDate + 'T23:59:59')
+            : new Date(y, m, d, 23, 59, 59);
+          const diffMs = Math.max(0, targetDate - now);
+          
+          let title = '';
+          let category = '';
+          let semester = '';
+          let dateStr = '';
+          let daysCount = 1;
+
+          if (ongoingHoliday) {
+            title = ongoingHoliday.title;
+            category = 'Academic Cal';
+            semester = ongoingHoliday.semester || '';
+            dateStr = ongoingHoliday.dateStr || '';
+            daysCount = ongoingHoliday.days || 1;
+          } else if (isTodayFriday) {
+            title = 'Friday Weekly Off';
+            category = 'Weekly Off';
+            semester = 'Weekly Weekend';
+            dateStr = 'Friday';
+            daysCount = 1;
+          } else {
+            title = `${dayNames[nowDayIdx]} (Routine Off-Day)`;
+            category = 'Routine Free';
+            semester = activeSemester ? activeSemester.name : 'Active Semester';
+            dateStr = dayNames[nowDayIdx];
+            daysCount = 1;
+          }
+
+          const offInfo = {
+            title,
+            dateStr,
+            days: daysCount,
+            category,
+            semester,
+            startDate: ongoingHoliday ? ongoingHoliday.startDate : todayISO,
+            endDate: ongoingHoliday ? ongoingHoliday.endDate : todayISO
+          };
+
+          return {
+            holiday: offInfo,
+            offDay: offInfo,
+            isOngoing: true,
+            targetDate,
+            diffMs,
+            countdown: formatCountdown(diffMs)
+          };
+        }
+
+        // Not ongoing today -> find earliest upcoming off-day candidate
+        const candidates = [];
+
+        // Candidate Factor 1: Upcoming official holiday
+        for (const h of holidays) {
+          if (h.startDate > todayISO) {
+            const hStart = new Date(h.startDate + 'T00:00:00');
+            const diffMs = hStart - now;
+            if (diffMs > 0) {
+              candidates.push({
+                title: h.title,
+                dateStr: h.dateStr,
+                days: h.days || 1,
+                category: 'Academic Cal',
+                semester: h.semester || '',
+                startDate: h.startDate,
+                endDate: h.endDate,
+                targetDate: hStart,
+                diffMs
+              });
+            }
+          }
+        }
+
+        // Candidate Factor 2: Upcoming Friday
+        const daysToFriday = (5 - nowDayIdx + 7) % 7 || 7;
+        const nextFriDate = new Date(y, m, d + daysToFriday, 0, 0, 0);
+        const friDiffMs = nextFriDate - now;
+        if (friDiffMs > 0) {
+          const friMonthName = nextFriDate.toLocaleDateString('en-US', { month: 'short' });
+          candidates.push({
+            title: 'Friday Weekly Off',
+            dateStr: `${friMonthName} ${nextFriDate.getDate()}`,
+            days: 1,
+            category: 'Weekly Off',
+            semester: 'Weekly Weekend',
+            startDate: `${nextFriDate.getFullYear()}-${String(nextFriDate.getMonth() + 1).padStart(2, '0')}-${String(nextFriDate.getDate()).padStart(2, '0')}`,
+            endDate: `${nextFriDate.getFullYear()}-${String(nextFriDate.getMonth() + 1).padStart(2, '0')}-${String(nextFriDate.getDate()).padStart(2, '0')}`,
+            targetDate: nextFriDate,
+            diffMs: friDiffMs
+          });
+        }
+
+        // Candidate Factor 3: Upcoming routine off-day (0 scheduled classes)
+        if (courses.length > 0) {
+          for (let offset = 1; offset <= 7; offset++) {
+            const checkDayIdx = (nowDayIdx + offset) % 7;
+            const checkDayKey = dayKeys[checkDayIdx];
+            if (checkDayKey === 'FRI') continue;
+
+            const classCount = courses.reduce((acc, c) => {
+              return acc + (c.schedules || []).filter(s => s.day === checkDayKey).length;
+            }, 0);
+
+            if (classCount === 0) {
+              const offDayDate = new Date(y, m, d + offset, 0, 0, 0);
+              const rDiffMs = offDayDate - now;
+              if (rDiffMs > 0) {
+                const offMonthName = offDayDate.toLocaleDateString('en-US', { month: 'short' });
+                candidates.push({
+                  title: `${dayNames[checkDayIdx]} (Routine Off-Day)`,
+                  dateStr: `${offMonthName} ${offDayDate.getDate()}`,
+                  days: 1,
+                  category: 'Routine Free',
+                  semester: activeSemester ? activeSemester.name : 'Active Semester',
+                  startDate: `${offDayDate.getFullYear()}-${String(offDayDate.getMonth() + 1).padStart(2, '0')}-${String(offDayDate.getDate()).padStart(2, '0')}`,
+                  endDate: `${offDayDate.getFullYear()}-${String(offDayDate.getMonth() + 1).padStart(2, '0')}-${String(offDayDate.getDate()).padStart(2, '0')}`,
+                  targetDate: offDayDate,
+                  diffMs: rDiffMs
+                });
+                break;
+              }
+            }
+          }
+        }
+
+        if (candidates.length === 0) return null;
+
+        candidates.sort((a, b) => a.diffMs - b.diffMs);
+        const best = candidates[0];
+
+        const offInfo = {
+          title: best.title,
+          dateStr: best.dateStr,
+          days: best.days,
+          category: best.category,
+          semester: best.semester,
+          startDate: best.startDate,
+          endDate: best.endDate
+        };
+
+        return {
+          holiday: offInfo,
+          offDay: offInfo,
+          isOngoing: false,
+          targetDate: best.targetDate,
+          diffMs: best.diffMs,
+          countdown: formatCountdown(best.diffMs)
+        };
       },
 
       getActiveSemesterOffDays() {
@@ -6123,13 +6529,19 @@
     }
 
     // 4. Live Countdown Strip & Dashboard Live Updates
-    let cachedOngoingClass = null;
-    let cachedNextClass = null;
+    var cachedOngoingClass = null;
+    var cachedNextClass = null;
 
     function updateLiveCountdowns(ongoing = cachedOngoingClass, nextClass = cachedNextClass) {
       cachedOngoingClass = ongoing;
       cachedNextClass = nextClass;
       const now = new Date();
+
+      if (!ongoing && !nextClass && typeof evaluateScheduleStatus === 'function') {
+        const evalRes = evaluateScheduleStatus(now);
+        ongoing = evalRes.ongoing;
+        nextClass = evalRes.nextClass;
+      }
 
       // --- Strip 1: Next Class ---
       const stripClassEl = document.getElementById('stripNextClass');
@@ -6138,9 +6550,11 @@
       const dashClassTag = document.getElementById('dashClassTag');
 
       if (ongoing && ongoing.schedule) {
-        const endDt = new Date();
-        const [eh, em] = ongoing.schedule.endTime.split(':');
-        endDt.setHours(parseInt(eh), parseInt(em), 0, 0);
+        const endDt = ongoing.endDt || new Date();
+        if (!ongoing.endDt) {
+          const [eh, em] = ongoing.schedule.endTime.split(':');
+          endDt.setHours(parseInt(eh), parseInt(em), 0, 0);
+        }
         const remMs = Math.max(0, endDt - now);
         const remMin = Math.ceil(remMs / 60000);
 
@@ -6149,20 +6563,38 @@
         if (dashClassInfo) dashClassInfo.innerHTML = `<strong>${ongoing.course.code} - ${ongoing.course.title || ''}</strong> is happening right now in <strong>Room ${ongoing.schedule.room || 'TBA'}</strong> (Ends ${ongoing.schedule.endTime})`;
         if (dashClassTag) { dashClassTag.innerText = 'ONGOING CLASS'; dashClassTag.style.background = 'rgba(16,185,129,0.15)'; dashClassTag.style.color = '#10b981'; }
       } else if (nextClass && nextClass.schedule) {
-        const startDt = new Date();
-        const [sh, sm] = nextClass.schedule.startTime.split(':');
-        startDt.setHours(parseInt(sh), parseInt(sm), 0, 0);
-        const remMs = Math.max(0, startDt - now);
+        const targetDt = nextClass.targetDate || (() => {
+          const d = new Date();
+          const [sh, sm] = nextClass.schedule.startTime.split(':');
+          d.setHours(parseInt(sh), parseInt(sm), 0, 0);
+          return d;
+        })();
+        const remMs = Math.max(0, targetDt - now);
         const cd = formatCountdown(remMs);
 
         if (stripClassEl) stripClassEl.innerText = `${nextClass.course.code} (Room ${nextClass.schedule.room || 'TBA'}) • in ${cd.short}`;
         if (dashClassCountdown) dashClassCountdown.innerText = cd.text;
-        if (dashClassInfo) dashClassInfo.innerHTML = `<strong>${nextClass.course.code} - ${nextClass.course.title || ''}</strong> in <strong>Room ${nextClass.schedule.room || 'TBA'}</strong> at ${nextClass.schedule.startTime}`;
-        if (dashClassTag) { dashClassTag.innerText = 'TODAY UPCOMING'; dashClassTag.style.background = 'rgba(59,130,246,0.15)'; dashClassTag.style.color = 'var(--primary)'; }
+
+        const isFutureDay = nextClass.daysAhead && nextClass.daysAhead > 0;
+        const dayLabel = isFutureDay ? (nextClass.dayName || nextClass.schedule.day) : 'today';
+
+        if (dashClassInfo) dashClassInfo.innerHTML = `<strong>${nextClass.course.code} - ${nextClass.course.title || ''}</strong> in <strong>Room ${nextClass.schedule.room || 'TBA'}</strong> ${isFutureDay ? 'on ' + dayLabel : ''} at ${nextClass.schedule.startTime}`;
+
+        if (dashClassTag) {
+          if (isFutureDay) {
+            dashClassTag.innerText = `UPCOMING (${nextClass.schedule.day})`;
+            dashClassTag.style.background = 'rgba(139,92,246,0.15)';
+            dashClassTag.style.color = '#8b5cf6';
+          } else {
+            dashClassTag.innerText = 'TODAY UPCOMING';
+            dashClassTag.style.background = 'rgba(59,130,246,0.15)';
+            dashClassTag.style.color = 'var(--primary)';
+          }
+        }
       } else {
-        if (stripClassEl) stripClassEl.innerText = 'No more classes today';
+        if (stripClassEl) stripClassEl.innerText = 'No more classes scheduled';
         if (dashClassCountdown) dashClassCountdown.innerText = '-- : -- : --';
-        if (dashClassInfo) dashClassInfo.innerText = 'No more classes scheduled for today. Check weekly timetable for upcoming classes.';
+        if (dashClassInfo) dashClassInfo.innerText = 'No more classes scheduled. Check weekly timetable for details.';
         if (dashClassTag) { dashClassTag.innerText = 'CLASS FREE'; dashClassTag.style.background = 'rgba(107,114,128,0.15)'; dashClassTag.style.color = 'var(--text-muted)'; }
       }
 
@@ -6206,17 +6638,41 @@
       const stripHolidayEl = document.getElementById('stripNextHoliday');
       const dashHolidayCountdown = document.getElementById('dashHolidayCountdown');
       const dashHolidayInfo = document.getElementById('dashHolidayInfo');
-      const nextHolidayObj = CalendarManager.getNextOffDay(now);
+      const dashHolidayTag = document.getElementById('dashHolidayTag');
+      const dashOffDayCountdown = document.getElementById('dashOffDayCountdown');
+      const dashOffDayInfo = document.getElementById('dashOffDayInfo');
+      const dashOffDayTag = document.getElementById('dashOffDayTag');
+      const nextHolidayObj = (typeof CalendarManager !== 'undefined' && CalendarManager.getNextOffDay)
+        ? CalendarManager.getNextOffDay(now)
+        : null;
 
       if (nextHolidayObj) {
-        const h = nextHolidayObj.holiday;
+        const h = nextHolidayObj.offDay || nextHolidayObj.holiday;
         const cd = nextHolidayObj.countdown;
         const prefix = nextHolidayObj.isOngoing ? 'Ongoing: ' : '';
+        const category = h.category || 'Academic Cal';
+
         if (stripHolidayEl) stripHolidayEl.innerText = `${prefix}${h.title.replace(/Holiday\s*\(/i, '').replace(/\)\s*\*?/i, '')} • in ${cd.short}`;
+        
+        if (dashOffDayCountdown) dashOffDayCountdown.innerText = cd.text;
         if (dashHolidayCountdown) dashHolidayCountdown.innerText = cd.text;
-        if (dashHolidayInfo) dashHolidayInfo.innerHTML = `<strong>${h.title}</strong> (${h.dateStr}) — <strong>${h.days} Day${h.days > 1 ? 's' : ''} Official University Off-Day</strong> (${h.semester})`;
+
+        const infoHtml = nextHolidayObj.isOngoing
+          ? `<strong>${h.title}</strong> is happening today! Enjoy your off-day.`
+          : `<strong>${h.title}</strong> (${h.dateStr || ''}) — <strong>${h.days || 1} Day${(h.days || 1) > 1 ? 's' : ''} ${category}</strong>`;
+        
+        if (dashOffDayInfo) dashOffDayInfo.innerHTML = infoHtml;
+        if (dashHolidayInfo) dashHolidayInfo.innerHTML = infoHtml;
+
+        if (dashOffDayTag) dashOffDayTag.innerText = category;
+        if (dashHolidayTag) {
+          dashHolidayTag.innerText = category;
+          dashHolidayTag.style.background = 'rgba(16,185,129,0.15)';
+          dashHolidayTag.style.color = '#10b981';
+        }
       } else {
         if (stripHolidayEl) stripHolidayEl.innerText = 'No more holidays this year';
+        if (dashOffDayCountdown) dashOffDayCountdown.innerText = '-- : -- : --';
         if (dashHolidayCountdown) dashHolidayCountdown.innerText = '-- : -- : --';
         if (dashHolidayInfo) dashHolidayInfo.innerText = 'No remaining holidays recorded for this academic year.';
       }
@@ -6848,6 +7304,29 @@
     }
 
 
+    // Global & Window Exposes for Test Framework & Browser
+    window.CalendarManager = CalendarManager;
+    if (typeof ExamManager !== 'undefined') window.ExamManager = ExamManager;
+    if (typeof CtManager !== 'undefined') window.CtManager = CtManager;
+    window.saveStore = saveStore;
+    window.initStore = initStore;
+    window.renderAll = renderAll;
+    window.renderCourseTable = renderCourseTable;
+    window.deleteCourse = deleteCourse;
+    window.evaluateScheduleStatus = evaluateScheduleStatus;
+    window.parseTimeToMinutes = parseTimeToMinutes;
+    window.formatCountdown = formatCountdown;
+    window.updateLiveCountdowns = updateLiveCountdowns;
+    window.openAcademicCalendarModal = openAcademicCalendarModal;
+    window.loadSampleDemo = loadSampleDemo;
+    window.exitDemoMode = exitDemoMode;
+    window.parseUmsText = parseUmsText;
+    window.parseAndImportText = parseAndImportText;
+
+    // Boot
+    initStore();
+    renderAll();
+
     initRoutineZoom();
     initPinchToZoom();
     setInterval(updateStatusTracker, 1000);
@@ -7095,7 +7574,7 @@
           <!-- All Holidays List Table -->
           <div>
             <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; font-weight:800; color:var(--text-main);">Official University Holidays & Off-Days:</h4>
-            <div class="table-responsive" style="max-height:300px; overflow-y:auto; border:1px solid var(--border-color); border-radius:12px;">
+            <div id="calHolidayList" class="table-responsive" style="max-height:300px; overflow-y:auto; border:1px solid var(--border-color); border-radius:12px;">
               <table class="exam-review-table">
                 <thead>
                   <tr>

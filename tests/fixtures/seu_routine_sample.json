@@ -1,0 +1,180 @@
+{
+  "university": {
+    "name": "Southeast University",
+    "shortName": "SEU",
+    "campus": "Permanent Campus",
+    "portal": "https://ums.seu.edu.bd",
+    "portalName": "University Management System (UMS)"
+  },
+  "activeProfileId": "prof-shahir",
+  "profiles": [
+    {
+      "id": "prof-shahir",
+      "name": "F.U.M Foyjul Bari Shahir",
+      "studentId": "0232330005131002",
+      "code": "2023200500002",
+      "program": "BSc in EEE",
+      "department": "Department of Electrical & Electronic Engineering (EEE)",
+      "batch": "Batch 42",
+      "campus": "Permanent Campus (PC, Tejgaon)",
+      "avatar": "",
+      "advisor": {
+        "name": "Dr. Nur Hosain Md. Ariful Azim",
+        "designation": "Coordinator & Professor",
+        "department": "Department of EEE",
+        "email": "coordinator.eee@seu.edu.bd"
+      },
+      "activeSemester": "Fall 2026",
+      "semesters": {
+        "Fall 2026": {
+          "semesterId": "fall-2026",
+          "name": "Fall 2026",
+          "year": 2026,
+          "term": "Fall",
+          "isCurrent": true,
+          "registeredCreditsTotal": 15.0,
+          "courses": [
+            {
+              "codeWithSec": "EEE447.1",
+              "code": "EEE447",
+              "section": "1",
+              "title": "Nano Electronic Devices",
+              "credits": 3.0,
+              "type": "Theory",
+              "faculty": {
+                "initials": "MRT",
+                "name": "Ruchira Tabassum",
+                "email": "ruchira.tabassum@seu.edu.bd"
+              },
+              "schedules": [
+                {
+                  "day": "SUN",
+                  "startTime": "10:00",
+                  "endTime": "11:20",
+                  "room": "PC422",
+                  "campus": "Permanent Campus (PC)"
+                },
+                {
+                  "day": "WED",
+                  "startTime": "10:00",
+                  "endTime": "11:20",
+                  "room": "PC413",
+                  "campus": "Permanent Campus (PC)"
+                }
+              ]
+            },
+            {
+              "codeWithSec": "EEE410.1",
+              "code": "EEE410",
+              "section": "1",
+              "title": "Green Power & Energy",
+              "credits": 3.0,
+              "type": "Theory",
+              "faculty": {
+                "initials": "PJD",
+                "name": "Puja Das",
+                "email": "puja.das@seu.edu.bd"
+              },
+              "schedules": [
+                {
+                  "day": "SUN",
+                  "startTime": "13:30",
+                  "endTime": "14:50",
+                  "room": "PC422",
+                  "campus": "Permanent Campus (PC)"
+                },
+                {
+                  "day": "WED",
+                  "startTime": "13:30",
+                  "endTime": "14:50",
+                  "room": "PC417",
+                  "campus": "Permanent Campus (PC)"
+                }
+              ]
+            },
+            {
+              "codeWithSec": "EEE442.2",
+              "code": "EEE442",
+              "section": "2",
+              "title": "Optoelectronics Lab",
+              "credits": 1.5,
+              "type": "Lab",
+              "faculty": {
+                "initials": "RR",
+                "name": "Rakayet Rafi",
+                "email": "rakayet.rafi@seu.edu.bd"
+              },
+              "schedules": [
+                {
+                  "day": "MON",
+                  "startTime": "14:00",
+                  "endTime": "16:00",
+                  "room": "PC211",
+                  "campus": "Permanent Campus (PC)"
+                }
+              ]
+            },
+            {
+              "codeWithSec": "EEE401.1",
+              "code": "EEE401",
+              "section": "1",
+              "title": "VLSI I",
+              "credits": 3.0,
+              "type": "Theory",
+              "faculty": {
+                "initials": "SMR",
+                "name": "S. M. Razibur Rahman",
+                "email": "sm.raziburrahman@seu.edu.bd"
+              },
+              "schedules": [
+                {
+                  "day": "MON",
+                  "startTime": "16:30",
+                  "endTime": "17:50",
+                  "room": "PC422",
+                  "campus": "Permanent Campus (PC)"
+                },
+                {
+                  "day": "WED",
+                  "startTime": "16:30",
+                  "endTime": "17:50",
+                  "room": "PC417",
+                  "campus": "Permanent Campus (PC)"
+                }
+              ]
+            },
+            {
+              "codeWithSec": "EEE441.2",
+              "code": "EEE441",
+              "section": "2",
+              "title": "Optoelectronics",
+              "credits": 3.0,
+              "type": "Theory",
+              "faculty": {
+                "initials": "RR",
+                "name": "Rakayet Rafi",
+                "email": "rakayet.rafi@seu.edu.bd"
+              },
+              "schedules": [
+                {
+                  "day": "TUE",
+                  "startTime": "08:30",
+                  "endTime": "09:50",
+                  "room": "PC408",
+                  "campus": "Permanent Campus (PC)"
+                },
+                {
+                  "day": "THU",
+                  "startTime": "08:30",
+                  "endTime": "09:50",
+                  "room": "PC422",
+                  "campus": "Permanent Campus (PC)"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

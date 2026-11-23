@@ -1,4 +1,5 @@
 # Dependencies & Build artifacts
+node_modules/
 .gemini-agent/
 __pycache__/
 *.pyc

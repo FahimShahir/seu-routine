@@ -1,0 +1,5 @@
+EEE447.1	Nano Electronic Devices	[MRT] Ruchira Tabassum	ruchira.tabassum@seu.edu.bd	SUN # 10:00 ~ 11:20 @ PC422, WED # 10:00 ~ 11:20 @ PC413
+EEE410.1	Green Power & Energy	[PJD] Puja Das	puja.das@seu.edu.bd	SUN # 13:30 ~ 14:50 @ PC422, WED # 13:30 ~ 14:50 @ PC417
+EEE442.2	Optoelectronics Lab	[RR] Rakayet Rafi	rakayet.rafi@seu.edu.bd	MON # 14:00 ~ 16:00 @ PC211
+EEE401.1	VLSI I	[SMR] S. M. Razibur Rahman	sm.raziburrahman@seu.edu.bd	MON # 16:30 ~ 17:50 @ PC422, WED # 16:30 ~ 17:50 @ PC417
+EEE441.2	Optoelectronics	[RR] Rakayet Rafi	rakayet.rafi@seu.edu.bd	TUE # 08:30 ~ 09:50 @ PC408, THU # 08:30 ~ 09:50 @ PC422
