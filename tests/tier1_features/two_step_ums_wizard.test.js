@@ -139,7 +139,7 @@ describe('Tier 1: Feature 7 - 2-Step UMS Ingestion Wizard & Dynamic Profile', ()
 
     const alertEl = app.query('#umsAboutValidationAlert');
     expect(alertEl.className).toContain('block');
-    expect(alertEl.innerHTML).toContain('মিসিং ফিল্ড');
+    expect(alertEl.innerHTML).toContain('Missing:');
   });
 
   it('7.3 should successfully complete 2-step wizard flow and render personalized hub', () => {
@@ -255,5 +255,48 @@ Fall 2024
     expect(app.query('#profileCreditsCompletedVal').textContent).toBe('45 Cr');
     expect(app.query('#profileGpaGrowthList').innerHTML).toContain('Spring 2025');
     expect(app.query('#profileGpaGrowthList').innerHTML).toContain('3.75');
+  });
+
+  it('7.6 should allow entering demo mode and exiting back to onboarding hub via exitDemoMode', () => {
+    // Start demo mode
+    app.window.loadSampleDemo();
+    expect(app.isDemoMode()).toBe(true);
+
+    const banner = app.query('#demoActiveBanner');
+    expect(banner.style.display).toBe('flex');
+    expect(banner.className).not.toContain('hidden');
+
+    // Exit demo mode
+    app.window.exitDemoMode();
+    expect(app.isDemoMode()).toBe(false);
+
+    // Should return to onboarding hub since there was no previous real routine
+    const onboarding = app.query('#onboardingHub');
+    expect(onboarding.style.display).not.toBe('none');
+    expect(banner.style.display).toBe('none');
+    expect(banner.className).toContain('hidden');
+  });
+
+  it('7.7 should clear all data and reset to onboarding hub on logoutAndResetData', () => {
+    // Setup app with some data first
+    app.query('#importAboutText').value = aboutSampleText;
+    app.window.validateAboutStepAndProceed();
+    app.query('#importRawText').value = registeredCoursesSampleText;
+    app.window.completeTwoStepImport();
+
+    expect(app.getAppData()).not.toBe(null);
+
+    // Mock confirm dialog
+    const originalConfirm = app.window.confirm;
+    app.window.confirm = () => true;
+
+    try {
+      app.window.logoutAndResetData();
+      expect(app.getAppData()).toBe(null);
+      const onboarding = app.query('#onboardingHub');
+      expect(onboarding.style.display).not.toBe('none');
+    } finally {
+      app.window.confirm = originalConfirm;
+    }
   });
 });
