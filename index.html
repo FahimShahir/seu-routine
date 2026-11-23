@@ -444,19 +444,19 @@
         <div class="relative shrink-0" id="studentAvatarContainer">
           <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-indigo-500 via-cyan-400 to-emerald-400 shadow-md">
             <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-white font-extrabold text-xs tracking-wider" id="headerAvatarInitials">
-              FB
+              SEU
             </div>
           </div>
           <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#090D16]"></span>
         </div>
         <div class="min-w-0">
           <div class="text-[13px] font-extrabold leading-tight truncate group-hover:text-indigo-400 transition-colors" id="studentName">
-            F.U.M Foyjul Bari Shahir
+            SEU Student
           </div>
           <div class="text-[11px] font-semibold flex items-center gap-1.5 mt-0.5" style="color: var(--text-muted);">
-            <span class="text-indigo-400 font-bold" id="studentProgram">BSc in EEE</span>
+            <span class="text-indigo-400 font-bold" id="studentProgram">Southeast University</span>
             <span>•</span>
-            <span id="studentBatch">Batch 42</span>
+            <span id="studentBatch">Smart Hub</span>
           </div>
         </div>
       </button>
@@ -464,7 +464,7 @@
       <!-- Right: Semester Pill, 12h/24h Toggle, Theme Toggle -->
       <div class="flex items-center gap-1.5 shrink-0">
         <button onclick="cycleSemester()" id="btnSemesterPill" class="px-2.5 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1 glass-card-elevated hover:border-indigo-500/50 transition-all" title="Switch Semester">
-          <span id="semesterPillText">Fall 2026</span>
+          <span id="semesterPillText">SEU</span>
           <span class="text-[9px] opacity-70">▾</span>
         </button>
 
@@ -971,13 +971,13 @@
             <div class="flex items-center gap-3.5 mb-4">
               <div class="w-16 h-16 rounded-2xl p-[2px] bg-gradient-to-tr from-indigo-400 via-cyan-400 to-emerald-400 shrink-0 shadow-lg">
                 <div class="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center font-extrabold text-xl tracking-wider text-white" id="profileAvatarInitials">
-                  FB
+                  SEU
                 </div>
               </div>
               <div class="min-w-0">
-                <h2 class="text-base font-extrabold leading-tight truncate" id="profileStudentName">F.U.M Foyjul Bari Shahir</h2>
-                <div class="text-xs text-cyan-300 font-bold mt-0.5" id="profileStudentProgram">BSc in EEE • Batch 42</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Fall 2023 — Summer 2026</div>
+                <h2 class="text-base font-extrabold leading-tight truncate" id="profileStudentName">Guest Student</h2>
+                <div class="text-xs text-cyan-300 font-bold mt-0.5" id="profileStudentProgram">Southeast University • Smart Hub</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Connect your routine from UMS</div>
               </div>
             </div>
 
@@ -988,14 +988,14 @@
                   <span>Student ID</span>
                   <span>📋</span>
                 </div>
-                <div class="font-mono text-[11px] font-bold text-white mt-0.5 truncate" id="studentIdDisplay">0232330005131002</div>
+                <div class="font-mono text-[11px] font-bold text-white mt-0.5 truncate" id="studentIdDisplay">—</div>
               </button>
               <button onclick="copyToClipboard(document.getElementById('studentCodeDisplay').innerText, 'Student Code')" class="bg-white/10 hover:bg-white/15 active:scale-95 transition-all rounded-xl p-2.5 text-left border border-white/10">
                 <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold uppercase">
                   <span>UMS Code</span>
                   <span>📋</span>
                 </div>
-                <div class="font-mono text-[11px] font-bold text-white mt-0.5 truncate" id="studentCodeDisplay">2023200500002</div>
+                <div class="font-mono text-[11px] font-bold text-white mt-0.5 truncate" id="studentCodeDisplay">—</div>
               </button>
             </div>
           </div>
@@ -3663,11 +3663,11 @@
 
       let aboutData = stagedAboutProfile || parseUmsAbout(text);
 
-      let studentName = (aboutData && aboutData.name) || 'F.U.M Foyjul Bari Shahir';
-      let studentId = (aboutData && aboutData.studentId) || '0232330005131002';
-      let studentCode = (aboutData && aboutData.studentCode) || '2023200500002';
-      let program = (aboutData && aboutData.program) || 'BSc in EEE';
-      let batch = (aboutData && aboutData.batch) || '42';
+      let studentName = (aboutData && aboutData.name) || 'SEU Student';
+      let studentId = (aboutData && aboutData.studentId) || '—';
+      let studentCode = (aboutData && aboutData.studentCode) || '—';
+      let program = (aboutData && aboutData.program) || 'Southeast University';
+      let batch = (aboutData && aboutData.batch) || 'Smart Hub';
 
       const idMatch = text.match(/(?:Student\s*ID|ID)\s*[:#]?\s*(\d{10,18})/i);
       if (idMatch) studentId = idMatch[1];
@@ -3722,13 +3722,6 @@
     // 14. PROFILE & APP-WIDE VIEW RENDERER
     // ------------------------------------------------------------
     function updateProfileHeader() {
-      if (!activeProfile) return;
-      const sName = activeProfile.name || 'Student Name';
-      const sProg = activeProfile.program || 'BSc in EEE';
-      const sBatch = activeProfile.batch || '42';
-      const sId = activeProfile.studentId || '—';
-      const sCode = activeProfile.code || '—';
-
       const elName = document.getElementById('studentName');
       const elProg = document.getElementById('studentProgram');
       const elBatch = document.getElementById('studentBatch');
@@ -3738,14 +3731,37 @@
       const elSemPill = document.getElementById('semesterPillText');
       const elProfName = document.getElementById('profileStudentName');
       const elProfProg = document.getElementById('profileStudentProgram');
+      const avatarInit = document.getElementById('headerAvatarInitials');
+      const profInit = document.getElementById('profileAvatarInitials');
+
+      if (!activeProfile) {
+        if (elName) elName.textContent = 'SEU Student';
+        if (elProg) elProg.textContent = 'Southeast University';
+        if (elBatch) elBatch.textContent = 'Smart Hub';
+        if (avatarInit) avatarInit.textContent = 'SEU';
+        if (profInit) profInit.textContent = 'SEU';
+        if (elProfName) elProfName.textContent = 'Guest Student';
+        if (elProfProg) elProfProg.textContent = 'Southeast University • Smart Hub';
+        if (elId) elId.textContent = '—';
+        if (elCode) elCode.textContent = '—';
+        if (elSemTag) elSemTag.textContent = 'No Routine';
+        if (elSemPill) elSemPill.textContent = 'SEU';
+        return;
+      }
+
+      const sName = activeProfile.name || 'SEU Student';
+      const sProg = activeProfile.program || 'Southeast University';
+      const sBatch = activeProfile.batch ? (String(activeProfile.batch).toLowerCase().startsWith('batch') ? activeProfile.batch : `Batch ${activeProfile.batch}`) : 'Smart Hub';
+      const sId = activeProfile.studentId || '—';
+      const sCode = activeProfile.code || '—';
 
       if (elName) elName.textContent = sName;
       if (elProg) elProg.textContent = sProg;
-      if (elBatch) elBatch.textContent = `Batch ${sBatch}`;
+      if (elBatch) elBatch.textContent = sBatch;
       if (elId) elId.textContent = sId;
       if (elCode) elCode.textContent = sCode;
       if (elProfName) elProfName.textContent = sName;
-      if (elProfProg) elProfProg.textContent = `${sProg} • Batch ${sBatch}`;
+      if (elProfProg) elProfProg.textContent = `${sProg} • ${sBatch}`;
 
       const semTitle = activeSemester ? (activeSemester.name || activeProfile.activeSemester) : (activeProfile.activeSemester || 'Fall 2026');
       if (elSemTag) elSemTag.textContent = semTitle;
@@ -3753,11 +3769,9 @@
       const statSemTag = document.getElementById('statSemesterTag');
       if (statSemTag) statSemTag.textContent = semTitle;
 
-      const initials = (sName || 'FB').split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('');
-      const avatarInit = document.getElementById('headerAvatarInitials');
-      const profInit = document.getElementById('profileAvatarInitials');
-      if (avatarInit) avatarInit.textContent = initials;
-      if (profInit) profInit.textContent = initials;
+      const initials = (sName || 'SEU').split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('');
+      if (avatarInit) avatarInit.textContent = initials || 'SEU';
+      if (profInit) profInit.textContent = initials || 'SEU';
 
       const courses = activeSemester ? (activeSemester.courses || []) : [];
       let totalCr = 0;
@@ -4047,6 +4061,7 @@
       }
 
       if (!hasActiveRoutine) {
+        updateProfileHeader();
         if (onboardingHub) onboardingHub.style.display = 'flex';
         if (mainAppContent) mainAppContent.style.display = 'none';
         const dashCd = document.getElementById('dashClassCountdown');

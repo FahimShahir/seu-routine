@@ -275,6 +275,10 @@ Fall 2024
     expect(onboarding.style.display).not.toBe('none');
     expect(banner.style.display).toBe('none');
     expect(banner.className).toContain('hidden');
+
+    // Header identity should reset to SEU Student
+    expect(app.query('#studentName').textContent.trim()).toBe('SEU Student');
+    expect(app.query('#headerAvatarInitials').textContent.trim()).toBe('SEU');
   });
 
   it('7.7 should clear all data and reset to onboarding hub on logoutAndResetData', () => {
@@ -285,6 +289,7 @@ Fall 2024
     app.window.completeTwoStepImport();
 
     expect(app.getAppData()).not.toBe(null);
+    expect(app.query('#studentName').textContent.trim()).toBe('F.U.M Foyjul Bari Shahir');
 
     // Mock confirm dialog
     const originalConfirm = app.window.confirm;
@@ -295,6 +300,13 @@ Fall 2024
       expect(app.getAppData()).toBe(null);
       const onboarding = app.query('#onboardingHub');
       expect(onboarding.style.display).not.toBe('none');
+
+      // Top header and profile should reset to clean guest/student state, NOT Foyjul Bari Shahir
+      expect(app.query('#studentName').textContent.trim()).toBe('SEU Student');
+      expect(app.query('#headerAvatarInitials').textContent.trim()).toBe('SEU');
+      expect(app.query('#studentProgram').textContent.trim()).toBe('Southeast University');
+      expect(app.query('#studentBatch').textContent.trim()).toBe('Smart Hub');
+      expect(app.query('#profileStudentName').textContent.trim()).toBe('Guest Student');
     } finally {
       app.window.confirm = originalConfirm;
     }
