@@ -195,4 +195,115 @@ describe('Tier 2: Boundary & Corner Cases', () => {
     // EEE442.2 MUST BE DELETED!
     expect(remainingCourses.some(c => c.codeWithSec === 'EEE442.2')).toBe(false);
   });
+
+  it('2.B.7 Midnight Deadline Boundary: 23:59:59 transitioning to 00:00:00 marks deadline as overdue', () => {
+    app.pasteAndImportUms(multilineFixture, 'Fall 2026');
+
+    // Assignment due at midnight end-of-day Nov 24, 2026 23:59:59
+    app.eval(`
+      AssignmentManager.save({
+        courseCode: 'EEE447',
+        title: 'Midnight Paper Submission',
+        dueDate: '2026-11-24',
+        dueTime: '23:59',
+        priority: 'high'
+      });
+    `);
+
+    // 1. One minute before deadline (23:58:00)
+    app.setMockTime(new Date(2026, 10, 24, 23, 58, 0, 0));
+    let nextDue = app.eval('AssignmentManager.getNextDue(new Date(2026, 10, 24, 23, 58, 0, 0))');
+    expect(nextDue).not.toBeNull();
+    let stats = app.eval('AssignmentManager.getStats(new Date(2026, 10, 24, 23, 58, 0, 0))');
+    expect(stats.overdue).toBe(0);
+
+    // 2. Transition across midnight to Nov 25, 2026 00:01:00
+    app.setMockTime(new Date(2026, 10, 25, 0, 1, 0, 0));
+    stats = app.eval('AssignmentManager.getStats(new Date(2026, 10, 25, 0, 1, 0, 0))');
+    expect(stats.overdue).toBe(1);
+
+    // Next due should no longer offer this expired item as upcoming
+    nextDue = app.eval('AssignmentManager.getNextDue(new Date(2026, 10, 25, 0, 1, 0, 0))');
+    expect(nextDue).toBeNull();
+  });
+
+  it('2.B.8 Year Crossover Boundary: Countdown correctly bridges Dec 31 2026 to Jan 2027 for assignments and exams', () => {
+    app.pasteAndImportUms(multilineFixture, 'Fall 2026');
+
+    // Add assignment due Jan 02, 2027 at 10:00 AM
+    app.eval(`
+      AssignmentManager.save({
+        courseCode: 'EEE401',
+        title: 'New Year VLSI Benchmark',
+        dueDate: '2027-01-02',
+        dueTime: '10:00',
+        priority: 'high'
+      });
+    `);
+
+    // Add exam on Jan 17, 2027 at 10:00 AM
+    app.eval(`
+      ExamManager.saveSchedule([{
+        id: 'ex-cross-1',
+        courseCode: 'EEE447.1',
+        courseTitle: 'Nano Electronic Devices',
+        date: '2027-01-17',
+        startTime: '10:00',
+        endTime: '12:00',
+        room: 'PC-422'
+      }]);
+    `);
+
+    // Set time to Dec 31, 2026 at 22:00:00 (2 hours before 2027)
+    const newYearsEve = new Date(2026, 11, 31, 22, 0, 0, 0);
+    app.setMockTime(newYearsEve);
+
+    // Assignment countdown: Dec 31 22:00 to Jan 02 10:00 = 36 hours (1d 12h)
+    const nextDue = app.eval('AssignmentManager.getNextDue(new Date(2026, 11, 31, 22, 0, 0, 0))');
+    expect(nextDue).not.toBeNull();
+    expect(nextDue.diffMs || nextDue.remainingMs).toBeGreaterThan(0);
+    if (nextDue.countdown) {
+      expect(nextDue.countdown).toMatch(/(0?1d\s*:\s*12h|36h)/);
+    }
+
+    // Exam countdown: Dec 31 22:00 to Jan 17 10:00 = 16 days 12h
+    const nextExam = app.eval('ExamManager.getNextExam(new Date(2026, 11, 31, 22, 0, 0, 0))');
+    expect(nextExam).not.toBeNull();
+    if (nextExam.countdown) {
+      expect(nextExam.countdown).toMatch(/16d/);
+    }
+  });
+
+  it('2.B.9 Empty Assignment & Exam State Boundary: Getters return graceful empty structures without throwing NaN or crashing UI', () => {
+    // Empty app environment without any added assignments or exams
+    const allAssignments = app.eval('AssignmentManager.getAll()');
+    expect(Array.isArray(allAssignments)).toBe(true);
+    expect(allAssignments.length).toBe(0);
+
+    const nextDue = app.eval('AssignmentManager.getNextDue()');
+    expect(nextDue).toBeNull();
+
+    const stats = app.eval('AssignmentManager.getStats()');
+    expect(stats.total).toBe(0);
+    expect(stats.pending).toBe(0);
+    expect(stats.overdue).toBe(0);
+
+    const allExams = app.eval('ExamManager.getAll()');
+    expect(Array.isArray(allExams)).toBe(true);
+  });
+
+  it('2.B.10 Corrupted Storage Boundary: Gracefully handles corrupted JSON in localStorage without breaking application boot', () => {
+    app.setStorage('seu_assignments', '{ broken JSON: [');
+    app.setStorage('seu_exam_schedule', 'null invalid garbage json');
+
+    // App should reload cleanly without crashing
+    app.simulateReload();
+
+    const assignments = app.eval('AssignmentManager.getAll()');
+    expect(Array.isArray(assignments)).toBe(true);
+    expect(assignments.length).toBe(0);
+
+    const exams = app.eval('ExamManager.getAll()');
+    expect(Array.isArray(exams)).toBe(true);
+  });
 });

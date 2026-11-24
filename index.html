@@ -634,7 +634,36 @@
           </div>
         </div>
 
-        <!-- Swipeable Countdown Strip (4 Cards) -->
+        <!-- Dynamic Semester Progress Widget (R2) -->
+        <div id="cardSemesterProgress" class="glass-card rounded-2xl p-4 space-y-3 border-l-4 border-l-indigo-500">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-sm">🎓</span>
+              <div>
+                <span id="semProgressTitle" class="text-xs font-extrabold text-indigo-400 uppercase tracking-wider">Fall 2026</span>
+                <span id="semProgressSystemBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-300 ml-1.5">Tri-Semester</span>
+              </div>
+            </div>
+            <span id="semProgressStatusBadge" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 uppercase tracking-wider">In Progress</span>
+          </div>
+
+          <div>
+            <div class="flex items-baseline justify-between mb-1.5">
+              <span id="semProgressPct" class="font-mono text-2xl font-extrabold text-white">0.0%</span>
+              <span id="semProgressMeta" class="text-[11px] font-mono text-slate-400">Day 0 of 0 • 0 days left</span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
+              <div id="semProgressBar" class="h-full rounded-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 transition-all duration-500" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[11px]">
+            <span id="semNextMilestone" class="font-medium text-slate-300 truncate">🎯 Next: Loading milestone...</span>
+            <span id="semMilestoneCountdown" class="font-mono font-extrabold text-cyan-400 shrink-0 ml-2">--</span>
+          </div>
+        </div>
+
+        <!-- Swipeable Countdown Strip (5 Cards) -->
         <div>
           <div class="flex items-center justify-between mb-2">
             <h2 class="text-xs font-extrabold uppercase tracking-wider" style="color: var(--text-muted);">Live Countdowns</h2>
@@ -663,6 +692,17 @@
               <div id="stripNextCt" class="hidden"></div>
               <div id="dashCtCountdown" class="hidden"></div>
               <div id="dashCtInfo" class="hidden"></div>
+            </div>
+
+            <!-- Chip 2.5: Next Assignment (R1) -->
+            <div onclick="openPlannerSubtab('assignments')" class="glass-card snap-start shrink-0 w-[162px] rounded-2xl p-3 cursor-pointer hover:border-indigo-500/50 border-l-4 border-l-indigo-400">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-400">Next Deadline</span>
+                <span class="text-sm">📋</span>
+              </div>
+              <div id="stripNextAsgTime" class="font-mono text-sm font-extrabold mt-1.5 truncate">--</div>
+              <div id="stripNextAsgMeta" class="text-[11px] truncate mt-0.5" style="color: var(--text-muted);">None pending</div>
+              <div id="stripNextAsg" class="hidden"></div>
             </div>
 
             <!-- Chip 3: Next Exam -->
@@ -848,10 +888,13 @@
            TAB 4: PLANNER (CTs, EXAMS & SEU 2026 CALENDAR)
            ========================================================== -->
       <section id="tab-planner" class="tab-view space-y-4">
-        <!-- 3-Way Segmented Switcher -->
-        <div class="glass-card-elevated p-1 rounded-2xl grid grid-cols-3 gap-1">
+        <!-- 4-Way Segmented Switcher (R1) -->
+        <div class="glass-card-elevated p-1 rounded-2xl grid grid-cols-4 gap-1">
           <button id="btnPlanCt" onclick="setPlannerTab('ct')" class="py-2 rounded-xl text-xs font-extrabold transition-all bg-indigo-500 text-white shadow-sm">
             📝 CTs
+          </button>
+          <button id="btnPlanAsg" onclick="setPlannerTab('assignments')" class="py-2 rounded-xl text-xs font-extrabold transition-all" style="color: var(--text-muted);">
+            📋 Assignments
           </button>
           <button id="btnPlanExam" onclick="setPlannerTab('exam')" class="py-2 rounded-xl text-xs font-extrabold transition-all" style="color: var(--text-muted);">
             🏛️ Exams
@@ -873,6 +916,32 @@
             </button>
           </div>
           <div id="ctListContainer" class="space-y-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- SUBTAB 4D: ASSIGNMENTS & DEADLINES (R1) -->
+        <div id="planner-assignments" class="hidden space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-extrabold">Assignments & Deadlines</h2>
+              <p class="text-[11px]" style="color: var(--text-muted);">Homework, reports & project milestones</p>
+            </div>
+            <button onclick="openAddAssignmentSheet()" class="px-3 py-1.5 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-extrabold shadow-sm active:scale-95 transition-all">
+              + Add Assignment
+            </button>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1">
+            <button onclick="filterAssignments('all')" id="asgFilterAll" class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-500 text-white transition-all">All</button>
+            <button onclick="filterAssignments('pending')" id="asgFilterPending" class="px-2.5 py-1 rounded-lg text-[11px] font-bold glass-card text-slate-300 hover:bg-white/10 transition-all">Pending</button>
+            <button onclick="filterAssignments('in_progress')" id="asgFilterInProgress" class="px-2.5 py-1 rounded-lg text-[11px] font-bold glass-card text-slate-300 hover:bg-white/10 transition-all">In Progress</button>
+            <button onclick="filterAssignments('submitted')" id="asgFilterSubmitted" class="px-2.5 py-1 rounded-lg text-[11px] font-bold glass-card text-slate-300 hover:bg-white/10 transition-all">Submitted</button>
+            <button onclick="filterAssignments('overdue')" id="asgFilterOverdue" class="px-2.5 py-1 rounded-lg text-[11px] font-bold glass-card text-slate-300 hover:bg-white/10 transition-all">Overdue</button>
+          </div>
+
+          <div id="assignmentListContainer" class="space-y-3">
             <!-- Populated by JS -->
           </div>
         </div>
@@ -1406,6 +1475,77 @@
   </div>
 
   <!-- ============================================================
+       BOTTOM SHEET 2B: ADD/EDIT ASSIGNMENT DEADLINE (R1)
+       ============================================================ -->
+  <div id="sheetAddAssignment" class="sheet-backdrop" onclick="backdropClose(event, 'sheetAddAssignment')">
+    <div class="sheet-panel">
+      <div class="w-10 h-1 rounded-full bg-slate-500/40 mx-auto mt-2.5"></div>
+      <div class="px-5 py-3.5 flex items-center justify-between border-b" style="border-color: var(--border-subtle);">
+        <div>
+          <h3 class="text-base font-extrabold" id="sheetAddAssignmentTitle">📋 Add Assignment / Deadline</h3>
+          <p class="text-[11px]" style="color: var(--text-muted);">Track homework, lab reports & project milestones</p>
+        </div>
+        <button onclick="closeSheet('sheetAddAssignment')" class="w-8 h-8 rounded-full glass-card-elevated flex items-center justify-center text-sm font-bold">✕</button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-3.5 max-h-[75vh]">
+        <input type="hidden" id="asgEditId" value="" />
+
+        <div>
+          <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Enrolled Course</label>
+          <select id="asgCourseSelect" class="app-input text-xs">
+            <option value="">Select course...</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Title / Topic</label>
+          <input id="asgTitleInput" type="text" placeholder="e.g. Lab Report 1: PN Junction Characteristics" class="app-input text-xs" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Due Date</label>
+            <input id="asgDateInput" type="date" class="app-input font-mono text-xs" />
+          </div>
+          <div>
+            <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Due Time</label>
+            <input id="asgTimeInput" type="time" value="23:59" class="app-input font-mono text-xs" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Priority</label>
+            <select id="asgPrioritySelect" class="app-input text-xs">
+              <option value="low">🟢 Low Priority</option>
+              <option value="medium" selected>🟡 Medium Priority</option>
+              <option value="high">🔴 High Priority</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Status</label>
+            <select id="asgStatusSelect" class="app-input text-xs">
+              <option value="pending" selected>⏳ Pending</option>
+              <option value="in_progress">🔄 In Progress</option>
+              <option value="submitted">✅ Submitted</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-[11px] font-extrabold uppercase tracking-wider block mb-1" style="color: var(--text-muted);">Description / Instructions</label>
+          <textarea id="asgNotesInput" rows="2" placeholder="Submission link, portal instructions, or notes..." class="app-input text-xs"></textarea>
+        </div>
+
+        <button onclick="saveAssignmentFromSheet()" class="w-full py-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white text-xs font-extrabold shadow-lg active:scale-[0.98] transition-all">
+          💾 Save Assignment
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        BOTTOM SHEET 3: EXAM PDF MATCHER
        ============================================================ -->
   <div id="sheetExamPdf" class="sheet-backdrop" onclick="backdropClose(event, 'sheetExamPdf')">
@@ -1422,9 +1562,9 @@
       <div class="p-5 overflow-y-auto space-y-4">
         <!-- Interactive Dropzone -->
         <div onclick="document.getElementById('pdfFileInput').click()" class="border-2 border-dashed border-rose-500/40 bg-rose-500/5 hover:bg-rose-500/10 rounded-2xl p-5 text-center cursor-pointer transition-all">
-          <input type="file" id="pdfFileInput" accept=".pdf" style="display:none;" onchange="handleExamPdfUpload(event)">
+          <input type="file" id="pdfFileInput" accept=".pdf,.json,.txt" style="display:none;" onchange="handleExamPdfUpload(event)">
           <div class="text-3xl mb-1.5">📥</div>
-          <div class="text-xs font-extrabold">Tap to Upload SEU Exam PDF</div>
+          <div class="text-xs font-extrabold">Tap to Upload Routine (PDF, JSON, or TXT)</div>
           <div class="text-[11px] mt-0.5" style="color: var(--text-muted);">Client-side PDF extraction with zero server upload</div>
         </div>
 
@@ -1909,6 +2049,8 @@
     // ------------------------------------------------------------
     // 4. CALENDAR MANAGER (DUAL SYSTEM 2026 WITH 3-FACTOR OFF DAYS)
     // ------------------------------------------------------------
+    const SEU_ACADEMIC_CALENDAR_2026 = {"year":2026,"sourceUrl":"https://seu.edu.bd/academic-calendar-2026","lastUpdated":"2026-11-23","systems":{"triSemester":{"label":"Tri-Semester (Undergraduate: EEE, CSE, BBA, Textile, etc.)","semesters":{"Summer - 2026":{"holidays":[{"title":"Holiday (Ashura) *","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Summer - 2026"},{"title":"July Mass Upraising Day/July Gono-obbhutthan Dibos","dateStr":"Aug 5","startDate":"2026-08-05","endDate":"2026-08-05","days":1,"semester":"Summer - 2026"},{"title":"Holiday (Eid-e-Miladun-Nabi) *","dateStr":"Aug 26","startDate":"2026-08-26","endDate":"2026-08-26","days":1,"semester":"Summer - 2026"},{"title":"Holiday (Janmashtami) *","dateStr":"Sept 04","startDate":"2026-09-04","endDate":"2026-09-04","days":1,"semester":"Summer - 2026"}],"milestones":[{"title":"Classes begin","dateStr":"June 30","startDate":"2026-06-30","endDate":"2026-06-30","days":1,"type":"milestone"},{"title":"Last date of Self-Issuance of Admit Card for Midterm Examination","dateStr":"Aug 13","startDate":"2026-08-13","endDate":"2026-08-13","days":1,"type":"exam"},{"title":"Midterm Examination (8 Days)","dateStr":"Aug 15 - 22","startDate":"2026-08-15","endDate":"2026-08-22","days":8,"type":"exam"},{"title":"Last Date of Classes (UG-Regular)","dateStr":"Oct 01","startDate":"2026-10-01","endDate":"2026-10-01","days":1,"type":"milestone"},{"title":"Last Date of Classes (UG-Diploma & Master's)","dateStr":"Oct 03","startDate":"2026-10-03","endDate":"2026-10-03","days":1,"type":"milestone"},{"title":"Last date Self-Issuance of Admit Card for Final Examination","dateStr":"Oct 03","startDate":"2026-10-03","endDate":"2026-10-03","days":1,"type":"exam"},{"title":"Final Examination (8 Days)","dateStr":"Oct 04-11","startDate":"2026-10-04","endDate":"2026-10-11","days":8,"type":"exam"},{"title":"Classes begin of Fall Semester 2026","dateStr":"Oct 25","startDate":"2026-10-25","endDate":"2026-10-25","days":1,"type":"milestone"}],"totalHolidayDays":4},"Spring - 2026":{"holidays":[{"title":"Holiday (Sharaswati Puja) *","dateStr":"Jan 23","startDate":"2026-01-23","endDate":"2026-01-23","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Shab-e-Barat) *","dateStr":"Feb 04","startDate":"2026-02-04","endDate":"2026-02-04","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Shaheed Dibash & International Mother Language Day)","dateStr":"Feb 21","startDate":"2026-02-21","endDate":"2026-02-21","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*","dateStr":"March 16 - 25","startDate":"2026-03-16","endDate":"2026-03-25","days":10,"semester":"Spring - 2026"},{"title":"Holiday (Independence Day)","dateStr":"March 26","startDate":"2026-03-26","endDate":"2026-03-26","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Bangla Nababorsho) *","dateStr":"April 14","startDate":"2026-04-14","endDate":"2026-04-14","days":1,"semester":"Spring - 2026"},{"title":"Holiday (May Day & Buddha Purnima)*","dateStr":"May 01","startDate":"2026-05-01","endDate":"2026-05-01","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Eid-Ul-Azha) *","dateStr":"May 22 - June 01","startDate":"2026-05-22","endDate":"2026-06-01","days":11,"semester":"Spring - 2026"}],"milestones":[{"title":"Classes begin","dateStr":"Feb 15","startDate":"2026-02-15","endDate":"2026-02-15","days":1,"type":"milestone"},{"title":"Last date of Self-issuance of Admit Card for Midterm Examination","dateStr":"April 11","startDate":"2026-04-11","endDate":"2026-04-11","days":1,"type":"exam"},{"title":"Midterm Examination (8 Days)","dateStr":"April 12 - 21","startDate":"2026-04-12","endDate":"2026-04-21","days":10,"type":"exam"},{"title":"Last Date of Classes (UG-Regular)","dateStr":"June 11","startDate":"2026-06-11","endDate":"2026-06-11","days":1,"type":"milestone"},{"title":"Last Date of Classes (UG-Diploma & Master's)","dateStr":"June 12","startDate":"2026-06-12","endDate":"2026-06-12","days":1,"type":"milestone"},{"title":"Last date of Self-issuance of Admit card for Final Examination","dateStr":"June 12","startDate":"2026-06-12","endDate":"2026-06-12","days":1,"type":"exam"},{"title":"Final Examination (8 Days)","dateStr":"June 13 - 20","startDate":"2026-06-13","endDate":"2026-06-20","days":8,"type":"exam"},{"title":"Classes begin of Summer Semester 2026","dateStr":"June 30","startDate":"2026-06-30","endDate":"2026-06-30","days":1,"type":"milestone"}],"totalHolidayDays":27},"Fall - 2026":{"holidays":[{"title":"Holiday (Durga puja)*","dateStr":"Oct 20 -21","startDate":"2026-10-20","endDate":"2026-10-21","days":2,"semester":"Fall - 2026"},{"title":"Holiday (National Revolution and Solidarity Day)","dateStr":"Nov 07","startDate":"2026-11-07","endDate":"2026-11-07","days":1,"semester":"Fall - 2026"},{"title":"Holiday (Victory Day)","dateStr":"Dec 16","startDate":"2026-12-16","endDate":"2026-12-16","days":1,"semester":"Fall - 2026"},{"title":"Holiday (Christmas Day)","dateStr":"Dec 25","startDate":"2026-12-25","endDate":"2026-12-25","days":1,"semester":"Fall - 2026"}],"milestones":[{"title":"Classes begin","dateStr":"Oct 25","startDate":"2026-10-25","endDate":"2026-10-25","days":1,"type":"milestone"},{"title":"Last date of Self-Issuance of Admit Card for Midterm Examination","dateStr":"Dec 01","startDate":"2026-12-01","endDate":"2026-12-01","days":1,"type":"exam"},{"title":"Midterm Examination (8 Days)","dateStr":"Dec 01 - 08","startDate":"2026-12-01","endDate":"2026-12-08","days":8,"type":"exam"},{"title":"Last Date of Classes (UG-Regular)","dateStr":"Jan 14, 2027","startDate":"2027-01-14","endDate":"2027-01-14","days":1,"type":"milestone"},{"title":"Last Date of Classes (UG-Diploma & Master's)","dateStr":"Jan 16, 2027","startDate":"2027-01-16","endDate":"2027-01-16","days":1,"type":"milestone"},{"title":"Last date of Self-issuance of Admit card for Final Examination","dateStr":"Jan 17, 2027","startDate":"2027-01-17","endDate":"2027-01-17","days":1,"type":"exam"},{"title":"Final Examination (8 Days)","dateStr":"Jan 17 - 24, 2027","startDate":"2027-01-17","endDate":"2027-01-24","days":8,"type":"exam"},{"title":"Classes begin of Spring 2027","dateStr":"Feb 03 , 2027","startDate":"2027-02-03","endDate":"2027-02-03","days":1,"type":"milestone"}],"totalHolidayDays":5}},"allHolidays":[{"title":"Holiday (Sharaswati Puja) *","dateStr":"Jan 23","startDate":"2026-01-23","endDate":"2026-01-23","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Shab-e-Barat) *","dateStr":"Feb 04","startDate":"2026-02-04","endDate":"2026-02-04","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Shaheed Dibash & International Mother Language Day)","dateStr":"Feb 21","startDate":"2026-02-21","endDate":"2026-02-21","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*","dateStr":"March 16 - 25","startDate":"2026-03-16","endDate":"2026-03-25","days":10,"semester":"Spring - 2026"},{"title":"Holiday (Independence Day)","dateStr":"March 26","startDate":"2026-03-26","endDate":"2026-03-26","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Bangla Nababorsho) *","dateStr":"April 14","startDate":"2026-04-14","endDate":"2026-04-14","days":1,"semester":"Spring - 2026"},{"title":"Holiday (May Day & Buddha Purnima)*","dateStr":"May 01","startDate":"2026-05-01","endDate":"2026-05-01","days":1,"semester":"Spring - 2026"},{"title":"Holiday (Eid-Ul-Azha) *","dateStr":"May 22 - June 01","startDate":"2026-05-22","endDate":"2026-06-01","days":11,"semester":"Spring - 2026"},{"title":"Holiday (Ashura) *","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Summer - 2026"},{"title":"July Mass Upraising Day/July Gono-obbhutthan Dibos","dateStr":"Aug 5","startDate":"2026-08-05","endDate":"2026-08-05","days":1,"semester":"Summer - 2026"},{"title":"Holiday (Eid-e-Miladun-Nabi) *","dateStr":"Aug 26","startDate":"2026-08-26","endDate":"2026-08-26","days":1,"semester":"Summer - 2026"},{"title":"Holiday (Janmashtami) *","dateStr":"Sept 04","startDate":"2026-09-04","endDate":"2026-09-04","days":1,"semester":"Summer - 2026"},{"title":"Holiday (Durga puja)*","dateStr":"Oct 20 -21","startDate":"2026-10-20","endDate":"2026-10-21","days":2,"semester":"Fall - 2026"},{"title":"Holiday (National Revolution and Solidarity Day)","dateStr":"Nov 07","startDate":"2026-11-07","endDate":"2026-11-07","days":1,"semester":"Fall - 2026"},{"title":"Holiday (Victory Day)","dateStr":"Dec 16","startDate":"2026-12-16","endDate":"2026-12-16","days":1,"semester":"Fall - 2026"},{"title":"Holiday (Christmas Day)","dateStr":"Dec 25","startDate":"2026-12-25","endDate":"2026-12-25","days":1,"semester":"Fall - 2026"}],"totalYearHolidayDays":36},"biSemester":{"label":"Bi-Semester (Pharmacy & Masters Programs)","semesters":{"Bi Semester Fall - 2026":{"holidays":[{"title":"Holiday (Eid-e-Miladun-Nabi) *","dateStr":"Aug 26","startDate":"2026-08-26","endDate":"2026-08-26","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Janmashtami) *","dateStr":"Sept 04","startDate":"2026-09-04","endDate":"2026-09-04","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Durga puja)*","dateStr":"Oct 20 -21","startDate":"2026-10-20","endDate":"2026-10-21","days":2,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Victory Day)","dateStr":"Dec 16","startDate":"2026-12-16","endDate":"2026-12-16","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday(Christmas Day)*","dateStr":"Dec 25","startDate":"2026-12-25","endDate":"2026-12-25","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Eid-Ul-Azha) *","dateStr":"May 22 - June 01","startDate":"2026-05-22","endDate":"2026-06-01","days":11,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Ashura) *","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Bi Semester Fall - 2026"}],"milestones":[{"title":"Classes begin","dateStr":"Aug 16","startDate":"2026-08-16","endDate":"2026-08-16","days":1,"type":"milestone"},{"title":"Last date of Self-Issuance of Admit Card for Midterm Examination","dateStr":"Oct 24","startDate":"2026-10-24","endDate":"2026-10-24","days":1,"type":"exam"},{"title":"Midterm Examination","dateStr":"Oct 25 - Nov 07","startDate":"2026-10-25","endDate":"2026-11-07","days":14,"type":"exam"},{"title":"Last Date of Classes","dateStr":"Jan 06","startDate":"2026-01-06","endDate":"2026-01-06","days":1,"type":"milestone"},{"title":"Last date of Self-issuance of Admit card for Final Examination","dateStr":"Jan 11","startDate":"2026-01-11","endDate":"2026-01-11","days":1,"type":"exam"},{"title":"Final Examination","dateStr":"Jan 10 - 27","startDate":"2026-01-10","endDate":"2026-01-27","days":18,"type":"exam"},{"title":"Classes begin of Spring Semester 2027","dateStr":"Feb 14","startDate":"2026-02-14","endDate":"2026-02-14","days":1,"type":"milestone"}],"totalHolidayDays":18},"Bi Semester Spring - 2026":{"holidays":[{"title":"Holiday (Sharaswati Puja) *","dateStr":"Jan 23","startDate":"2026-01-23","endDate":"2026-01-23","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Shab-e-Barat) *","dateStr":"Feb 04","startDate":"2026-02-04","endDate":"2026-02-04","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Shaheed Dibash & International Mother Language Day)","dateStr":"Feb 21","startDate":"2026-02-21","endDate":"2026-02-21","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*","dateStr":"March 16 - 25","startDate":"2026-03-16","endDate":"2026-03-25","days":10,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Independence Day)","dateStr":"March 26","startDate":"2026-03-26","endDate":"2026-03-26","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Bangla Nababorsho) *","dateStr":"April 14","startDate":"2026-04-14","endDate":"2026-04-14","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (May Day & Buddha Purnima)*","dateStr":"May 01","startDate":"2026-05-01","endDate":"2026-05-01","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Eid-Ul-Azha) *","dateStr":"May 22 - June 01","startDate":"2026-05-22","endDate":"2026-06-01","days":11,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday(Ashura)*","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"July Mass Uprising Day/July Gono Obbhutthan Dibos","dateStr":"August 05","startDate":"2026-08-05","endDate":"2026-08-05","days":1,"semester":"Bi Semester Spring - 2026"}],"milestones":[{"title":"Classes begin","dateStr":"Feb 15","startDate":"2026-02-15","endDate":"2026-02-15","days":1,"type":"milestone"},{"title":"Last date of Self-Issuance of Admit Card for Midterm Examination","dateStr":"May 02","startDate":"2026-05-02","endDate":"2026-05-02","days":1,"type":"exam"},{"title":"Midterm Examination","dateStr":"May 03-16","startDate":"2026-05-03","endDate":"2026-05-16","days":14,"type":"exam"},{"title":"Last date of classes","dateStr":"July 18","startDate":"2026-07-18","endDate":"2026-07-18","days":1,"type":"milestone"},{"title":"Last date of Self-Issuance of Admit Card for Final Examination","dateStr":"July 18","startDate":"2026-07-18","endDate":"2026-07-18","days":1,"type":"exam"},{"title":"Final Examination","dateStr":"July 19 - August 1","startDate":"2026-07-19","endDate":"2026-08-01","days":14,"type":"exam"},{"title":"Classes begin of fall 2026","dateStr":"August 16","startDate":"2026-08-16","endDate":"2026-08-16","days":1,"type":"milestone"}],"totalHolidayDays":29}},"allHolidays":[{"title":"Holiday (Sharaswati Puja) *","dateStr":"Jan 23","startDate":"2026-01-23","endDate":"2026-01-23","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Shab-e-Barat) *","dateStr":"Feb 04","startDate":"2026-02-04","endDate":"2026-02-04","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Shaheed Dibash & International Mother Language Day)","dateStr":"Feb 21","startDate":"2026-02-21","endDate":"2026-02-21","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Jummatul Bida, Lailatul Qadr & Eid-ul-Fitr)*","dateStr":"March 16 - 25","startDate":"2026-03-16","endDate":"2026-03-25","days":10,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Independence Day)","dateStr":"March 26","startDate":"2026-03-26","endDate":"2026-03-26","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Bangla Nababorsho) *","dateStr":"April 14","startDate":"2026-04-14","endDate":"2026-04-14","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (May Day & Buddha Purnima)*","dateStr":"May 01","startDate":"2026-05-01","endDate":"2026-05-01","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Eid-Ul-Azha) *","dateStr":"May 22 - June 01","startDate":"2026-05-22","endDate":"2026-06-01","days":11,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Ashura) *","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday(Ashura)*","dateStr":"June 26","startDate":"2026-06-26","endDate":"2026-06-26","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"July Mass Uprising Day/July Gono Obbhutthan Dibos","dateStr":"August 05","startDate":"2026-08-05","endDate":"2026-08-05","days":1,"semester":"Bi Semester Spring - 2026"},{"title":"Holiday (Eid-e-Miladun-Nabi) *","dateStr":"Aug 26","startDate":"2026-08-26","endDate":"2026-08-26","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Janmashtami) *","dateStr":"Sept 04","startDate":"2026-09-04","endDate":"2026-09-04","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Durga puja)*","dateStr":"Oct 20 -21","startDate":"2026-10-20","endDate":"2026-10-21","days":2,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday (Victory Day)","dateStr":"Dec 16","startDate":"2026-12-16","endDate":"2026-12-16","days":1,"semester":"Bi Semester Fall - 2026"},{"title":"Holiday(Christmas Day)*","dateStr":"Dec 25","startDate":"2026-12-25","endDate":"2026-12-25","days":1,"semester":"Bi Semester Fall - 2026"}],"totalYearHolidayDays":36}}};
+
     var CalendarManager = {
       currentSystem: 'triSemester', // 'triSemester' or 'biSemester'
 
@@ -1988,6 +2130,116 @@
         ]
       },
 
+      getSemesterProgress(now = new Date(), semesterName, systemKey) {
+        if (!now) now = new Date();
+        const curSys = (systemKey === 'biSemester' || systemKey === 'triSemester')
+          ? systemKey
+          : (this.currentSystem || 'triSemester');
+
+        let sName = semesterName || (activeSemester && activeSemester.name) || 'Fall 2026';
+        const sysSemesters = SEU_ACADEMIC_CALENDAR_2026.systems[curSys].semesters;
+
+        let matchedKey = null;
+        if (curSys === 'triSemester') {
+          if (/summer/i.test(sName)) matchedKey = 'Summer - 2026';
+          else if (/spring/i.test(sName)) matchedKey = 'Spring - 2026';
+          else matchedKey = 'Fall - 2026';
+        } else {
+          if (/spring/i.test(sName)) matchedKey = 'Bi Semester Spring - 2026';
+          else matchedKey = 'Bi Semester Fall - 2026';
+        }
+
+        const semData = sysSemesters[matchedKey] || Object.values(sysSemesters)[0];
+        const isFall = /fall/i.test(matchedKey);
+
+        const normalizedMilestones = (semData.milestones || []).map(m => {
+          let s = m.startDate;
+          let e = m.endDate || m.startDate;
+          if (isFall) {
+            if (s && (s.startsWith('2026-01') || s.startsWith('2026-02') || s.startsWith('2026-03'))) {
+              s = s.replace(/^2026-/, '2027-');
+            }
+            if (e && (e.startsWith('2026-01') || e.startsWith('2026-02') || e.startsWith('2026-03'))) {
+              e = e.replace(/^2026-/, '2027-');
+            }
+          }
+          return { ...m, startDate: s, endDate: e };
+        });
+
+        const startMilestone = normalizedMilestones.find(m => /^classes begin/i.test(m.title)) || normalizedMilestones[0];
+        const endMilestone = normalizedMilestones.find(m => /^final examination/i.test(m.title)) || normalizedMilestones[normalizedMilestones.length - 1];
+
+        const startDate = startMilestone ? startMilestone.startDate : '2026-10-25';
+        const endDate = endMilestone ? (endMilestone.endDate || endMilestone.startDate) : '2027-01-24';
+
+        const sDate = new Date(startDate + 'T00:00:00');
+        const eDate = new Date(endDate + 'T00:00:00');
+        const nowDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        const totalDays = Math.max(1, Math.round((eDate - sDate) / 86400000));
+        let elapsedDays = Math.round((nowDate - sDate) / 86400000);
+        let progressPercentage = 0;
+        let status = 'In Progress';
+
+        if (nowDate < sDate) {
+          elapsedDays = 0;
+          progressPercentage = 0;
+          status = 'Upcoming';
+        } else if (nowDate > eDate) {
+          elapsedDays = totalDays;
+          progressPercentage = 100;
+          status = 'Completed';
+        } else {
+          elapsedDays = Math.min(totalDays, Math.max(0, elapsedDays));
+          progressPercentage = Math.round((elapsedDays / totalDays) * 1000) / 10;
+          status = 'In Progress';
+        }
+
+        const remainingDays = Math.max(0, totalDays - elapsedDays);
+
+        // Sort milestones chronologically
+        const sortedMilestones = [...normalizedMilestones].sort((a, b) => new Date(a.startDate + 'T00:00:00') - new Date(b.startDate + 'T00:00:00'));
+
+        let currentMilestone = null;
+        let nextMilestone = null;
+
+        for (const m of sortedMilestones) {
+          const mStart = new Date(m.startDate + 'T00:00:00');
+          const mEnd = new Date((m.endDate || m.startDate) + 'T23:59:59');
+
+          if (now >= mStart && now <= mEnd) {
+            currentMilestone = m;
+          }
+          if (mStart > now && !nextMilestone) {
+            nextMilestone = m;
+          }
+        }
+
+        let nextMilestoneCountdown = '--';
+        if (nextMilestone) {
+          const mStart = new Date(nextMilestone.startDate + 'T00:00:00');
+          const diffMs = Math.max(0, mStart - now);
+          const cd = formatCountdown(diffMs);
+          nextMilestoneCountdown = cd.days > 0 ? `${cd.days}d ${cd.hours}h` : cd.short;
+        }
+
+        return {
+          semester: sName || matchedKey,
+          system: curSys,
+          startDate,
+          endDate,
+          totalDays,
+          elapsedDays,
+          remainingDays,
+          progressPercentage,
+          status,
+          currentMilestone,
+          nextMilestone,
+          nextMilestoneCountdown,
+          milestones: normalizedMilestones
+        };
+      },
+
       getNextOffDay(now = new Date()) {
         const curDayOfWeek = now.getDay();
         const curYear = now.getFullYear();
@@ -2060,7 +2312,6 @@
           for (let off = 1; off <= 7; off++) {
             const checkDt = new Date(curYear, curMonth, curDate + off, 0, 0, 0, 0);
             const checkDayKey = DAY_KEYS[checkDt.getDay()];
-            // If weekday with 0 classes
             if (checkDayKey !== 'FRI' && !scheduledDays.has(checkDayKey)) {
               candidates.push({
                 offDay: { title: `${DAY_NAMES[checkDayKey]} (Routine Off)`, category: 'Routine Free Day' },
@@ -2074,14 +2325,202 @@
           }
         }
 
-        // Return candidate with smallest diffMs
         candidates.sort((a, b) => a.diffMs - b.diffMs);
         return candidates[0] || null;
       }
     };
 
     // ------------------------------------------------------------
-    // 5. CLASS TEST (CT) & EXAM MANAGERS
+    // 4B. ASSIGNMENT MANAGER (R1: DEADLINES & LIFECYCLE)
+    // ------------------------------------------------------------
+    var AssignmentManager = {
+      getAll() {
+        try {
+          const raw = localStorage.getItem('seu_assignments');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) return parsed;
+          }
+        } catch(e) {}
+        return [];
+      },
+
+      getById(id) {
+        if (!id) return null;
+        const list = this.getAll();
+        return list.find(a => a.id === id) || null;
+      },
+
+      save(item) {
+        if (!item || typeof item !== 'object') return null;
+        const list = this.getAll();
+        const existingIdx = item.id ? list.findIndex(a => a.id === item.id) : -1;
+        const existing = existingIdx >= 0 ? list[existingIdx] : null;
+
+        const id = item.id || (existing ? existing.id : ('asg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)));
+        const createdAt = (existing && existing.createdAt) || item.createdAt || new Date().toISOString();
+        const updatedAt = new Date().toISOString();
+
+        let courseCode = (item.courseCode || (existing ? existing.courseCode : '') || '').toUpperCase().trim();
+        let courseTitle = item.courseTitle || (existing ? existing.courseTitle : '') || '';
+
+        if (!courseTitle && activeSemester && activeSemester.courses) {
+          const c = activeSemester.courses.find(x => {
+            const clean = (x.code || '').replace(/\s+/g, '').toUpperCase();
+            const cleanSec = (x.codeWithSec || '').replace(/\s+/g, '').toUpperCase();
+            return clean === courseCode || cleanSec === courseCode || cleanSec.startsWith(courseCode);
+          });
+          if (c) {
+            courseTitle = c.title || '';
+          }
+        }
+
+        const title = item.title || (existing ? existing.title : 'Untitled Assignment');
+        const dueDate = item.dueDate || (existing ? existing.dueDate : new Date().toISOString().slice(0, 10));
+        const dueTime = item.dueTime || (existing ? existing.dueTime : '23:59');
+        const priority = item.priority || (existing ? existing.priority : 'medium');
+        const status = item.status || (existing ? existing.status : 'pending');
+        const description = item.description || item.notes || (existing ? existing.description : '') || '';
+
+        const savedObj = {
+          id,
+          courseCode,
+          courseTitle,
+          title,
+          dueDate,
+          dueTime,
+          priority,
+          status,
+          description,
+          createdAt,
+          updatedAt
+        };
+
+        if (existingIdx >= 0) {
+          list[existingIdx] = savedObj;
+        } else {
+          list.push(savedObj);
+        }
+
+        try {
+          localStorage.setItem('seu_assignments', JSON.stringify(list));
+        } catch(e) {}
+
+        if (typeof renderAssignmentsList === 'function') renderAssignmentsList();
+        if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
+
+        return savedObj;
+      },
+
+      delete(id) {
+        if (!id) return false;
+        const list = this.getAll();
+        const filtered = list.filter(a => a.id !== id);
+        const changed = filtered.length !== list.length;
+        try {
+          localStorage.setItem('seu_assignments', JSON.stringify(filtered));
+        } catch(e) {}
+
+        if (typeof renderAssignmentsList === 'function') renderAssignmentsList();
+        if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
+
+        return changed || true;
+      },
+
+      updateStatus(id, newStatus) {
+        if (!id) return null;
+        const list = this.getAll();
+        const item = list.find(a => a.id === id);
+        if (item) {
+          item.status = newStatus;
+          item.updatedAt = new Date().toISOString();
+          try {
+            localStorage.setItem('seu_assignments', JSON.stringify(list));
+          } catch(e) {}
+          if (typeof renderAssignmentsList === 'function') renderAssignmentsList();
+          if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
+        }
+        return item || null;
+      },
+
+      toggleStatus(id) {
+        if (!id) return null;
+        const list = this.getAll();
+        const item = list.find(a => a.id === id);
+        if (item) {
+          item.status = item.status === 'submitted' ? 'pending' : 'submitted';
+          item.updatedAt = new Date().toISOString();
+          try {
+            localStorage.setItem('seu_assignments', JSON.stringify(list));
+          } catch(e) {}
+          if (typeof renderAssignmentsList === 'function') renderAssignmentsList();
+          if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
+        }
+        return item || null;
+      },
+
+      getNextDue(now = new Date()) {
+        const list = this.getAll();
+        let best = null;
+
+        list.forEach(asg => {
+          if (asg.status === 'submitted') return;
+          const [y, m, d] = (asg.dueDate || '').split('-').map(Number);
+          const [hh, mm] = (asg.dueTime || '23:59').split(':').map(Number);
+          if (!y || !m || !d) return;
+
+          const dueDt = new Date(y, m - 1, d, hh !== undefined ? hh : 23, mm !== undefined ? mm : 59, 59, 999);
+          const diffMs = dueDt - now;
+
+          if (diffMs > 0 && (!best || diffMs < best.diffMs)) {
+            const cd = formatCountdown(diffMs);
+            best = {
+              ...asg,
+              assignment: asg,
+              diffMs,
+              remainingMs: diffMs,
+              countdown: cd.text,
+              countdownShort: cd.short
+            };
+          }
+        });
+
+        return best;
+      },
+
+      getStats(now = new Date()) {
+        const list = this.getAll();
+        let pending = 0, inProgress = 0, submitted = 0, overdue = 0;
+
+        list.forEach(asg => {
+          const [y, m, d] = (asg.dueDate || '').split('-').map(Number);
+          const [hh, mm] = (asg.dueTime || '23:59').split(':').map(Number);
+          const dueDt = (y && m && d) ? new Date(y, m - 1, d, hh !== undefined ? hh : 23, mm !== undefined ? mm : 59, 59, 999) : new Date(0);
+          const isPast = dueDt < now;
+
+          if (asg.status === 'submitted') {
+            submitted++;
+          } else if (isPast || asg.status === 'overdue') {
+            overdue++;
+          } else if (asg.status === 'in_progress') {
+            inProgress++;
+          } else {
+            pending++;
+          }
+        });
+
+        return {
+          total: list.length,
+          pending,
+          inProgress,
+          submitted,
+          overdue
+        };
+      }
+    };
+
+    // ------------------------------------------------------------
+    // 5. CLASS TEST (CT) & EXAM MANAGERS & PARSER
     // ------------------------------------------------------------
     var CtManager = {
       getAllCts() {
@@ -2089,7 +2528,6 @@
           const raw = localStorage.getItem('seu_class_tests');
           if (raw) return JSON.parse(raw);
         } catch(e) {}
-        // Fallback default sample CTs if in demo or fresh
         return [
           {
             id: 'ct-1',
@@ -2150,61 +2588,340 @@
       }
     };
 
+    function normalizeExamDateStr(raw) {
+      if (!raw || typeof raw !== 'string') return null;
+      const trimmed = raw.trim();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+      const numMatch = trimmed.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})$/);
+      if (numMatch) {
+        let [_, p1, p2, p3] = numMatch;
+        if (p1.length === 4) return `${p1}-${p2.padStart(2, '0')}-${p3.padStart(2, '0')}`;
+        const y = p3.length === 2 ? '20' + p3 : p3;
+        return `${y}-${p2.padStart(2, '0')}-${p1.padStart(2, '0')}`;
+      }
+      const d = new Date(trimmed);
+      if (!isNaN(d.getTime())) {
+        return d.toISOString().slice(0, 10);
+      }
+      return null;
+    }
+
+    function parseExamTimeTo24(timeStr) {
+      if (!timeStr) return '10:00';
+      const m = timeStr.trim().match(/(\d{1,2}):(\d{2})(?:\s*(AM|PM))?/i);
+      if (!m) return '10:00';
+      let h = parseInt(m[1], 10);
+      const min = m[2];
+      const ampm = m[3] ? m[3].toUpperCase() : null;
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      return `${String(h).padStart(2, '0')}:${min}`;
+    }
+
+    var ExamParser = {
+      parseJson(json, registeredCourses) {
+        if (!json) return [];
+        let data = json;
+        if (typeof json === 'string') {
+          try {
+            data = JSON.parse(json);
+          } catch(e) {
+            return [];
+          }
+        }
+        if (!data || typeof data !== 'object') return [];
+
+        const rawList = Array.isArray(data) ? data : (data.exams || data.schedule || data.examSchedule || []);
+        if (!Array.isArray(rawList)) return [];
+
+        const courses = registeredCourses || (activeSemester && activeSemester.courses) || [];
+        const results = [];
+
+        rawList.forEach(item => {
+          if (!item) return;
+          const rawCode = (item.courseCode || item.code || item.course || '').replace(/\s+/g, '').toUpperCase();
+          if (!rawCode) return;
+
+          const baseCode = rawCode.split('.')[0];
+          const matchedCourse = courses.find(c => {
+            const clean = (c.code || '').replace(/\s+/g, '').toUpperCase();
+            const cleanSec = (c.codeWithSec || '').replace(/\s+/g, '').toUpperCase();
+            return clean === baseCode || cleanSec === rawCode || cleanSec.startsWith(baseCode);
+          });
+
+          const normCode = matchedCourse ? (matchedCourse.codeWithSec || rawCode) : rawCode;
+          const title = item.courseTitle || item.title || (matchedCourse ? matchedCourse.title : '');
+          const date = normalizeExamDateStr(item.date || item.examDate) || (item.date || item.examDate || '2027-01-17');
+          const startTime = parseExamTimeTo24(item.startTime || item.start || item.time || '10:00');
+          const endTime = parseExamTimeTo24(item.endTime || item.end || '12:00');
+          const room = (item.room || item.roomNo || 'PC-422').replace(/\s+/, '-').toUpperCase();
+          const type = item.type || item.examType || 'Final';
+
+          results.push({
+            id: item.id || ('exam-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
+            courseCode: normCode,
+            code: normCode,
+            courseTitle: title,
+            title,
+            date,
+            examDate: date,
+            startTime,
+            start: startTime,
+            endTime,
+            end: endTime,
+            room,
+            type,
+            isMatched: Boolean(matchedCourse)
+          });
+        });
+
+        return results;
+      },
+
+      parseText(text, registeredCourses) {
+        if (!text || typeof text !== 'string') return [];
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const results = [];
+        let currentDate = null;
+        let currentStart = '10:00';
+        let currentEnd = '12:00';
+        const isMidterm = /midterm/i.test(text);
+
+        const dateRegex = /(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s*\d{4}?)/i;
+        const timeRegex = /(\d{1,2}:\d{2}\s*(?:AM|PM)?)\s*[\-\–to]+\s*(\d{1,2}:\d{2}\s*(?:AM|PM)?)/i;
+        const codeRegex = /\b([A-Z]{2,5})\s*(\d{3,4})(?:\.(\d+))?\b/i;
+        const roomRegex = /(?:Room\s*#?|PC\s*[\-\:]?\s*|Lab\s*[\-\:]?\s*|Audi\s*[\-\:]?\s*)([A-Za-z0-9\-]+)/i;
+
+        const courses = registeredCourses || (activeSemester && activeSemester.courses) || [];
+
+        for (const line of lines) {
+          // Skip header banner lines
+          if (/routine|controller|southeast\s*university|office\s*of/i.test(line)) {
+            continue;
+          }
+
+          if (/date\s*[:\-]/i.test(line) || (/^date/i.test(line) && dateRegex.test(line))) {
+            const dm = line.match(dateRegex);
+            if (dm) currentDate = normalizeExamDateStr(dm[0]);
+          }
+
+          const tm = line.match(timeRegex);
+          if (tm && (/slot/i.test(line) || /time/i.test(line) || !codeRegex.test(line))) {
+            currentStart = parseExamTimeTo24(tm[1]);
+            currentEnd = parseExamTimeTo24(tm[2]);
+          }
+
+          const cm = line.match(codeRegex);
+          if (cm) {
+            const dept = cm[1].toUpperCase();
+            const num = cm[2];
+            const sec = cm[3] || null;
+
+            // Skip seasonal words
+            if (dept === 'FALL' || dept === 'SPRING' || dept === 'SUMMER') {
+              continue;
+            }
+
+            const baseCode = dept + num;
+            const fullCode = sec ? `${baseCode}.${sec}` : baseCode;
+
+            let examDate = currentDate;
+            let lineStart = currentStart;
+            let lineEnd = currentEnd;
+
+            const lineDm = line.match(dateRegex);
+            if (lineDm && !line.toLowerCase().startsWith('date')) {
+              examDate = normalizeExamDateStr(lineDm[0]) || examDate;
+            }
+
+            const lineTm = line.match(timeRegex);
+            if (lineTm) {
+              lineStart = parseExamTimeTo24(lineTm[1]);
+              lineEnd = parseExamTimeTo24(lineTm[2]);
+            }
+
+            const rm = line.match(roomRegex);
+            let room = 'PC-422';
+            if (rm) {
+              const matchedStr = rm[0].toUpperCase();
+              room = matchedStr.startsWith('PC') ? matchedStr.replace(/\s+/, '-') : matchedStr;
+            }
+
+            const titleMatch = line.match(/\(([^)]+)\)/);
+            let title = titleMatch ? titleMatch[1].trim() : '';
+
+            if (!title && line.includes('\t')) {
+              const parts = line.split('\t');
+              if (parts.length >= 2 && parts[1].length > 2) {
+                title = parts[1].trim();
+              }
+            }
+
+            const matchedCourse = courses.find(c => {
+              const clean = (c.code || '').replace(/\s+/g, '').toUpperCase();
+              const cleanSec = (c.codeWithSec || '').replace(/\s+/g, '').toUpperCase();
+              return clean === baseCode || cleanSec === fullCode || cleanSec.startsWith(baseCode);
+            });
+
+            if (matchedCourse && !title && matchedCourse.title) {
+              title = matchedCourse.title;
+            }
+
+            const normCourseCode = matchedCourse ? (matchedCourse.codeWithSec || fullCode) : fullCode;
+
+            results.push({
+              id: 'ex-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+              courseCode: normCourseCode,
+              code: normCourseCode,
+              courseTitle: title || (matchedCourse ? matchedCourse.title : ''),
+              title: title || (matchedCourse ? matchedCourse.title : ''),
+              date: examDate || '2027-01-17',
+              examDate: examDate || '2027-01-17',
+              startTime: lineStart,
+              start: lineStart,
+              endTime: lineEnd,
+              end: lineEnd,
+              room,
+              type: isMidterm ? 'Midterm' : 'Final',
+              isMatched: Boolean(matchedCourse)
+            });
+          }
+        }
+
+        return results;
+      },
+
+      async parsePdf(arrayBuffer, registeredCourses) {
+        if (!arrayBuffer || arrayBuffer.byteLength === 0) return [];
+        if (typeof window !== 'undefined' && window.pdfjsLib && typeof window.pdfjsLib.getDocument === 'function') {
+          try {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+            const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const textContent = await page.getTextContent();
+              const pageText = textContent.items.map(item => item.str).join(' ');
+              fullText += pageText + '\n';
+            }
+            return this.parseText(fullText, registeredCourses);
+          } catch(e) {
+            console.warn('PDF parsing error, returning empty', e);
+            return [];
+          }
+        }
+        return [];
+      }
+    };
+
     var ExamManager = {
-      getAllExams() {
+      getAll() {
         try {
           const raw = localStorage.getItem('seu_exam_schedule');
           if (raw) {
             const data = JSON.parse(raw);
-            return data.exams || data || [];
+            if (Array.isArray(data)) return data;
+            if (data && Array.isArray(data.exams)) return data.exams;
           }
         } catch(e) {}
-        // Fallback default sample Midterms
-        return [
-          {
-            id: 'ex-1',
-            courseCode: 'EEE447.1',
-            courseTitle: 'Nano Electronic Devices',
-            type: 'Midterm',
-            date: '2026-12-02',
-            start: '10:00',
-            end: '11:30',
-            room: 'PC-404'
-          },
-          {
-            id: 'ex-2',
-            courseCode: 'EEE410.1',
-            courseTitle: 'Green Power and Energy',
-            type: 'Midterm',
-            date: '2026-12-04',
-            start: '14:00',
-            end: '15:30',
-            room: 'PC-312'
-          },
-          {
-            id: 'ex-3',
-            courseCode: 'EEE441.2',
-            courseTitle: 'Optoelectronics',
-            type: 'Midterm',
-            date: '2026-12-06',
-            start: '10:00',
-            end: '11:30',
-            room: 'PC-502'
-          }
-        ];
+        return [];
+      },
+
+      getAllExams() {
+        return this.getAll();
+      },
+
+      saveSchedule(exams) {
+        const rawList = Array.isArray(exams) ? exams : (exams ? [exams] : []);
+        const list = rawList.map(item => {
+          const code = item.courseCode || item.code || '';
+          const title = item.courseTitle || item.title || '';
+          const date = item.date || item.examDate || '';
+          const start = item.startTime || item.start || item.time || '10:00';
+          const end = item.endTime || item.end || '12:00';
+          const room = item.room || item.roomNo || 'PC-422';
+          const type = item.type || item.examType || 'Final';
+          const id = item.id || ('exam-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5));
+          return {
+            ...item,
+            id,
+            courseCode: code,
+            code,
+            courseTitle: title,
+            title,
+            date,
+            examDate: date,
+            startTime: start,
+            start,
+            endTime: end,
+            end,
+            room,
+            type
+          };
+        });
+
+        try {
+          localStorage.setItem('seu_exam_schedule', JSON.stringify({ exams: list }));
+        } catch(e) {}
+
+        if (typeof renderPlannerTab === 'function') renderPlannerTab();
+        if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
+      },
+
+      deleteExam(id) {
+        if (!id) return;
+        const list = this.getAll().filter(e => e.id !== id);
+        this.saveSchedule(list);
       },
 
       getNextExam(now = new Date()) {
-        const exams = this.getAllExams();
+        const exams = this.getAll();
         let next = null;
+
         exams.forEach(ex => {
-          const dt = new Date(`${ex.date || ex.examDate}T${ex.start || ex.startTime || '10:00'}:00`);
+          const dateStr = ex.date || ex.examDate;
+          const timeStr = ex.startTime || ex.start || ex.time || '10:00';
+          if (!dateStr) return;
+
+          const numParts = dateStr.split(/[\/\-\.]/).map(Number);
+          if (numParts.length < 3) return;
+
+          let y, m, d;
+          if (numParts[0] > 1000) {
+            y = numParts[0]; m = numParts[1]; d = numParts[2];
+          } else {
+            d = numParts[0]; m = numParts[1]; y = numParts[2];
+            if (y < 100) y += 2000;
+          }
+
+          const [hh, mm] = timeStr.split(':').map(Number);
+          const dt = new Date(y, m - 1, d, hh !== undefined ? hh : 10, mm !== undefined ? mm : 0, 0, 0);
           const diff = dt - now;
+
           if (diff > 0 && (!next || diff < next.diffMs)) {
-            next = { exam: ex, diffMs: diff, countdown: formatCountdown(diff) };
+            const cd = formatCountdown(diff);
+            next = {
+              ...ex,
+              exam: ex,
+              diffMs: diff,
+              remainingMs: diff,
+              countdown: cd.text,
+              countdownShort: cd.short
+            };
           }
         });
+
         return next;
+      },
+
+      clearAll() {
+        try {
+          localStorage.removeItem('seu_exam_schedule');
+        } catch(e) {}
+        if (typeof renderPlannerTab === 'function') renderPlannerTab();
+        if (typeof updateLiveCountdowns === 'function') updateLiveCountdowns();
       }
     };
 
@@ -2399,6 +3116,22 @@
         if (stripCtMeta) stripCtMeta.textContent = 'Tap + Add CT';
       }
 
+      // Next Assignment Chip (R1)
+      const nextAsgObj = AssignmentManager.getNextDue(now);
+      const stripAsgTime = document.getElementById('stripNextAsgTime');
+      const stripAsgMeta = document.getElementById('stripNextAsgMeta');
+      const stripNextAsg = document.getElementById('stripNextAsg');
+      if (nextAsgObj) {
+        const asgItem = nextAsgObj.assignment || nextAsgObj;
+        if (stripAsgTime) stripAsgTime.textContent = nextAsgObj.countdownShort || formatCountdown(nextAsgObj.diffMs).short;
+        if (stripAsgMeta) stripAsgMeta.textContent = `${asgItem.courseCode} ${asgItem.title}`;
+        if (stripNextAsg) stripNextAsg.textContent = `${asgItem.courseCode} ${asgItem.title} due in ${formatCountdown(nextAsgObj.diffMs).short}`;
+      } else {
+        if (stripAsgTime) stripAsgTime.textContent = 'None';
+        if (stripAsgMeta) stripAsgMeta.textContent = 'No deadlines';
+        if (stripNextAsg) stripNextAsg.textContent = 'No upcoming assignments';
+      }
+
       // Next Exam Chip
       const nextExamObj = ExamManager.getNextExam(now);
       const stripExamTime = document.getElementById('stripNextExamTime');
@@ -2433,6 +3166,9 @@
         if (dashOffDayTag) dashOffDayTag.textContent = offObj.offDay ? offObj.offDay.category : 'Off-Day';
         if (dashHolidayTag) dashHolidayTag.textContent = offObj.offDay ? offObj.offDay.category : 'Off-Day';
       }
+
+      // Update Dynamic Semester Progress Card (R2)
+      renderSemesterProgressWidget(now);
     }
 
     function updateStatusTracker() {
@@ -2804,14 +3540,17 @@
     // ------------------------------------------------------------
     // 11. TAB 4: PLANNER (CTs, EXAMS & CALENDAR 2026)
     // ------------------------------------------------------------
+    let activeAssignmentFilter = 'all';
+
     function setPlannerTab(sub) {
+      if (sub === 'asg' || sub === 'assignment') sub = 'assignments';
       plannerTab = sub;
-      ['ct', 'exam', 'calendar'].forEach(k => {
+      ['ct', 'assignments', 'exam', 'calendar'].forEach(k => {
         const el = document.getElementById(`planner-${k}`);
         if (el) el.classList.toggle('hidden', k !== sub);
       });
 
-      const map = { ct: 'btnPlanCt', exam: 'btnPlanExam', calendar: 'btnPlanCal' };
+      const map = { ct: 'btnPlanCt', assignments: 'btnPlanAsg', exam: 'btnPlanExam', calendar: 'btnPlanCal' };
       Object.entries(map).forEach(([k, id]) => {
         const btn = document.getElementById(id);
         if (btn) {
@@ -2824,6 +3563,257 @@
       });
 
       renderPlannerTab();
+    }
+
+    function filterAssignments(filterStatus) {
+      activeAssignmentFilter = filterStatus;
+      ['all', 'pending', 'in_progress', 'submitted', 'overdue'].forEach(f => {
+        const btn = document.getElementById(`asgFilter${f.charAt(0).toUpperCase() + f.slice(1).replace(/_([a-z])/g, (_, c) => c.toUpperCase())}`);
+        if (btn) {
+          const active = f === filterStatus;
+          btn.className = active
+            ? 'px-2.5 py-1 rounded-lg text-[11px] font-extrabold bg-indigo-500 text-white transition-all'
+            : 'px-2.5 py-1 rounded-lg text-[11px] font-bold glass-card text-slate-300 hover:bg-white/10 transition-all';
+        }
+      });
+      renderAssignmentsList();
+    }
+
+    function renderAssignmentsList(now = new Date()) {
+      const box = document.getElementById('assignmentListContainer');
+      if (!box) return;
+
+      const list = AssignmentManager.getAll();
+      let filtered = list;
+
+      if (activeAssignmentFilter !== 'all') {
+        filtered = list.filter(asg => {
+          const [y, m, d] = (asg.dueDate || '').split('-').map(Number);
+          const [hh, mm] = (asg.dueTime || '23:59').split(':').map(Number);
+          const dueDt = (y && m && d) ? new Date(y, m - 1, d, hh !== undefined ? hh : 23, mm !== undefined ? mm : 59, 59, 999) : new Date(0);
+          const isPast = dueDt < now;
+
+          if (activeAssignmentFilter === 'submitted') return asg.status === 'submitted';
+          if (activeAssignmentFilter === 'overdue') return asg.status === 'overdue' || (asg.status !== 'submitted' && isPast);
+          if (activeAssignmentFilter === 'in_progress') return asg.status === 'in_progress' && !isPast;
+          if (activeAssignmentFilter === 'pending') return asg.status === 'pending' && !isPast;
+          return true;
+        });
+      }
+
+      if (!filtered.length) {
+        box.innerHTML = `<div class="glass-card rounded-2xl p-6 text-center text-xs" style="color: var(--text-muted);">
+          No ${activeAssignmentFilter === 'all' ? '' : activeAssignmentFilter} assignments found. Tap <strong>+ Add Assignment</strong> above!
+        </div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(asg => {
+        const [y, m, d] = (asg.dueDate || '').split('-').map(Number);
+        const [hh, mm] = (asg.dueTime || '23:59').split(':').map(Number);
+        const dueDt = (y && m && d) ? new Date(y, m - 1, d, hh !== undefined ? hh : 23, mm !== undefined ? mm : 59, 59, 999) : new Date(0);
+        const diff = dueDt - now;
+        const isPast = diff <= 0;
+
+        let badge = 'Done';
+        let badgeClass = 'bg-emerald-500/15 text-emerald-400';
+
+        if (asg.status === 'submitted') {
+          badge = 'Submitted';
+          badgeClass = 'bg-emerald-500/15 text-emerald-400';
+        } else if (isPast || asg.status === 'overdue') {
+          badge = 'Overdue';
+          badgeClass = 'bg-rose-500/15 text-rose-400';
+        } else {
+          badge = formatCountdown(diff).short;
+          badgeClass = 'bg-indigo-500/15 text-indigo-400';
+        }
+
+        const priorityTag = asg.priority === 'high'
+          ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 font-extrabold uppercase">High</span>'
+          : (asg.priority === 'low'
+            ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-500/20 text-slate-300 font-extrabold uppercase">Low</span>'
+            : '<span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-extrabold uppercase">Medium</span>');
+
+        const isChecked = asg.status === 'submitted';
+
+        return `
+          <div class="glass-card rounded-2xl p-3.5 border-l-4 ${isChecked ? 'border-l-emerald-500 opacity-80' : (isPast ? 'border-l-rose-500' : 'border-l-indigo-500')} space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start gap-2.5">
+                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleAssignmentStatus('${asg.id}')" class="mt-1 w-4 h-4 rounded accent-indigo-500 cursor-pointer" />
+                <div>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-mono text-xs font-extrabold text-indigo-400">${asg.courseCode}</span>
+                    ${priorityTag}
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-slate-300 capitalize">${asg.status.replace('_', ' ')}</span>
+                  </div>
+                  <div class="text-sm font-bold mt-1 ${isChecked ? 'line-through text-slate-400' : ''}">${asg.title}</div>
+                  ${asg.courseTitle ? `<div class="text-xs" style="color: var(--text-muted);">${asg.courseTitle}</div>` : ''}
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="font-mono text-[11px] font-extrabold px-2 py-0.5 rounded-lg ${badgeClass}">${badge}</span>
+                <button onclick="openAddAssignmentSheet('${asg.id}')" class="w-6 h-6 rounded-lg glass-card-elevated text-[11px] hover:text-indigo-400 flex items-center justify-center" title="Edit">✏️</button>
+                <button onclick="deleteAssignmentItem('${asg.id}')" class="w-6 h-6 rounded-lg glass-card-elevated text-[10px] hover:text-rose-400 flex items-center justify-center" title="Delete">✕</button>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono pt-1.5 border-t" style="border-color: var(--border-subtle); color: var(--text-muted);">
+              <span>📅 Due: ${asg.dueDate} • ⏰ ${formatTime(asg.dueTime || '23:59')}</span>
+            </div>
+            ${asg.description ? `<div class="text-[11px] px-2.5 py-1.5 rounded-lg glass-card-elevated" style="color: var(--text-muted);">📝 ${asg.description}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSemesterProgressWidget(now = new Date()) {
+      if (typeof CalendarManager === 'undefined' || typeof CalendarManager.getSemesterProgress !== 'function') return;
+      const progress = CalendarManager.getSemesterProgress(now);
+
+      const titleEl = document.getElementById('semProgressTitle');
+      const systemEl = document.getElementById('semProgressSystemBadge');
+      const statusEl = document.getElementById('semProgressStatusBadge');
+      const pctEl = document.getElementById('semProgressPct');
+      const metaEl = document.getElementById('semProgressMeta');
+      const barEl = document.getElementById('semProgressBar');
+      const nextMEl = document.getElementById('semNextMilestone');
+      const cdEl = document.getElementById('semMilestoneCountdown');
+
+      if (titleEl) titleEl.textContent = progress.semester || 'Academic Progress';
+      if (systemEl) systemEl.textContent = progress.system === 'biSemester' ? 'Bi-Semester' : 'Tri-Semester';
+      if (statusEl) {
+        statusEl.textContent = progress.status;
+        if (progress.status === 'Completed') {
+          statusEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 uppercase tracking-wider';
+        } else if (progress.status === 'Upcoming') {
+          statusEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 uppercase tracking-wider';
+        } else {
+          statusEl.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 uppercase tracking-wider';
+        }
+      }
+
+      if (pctEl) pctEl.textContent = `${progress.progressPercentage.toFixed(1)}%`;
+      if (metaEl) metaEl.textContent = `Day ${progress.elapsedDays} of ${progress.totalDays} • ${progress.remainingDays} days left`;
+      if (barEl) barEl.style.width = `${Math.min(100, Math.max(0, progress.progressPercentage))}%`;
+
+      if (nextMEl) {
+        if (progress.currentMilestone) {
+          nextMEl.textContent = `🎯 Active: ${progress.currentMilestone.title}`;
+        } else if (progress.nextMilestone) {
+          nextMEl.textContent = `🎯 Next: ${progress.nextMilestone.title}`;
+        } else {
+          nextMEl.textContent = progress.status === 'Completed' ? '🏁 Semester Completed' : '🎯 Next: Classes Begin';
+        }
+      }
+
+      if (cdEl) {
+        cdEl.textContent = progress.nextMilestoneCountdown || '--';
+      }
+    }
+
+    function openAddAssignmentSheet(editId = null) {
+      const sheet = document.getElementById('sheetAddAssignment');
+      const titleEl = document.getElementById('sheetAddAssignmentTitle');
+      const editIdInput = document.getElementById('asgEditId');
+      const courseSelect = document.getElementById('asgCourseSelect');
+      const titleInput = document.getElementById('asgTitleInput');
+      const dateInput = document.getElementById('asgDateInput');
+      const timeInput = document.getElementById('asgTimeInput');
+      const prioritySelect = document.getElementById('asgPrioritySelect');
+      const statusSelect = document.getElementById('asgStatusSelect');
+      const notesInput = document.getElementById('asgNotesInput');
+
+      // Populate courses
+      if (courseSelect) {
+        courseSelect.innerHTML = '<option value="">Select course...</option>';
+        if (activeSemester && activeSemester.courses) {
+          activeSemester.courses.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.codeWithSec || c.code;
+            opt.textContent = `${c.codeWithSec || c.code} — ${c.title}`;
+            courseSelect.appendChild(opt);
+          });
+        }
+      }
+
+      if (editId) {
+        const item = AssignmentManager.getById(editId);
+        if (item) {
+          if (titleEl) titleEl.textContent = '✏️ Edit Assignment / Deadline';
+          if (editIdInput) editIdInput.value = item.id;
+          if (courseSelect) courseSelect.value = item.courseCode;
+          if (titleInput) titleInput.value = item.title;
+          if (dateInput) dateInput.value = item.dueDate;
+          if (timeInput) timeInput.value = item.dueTime || '23:59';
+          if (prioritySelect) prioritySelect.value = item.priority || 'medium';
+          if (statusSelect) statusSelect.value = item.status || 'pending';
+          if (notesInput) notesInput.value = item.description || '';
+        }
+      } else {
+        if (titleEl) titleEl.textContent = '📋 Add Assignment / Deadline';
+        if (editIdInput) editIdInput.value = '';
+        if (titleInput) titleInput.value = '';
+        if (dateInput) {
+          const d = new Date();
+          d.setDate(d.getDate() + 3);
+          dateInput.value = d.toISOString().slice(0, 10);
+        }
+        if (timeInput) timeInput.value = '23:59';
+        if (prioritySelect) prioritySelect.value = 'medium';
+        if (statusSelect) statusSelect.value = 'pending';
+        if (notesInput) notesInput.value = '';
+      }
+
+      openSheet('sheetAddAssignment');
+    }
+
+    function saveAssignmentFromSheet() {
+      const editId = (document.getElementById('asgEditId') || {}).value;
+      const courseCode = (document.getElementById('asgCourseSelect') || {}).value;
+      const title = (document.getElementById('asgTitleInput') || {}).value;
+      const dueDate = (document.getElementById('asgDateInput') || {}).value;
+      const dueTime = (document.getElementById('asgTimeInput') || {}).value || '23:59';
+      const priority = (document.getElementById('asgPrioritySelect') || {}).value || 'medium';
+      const status = (document.getElementById('asgStatusSelect') || {}).value || 'pending';
+      const description = (document.getElementById('asgNotesInput') || {}).value;
+
+      if (!title || !title.trim()) {
+        showToast('Please enter an assignment title');
+        return;
+      }
+      if (!dueDate) {
+        showToast('Please select a due date');
+        return;
+      }
+
+      AssignmentManager.save({
+        id: editId || undefined,
+        courseCode: courseCode || 'GENERAL',
+        title: title.trim(),
+        dueDate,
+        dueTime,
+        priority,
+        status,
+        description: description ? description.trim() : ''
+      });
+
+      closeSheet('sheetAddAssignment');
+      showToast(editId ? 'Updated assignment!' : 'Added new assignment!');
+    }
+
+    function deleteAssignmentItem(id) {
+      if (confirm('Delete this assignment?')) {
+        AssignmentManager.delete(id);
+        showToast('Assignment deleted');
+      }
+    }
+
+    function toggleAssignmentStatus(id) {
+      const item = AssignmentManager.toggleStatus(id);
+      if (item) {
+        showToast(item.status === 'submitted' ? '✅ Marked as Submitted!' : '⏳ Moved back to Pending');
+      }
     }
 
     function setCalSystem(sys) {
@@ -2844,6 +3834,9 @@
 
     function renderPlannerTab() {
       const now = new Date();
+
+      // Render assignments list (R1)
+      renderAssignmentsList(now);
 
       // 1. CTs
       const ctBox = document.getElementById('ctListContainer');
@@ -3102,67 +4095,166 @@
       showToast('Removed Class Test');
     }
 
+    let stagedParsedExams = [];
+
+    function renderStagedExamReviewTable(exams) {
+      stagedParsedExams = exams || [];
+      const reviewSection = document.getElementById('pdfMatchedResultsSection');
+      const tableBody = document.getElementById('pdfReviewTableBody');
+      const badge = document.getElementById('matchedCountBadge');
+
+      if (!tableBody || !reviewSection) return;
+
+      if (!stagedParsedExams.length) {
+        reviewSection.style.display = 'none';
+        return;
+      }
+
+      reviewSection.style.display = 'block';
+      const matchedCount = stagedParsedExams.filter(e => e.isMatched).length;
+      if (badge) {
+        badge.textContent = `${matchedCount} / ${stagedParsedExams.length} Matched`;
+        badge.className = matchedCount > 0
+          ? 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400'
+          : 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-slate-500/20 text-slate-400';
+      }
+
+      tableBody.innerHTML = stagedParsedExams.map((ex, idx) => `
+        <tr class="border-b border-white/5 hover:bg-white/5">
+          <td class="p-2">
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono font-extrabold ${ex.isMatched ? 'text-emerald-400' : 'text-slate-400'}">${ex.courseCode}</span>
+              ${ex.isMatched ? '<span class="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold">Enrolled</span>' : '<span class="text-[9px] px-1 py-0.2 rounded bg-white/5 text-slate-400">Other</span>'}
+            </div>
+            ${ex.courseTitle ? `<div class="text-[10px] text-slate-300 truncate max-w-[160px]">${ex.courseTitle}</div>` : ''}
+          </td>
+          <td class="p-2 font-mono text-[10px] text-slate-300">
+            <div>${ex.date}</div>
+            <div class="text-slate-400">${ex.startTime || ex.start} - ${ex.endTime || ex.end}</div>
+          </td>
+          <td class="p-2 font-mono text-[10px] text-amber-400 font-bold">
+            ${ex.room}
+          </td>
+          <td class="p-2 text-right">
+            <button onclick="removeStagedExamRow(${idx})" class="w-5 h-5 rounded text-slate-400 hover:text-rose-400 text-xs font-bold">✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function removeStagedExamRow(index) {
+      if (stagedParsedExams && stagedParsedExams[index] !== undefined) {
+        stagedParsedExams.splice(index, 1);
+        renderStagedExamReviewTable(stagedParsedExams);
+      }
+    }
+
     // Exam PDF / Text Matcher
     function processExamTextFallback() {
       const input = document.getElementById('examTextFallbackInput');
       const txt = input ? input.value.trim() : '';
       if (!txt) {
-        simulatePdfMatch();
+        showToast('Please paste exam routine text or upload a routine file');
         return;
       }
-      const codeMatch = txt.match(/([A-Z]{3,5}\s*\d{3,4})/i);
-      const roomMatch = txt.match(/(PC[-\s]*\d{3}|Room\s*[A-Z0-9\-]+)/i);
-      const rawCode = codeMatch ? codeMatch[1].replace(/\s+/g, '').toUpperCase() : 'EEE401';
-      const matched = (activeSemester && activeSemester.courses)
-        ? (activeSemester.courses.find(c => c.code === rawCode) || activeSemester.courses[0])
-        : { codeWithSec: 'EEE401.1', title: 'VLSI I' };
 
-      const exams = ExamManager.getAllExams();
-      exams.unshift({
-        id: 'ex-' + Date.now(),
-        courseCode: matched.codeWithSec || matched.code,
-        courseTitle: matched.title,
-        type: /final/i.test(txt) ? 'Final' : 'Midterm',
-        date: '2026-12-08',
-        start: '10:00',
-        end: '12:00',
-        room: roomMatch ? roomMatch[1].toUpperCase() : 'PC-402'
-      });
-      try { localStorage.setItem('seu_exam_schedule', JSON.stringify({ exams })); } catch(e) {}
+      const registered = (activeSemester && activeSemester.courses) || [];
+      const parsed = ExamParser.parseText(txt, registered);
 
-      if (input) input.value = '';
-      closeSheet('sheetExamPdf');
-      openPlannerSubtab('exam');
-      updateLiveCountdowns();
-      showToast(`🏛️ Matched ${matched.codeWithSec || matched.code} exam slot!`);
-    }
-
-    function simulatePdfMatch() {
-      const exams = ExamManager.getAllExams();
-      if (!exams.some(e => e.courseCode === 'EEE401.1')) {
-        exams.push({
-          id: 'ex-' + Date.now(),
-          courseCode: 'EEE401.1',
-          courseTitle: 'VLSI I',
-          type: 'Midterm',
-          date: '2026-12-07',
-          start: '14:00',
-          end: '15:30',
-          room: 'PC-506'
-        });
-        try { localStorage.setItem('seu_exam_schedule', JSON.stringify({ exams })); } catch(e) {}
+      if (!parsed || parsed.length === 0) {
+        showToast('No valid exam routine entries found in provided text', 'error');
+        return;
       }
-      closeSheet('sheetExamPdf');
-      openPlannerSubtab('exam');
-      updateLiveCountdowns();
-      showToast('📄 COE PDF Matched! Added EEE401.1 (Room PC-506)');
+
+      renderStagedExamReviewTable(parsed);
+      showToast(`Parsed ${parsed.length} exam slots! Review below.`);
     }
 
     function handleExamPdfUpload(event) {
-      simulatePdfMatch();
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const registered = (activeSemester && activeSemester.courses) || [];
+      const statusBox = document.getElementById('pdfProcessingStatus');
+      const statusMsg = document.getElementById('pdfStatusMsg');
+
+      if (statusBox) statusBox.style.display = 'flex';
+      if (statusMsg) statusMsg.textContent = `Parsing ${file.name}...`;
+
+      const fileName = file.name.toLowerCase();
+
+      if (fileName.endsWith('.json')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (statusBox) statusBox.style.display = 'none';
+          const parsed = ExamParser.parseJson(e.target.result, registered);
+          if (!parsed.length) {
+            showToast('No valid exam entries found in JSON file', 'error');
+            return;
+          }
+          renderStagedExamReviewTable(parsed);
+          showToast(`Loaded ${parsed.length} exams from JSON!`);
+        };
+        reader.readAsText(file);
+      } else if (fileName.endsWith('.txt')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          if (statusBox) statusBox.style.display = 'none';
+          const parsed = ExamParser.parseText(e.target.result, registered);
+          if (!parsed.length) {
+            showToast('No valid exam entries found in text file', 'error');
+            return;
+          }
+          renderStagedExamReviewTable(parsed);
+          showToast(`Parsed ${parsed.length} exams from text file!`);
+        };
+        reader.readAsText(file);
+      } else {
+        // PDF or ArrayBuffer
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+          try {
+            const buffer = e.target.result;
+            const parsed = await ExamParser.parsePdf(buffer, registered);
+            if (statusBox) statusBox.style.display = 'none';
+            if (!parsed.length) {
+              showToast('No valid exam entries found in PDF', 'error');
+              return;
+            }
+            renderStagedExamReviewTable(parsed);
+            showToast(`Extracted ${parsed.length} exam slots from PDF!`);
+          } catch(err) {
+            if (statusBox) statusBox.style.display = 'none';
+            showToast('Unable to parse PDF client-side', 'error');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      event.target.value = '';
     }
 
     function saveExtractedExamSchedule() {
+      if (!stagedParsedExams || !stagedParsedExams.length) {
+        showToast('No parsed exams to save');
+        return;
+      }
+
+      // Merge with existing exams or save schedule
+      const existing = ExamManager.getAll();
+      const combined = [...stagedParsedExams];
+
+      existing.forEach(oldEx => {
+        if (!combined.some(c => c.courseCode === oldEx.courseCode && c.date === oldEx.date)) {
+          combined.push(oldEx);
+        }
+      });
+
+      ExamManager.saveSchedule(combined);
+      stagedParsedExams = [];
+      const reviewSection = document.getElementById('pdfMatchedResultsSection');
+      if (reviewSection) reviewSection.style.display = 'none';
+
       closeSheet('sheetExamPdf');
       openPlannerSubtab('exam');
       updateLiveCountdowns();
@@ -4252,8 +5344,18 @@
     // 17. WINDOW GLOBAL EXPORTS & BOOTSTRAP
     // ------------------------------------------------------------
     window.CalendarManager = CalendarManager;
+    window.AssignmentManager = AssignmentManager;
+    window.ExamParser = ExamParser;
     window.ExamManager = ExamManager;
     window.CtManager = CtManager;
+    window.openAddAssignmentSheet = openAddAssignmentSheet;
+    window.saveAssignmentFromSheet = saveAssignmentFromSheet;
+    window.deleteAssignmentItem = deleteAssignmentItem;
+    window.toggleAssignmentStatus = toggleAssignmentStatus;
+    window.filterAssignments = filterAssignments;
+    window.renderAssignmentsList = renderAssignmentsList;
+    window.renderSemesterProgressWidget = renderSemesterProgressWidget;
+    window.removeStagedExamRow = removeStagedExamRow;
     window.saveStore = saveStore;
     window.initStore = initStore;
     window.renderAll = renderAll;

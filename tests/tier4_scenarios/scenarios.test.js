@@ -138,4 +138,154 @@ describe('Tier 4: Real-World Workload Scenarios', () => {
     const examCard = app.query('#dashNextExamTitle') || app.query('#dashExamTitle') || app.query('#dashExamCountdown');
     expect(examCard).toBeDefined();
   });
+
+  it('4.S.8 Scenario 8: Comprehensive Semester Lifecycle (Onboarding -> Assignments -> Midterm -> Final Ingestion -> Completion)', () => {
+    // Stage 1: Semester Kickoff (Oct 25, 2026)
+    app.setMockTime(new Date(2026, 9, 25, 9, 0, 0, 0));
+    let progress = app.eval("CalendarManager.getSemesterProgress(new Date(2026, 9, 25, 9, 0, 0, 0), 'Fall 2026', 'triSemester')");
+    expect(progress.progressPercentage).toBeLessThanOrEqual(5);
+    expect(progress.status).toBe('In Progress');
+
+    // Create Assignment 1
+    const hw1 = app.eval(`
+      AssignmentManager.save({
+        courseCode: 'EEE447',
+        title: 'Semiconductor Physics Problem Set',
+        dueDate: '2026-11-15',
+        dueTime: '23:59',
+        priority: 'high'
+      });
+    `);
+    expect(app.eval('AssignmentManager.getAll().length')).toBe(1);
+
+    // Stage 2: Midterm Examination Week (Dec 03, 2026)
+    app.setMockTime(new Date(2026, 11, 3, 10, 0, 0, 0));
+    progress = app.eval("CalendarManager.getSemesterProgress(new Date(2026, 11, 3, 10, 0, 0, 0), 'Fall 2026', 'triSemester')");
+    expect(progress.progressPercentage).toBeGreaterThanOrEqual(40);
+    expect(progress.progressPercentage).toBeLessThanOrEqual(48);
+    expect(progress.currentMilestone).not.toBeNull();
+    expect(progress.currentMilestone.title).toMatch(/midterm/i);
+
+    // Mark HW1 submitted and create HW2
+    app.eval(`AssignmentManager.updateStatus('${hw1.id}', 'submitted')`);
+    const hw2 = app.eval(`
+      AssignmentManager.save({
+        courseCode: 'EEE410',
+        title: 'Microgrid Design Project',
+        dueDate: '2026-12-28',
+        dueTime: '18:00',
+        priority: 'high'
+      });
+    `);
+    let stats = app.eval('AssignmentManager.getStats(new Date(2026, 11, 3, 10, 0, 0, 0))');
+    expect(stats.submitted).toBe(1);
+    expect(stats.pending).toBe(1);
+
+    // Stage 3: Final Examination Routine Ingestion (Jan 10, 2027)
+    app.setMockTime(new Date(2027, 0, 10, 10, 0, 0, 0));
+    progress = app.eval("CalendarManager.getSemesterProgress(new Date(2027, 0, 10, 10, 0, 0, 0), 'Fall 2026', 'triSemester')");
+    expect(progress.progressPercentage).toBeGreaterThanOrEqual(80);
+
+    const examSchedule = [
+      {
+        id: 'final-ex-1',
+        courseCode: 'EEE447.1',
+        courseTitle: 'Nano Electronic Devices',
+        date: '2027-01-17',
+        startTime: '10:00',
+        endTime: '12:00',
+        room: 'PC-422',
+        type: 'Final'
+      },
+      {
+        id: 'final-ex-2',
+        courseCode: 'EEE410.1',
+        courseTitle: 'Green Power and Energy',
+        date: '2027-01-19',
+        startTime: '14:00',
+        endTime: '16:00',
+        room: 'PC-312',
+        type: 'Final'
+      }
+    ];
+    app.eval(`ExamManager.saveSchedule(${JSON.stringify(examSchedule)})`);
+
+    const nextExam = app.eval('ExamManager.getNextExam(new Date(2027, 0, 10, 10, 0, 0, 0))');
+    expect(nextExam).not.toBeNull();
+    const exItem = nextExam.exam || nextExam;
+    expect(exItem.courseCode).toMatch(/EEE447/);
+
+    // Stage 4: Semester Conclusion (Jan 28, 2027)
+    app.setMockTime(new Date(2027, 0, 28, 12, 0, 0, 0));
+    progress = app.eval("CalendarManager.getSemesterProgress(new Date(2027, 0, 28, 12, 0, 0, 0), 'Fall 2026', 'triSemester')");
+    expect(progress.progressPercentage).toBe(100);
+    expect(progress.status).toBe('Completed');
+  });
+
+  it('4.S.9 Scenario 9: High-Stress Exam Week Synchronized Countdown Matrix', () => {
+    // Time: Sunday Jan 17, 2027 at 08:30:00 AM (90 minutes before first final exam)
+    const examMorning = new Date(2027, 0, 17, 8, 30, 0, 0);
+    app.setMockTime(examMorning);
+
+    // Ingest exams:
+    // Exam 1: Today at 10:00 AM (90 min away)
+    // Exam 2: Tuesday Jan 19 at 14:00 PM (53.5h away)
+    app.eval(`
+      ExamManager.saveSchedule([
+        {
+          id: 'ex-stress-1',
+          courseCode: 'EEE447.1',
+          courseTitle: 'Nano Electronic Devices',
+          date: '2027-01-17',
+          startTime: '10:00',
+          endTime: '12:00',
+          room: 'PC-422',
+          type: 'Final'
+        },
+        {
+          id: 'ex-stress-2',
+          courseCode: 'EEE410.1',
+          courseTitle: 'Green Power',
+          date: '2027-01-19',
+          startTime: '14:00',
+          endTime: '16:00',
+          room: 'PC-312',
+          type: 'Final'
+        }
+      ]);
+    `);
+
+    // Ingest urgent last-minute lab notebook due today at 12:00 PM
+    app.eval(`
+      AssignmentManager.save({
+        courseCode: 'EEE442',
+        title: 'Optoelectronics Final Lab Notebook',
+        dueDate: '2027-01-17',
+        dueTime: '12:00',
+        priority: 'high'
+      });
+    `);
+
+    app.triggerClockUpdate();
+
+    // 1. Next Exam must be EEE447.1 in 90 minutes
+    const nextExam = app.eval('ExamManager.getNextExam(new Date(2027, 0, 17, 8, 30, 0, 0))');
+    expect(nextExam).not.toBeNull();
+    const ex = nextExam.exam || nextExam;
+    expect(ex.courseCode).toMatch(/EEE447/);
+    if (nextExam.diffMs) {
+      expect(nextExam.diffMs).toBe(90 * 60 * 1000);
+    }
+
+    // 2. Next Assignment must be the Lab Notebook due in 3.5 hours
+    const nextDue = app.eval('AssignmentManager.getNextDue(new Date(2027, 0, 17, 8, 30, 0, 0))');
+    expect(nextDue).not.toBeNull();
+    const assign = nextDue.assignment || nextDue;
+    expect(assign.title).toContain('Lab Notebook');
+
+    // 3. Calendar progress must reflect active Final Examination milestone
+    const progress = app.eval("CalendarManager.getSemesterProgress(new Date(2027, 0, 17, 8, 30, 0, 0), 'Fall 2026', 'triSemester')");
+    expect(progress.currentMilestone).not.toBeNull();
+    expect(progress.currentMilestone.title).toMatch(/final/i);
+  });
 });

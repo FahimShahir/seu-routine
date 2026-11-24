@@ -1,0 +1,45 @@
+{
+  "semester": "Fall 2026",
+  "exams": [
+    {
+      "id": "exam-fall-01",
+      "courseCode": "EEE447.1",
+      "courseTitle": "Nano Electronic Devices",
+      "date": "2027-01-17",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": "PC-422",
+      "type": "Final"
+    },
+    {
+      "id": "exam-fall-02",
+      "courseCode": "EEE410.1",
+      "courseTitle": "Green Power and Energy",
+      "date": "2027-01-19",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": "PC-312",
+      "type": "Final"
+    },
+    {
+      "id": "exam-fall-03",
+      "courseCode": "EEE401.1",
+      "courseTitle": "VLSI I",
+      "date": "2027-01-21",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": "PC-417",
+      "type": "Final"
+    },
+    {
+      "id": "exam-fall-04",
+      "courseCode": "CSE101.2",
+      "courseTitle": "Structured Programming",
+      "date": "2027-01-23",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": "PC-301",
+      "type": "Final"
+    }
+  ]
+}

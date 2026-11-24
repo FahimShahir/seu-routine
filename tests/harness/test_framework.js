@@ -193,9 +193,12 @@ class TestSuiteRunner {
           for (const bf of suite.beforeEachFns) {
             await bf();
           }
-          await test.fn();
-          for (const af of suite.afterEachFns) {
-            await af();
+          try {
+            await test.fn();
+          } finally {
+            for (const af of suite.afterEachFns) {
+              await af();
+            }
           }
           this.results.passed++;
           const duration = Date.now() - testStart;
